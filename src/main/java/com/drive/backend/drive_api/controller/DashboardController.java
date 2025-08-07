@@ -2,6 +2,7 @@ package com.drive.backend.drive_api.controller;
 
 import com.drive.backend.drive_api.dto.AlertDto;
 import com.drive.backend.drive_api.dto.DashboardStatusDto;
+import com.drive.backend.drive_api.service.DashboardService;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,30 +13,27 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/dashboard")
-@CrossOrigin(origins = "http://localhost:3000")
+// @CrossOrigin(origins = "http://localhost:3000") // WebConfig에서 전역 CORS 설정 시 제거 가능
 public class DashboardController {
 
-    @GetMapping("/stats")
+    private final DashboardService dashboardService;
+
+    public DashboardController(DashboardService dashboardService) {
+        this.dashboardService = dashboardService;
+    }
+
+    @GetMapping("/status")
     public DashboardStatusDto getStats() {
-        return new DashboardStatusDto(1240, 312, 4.7, 8);
+        return dashboardService.getDashboardStats();
     }
 
     @GetMapping("/recent-alerts")
     public List<AlertDto> getRecentAlerts() {
-        return List.of(
-                new AlertDto(101L, "졸음 경고", "운전자 박진수님 졸음 감지!", "박진수", LocalDateTime.now().minusMinutes(5), false),
-                new AlertDto(102L, "차량 이상", "차량 번호 1234 엔진 이상 감지.", "박윤영", LocalDateTime.now().minusHours(1), false)
-        );
+        return dashboardService.getRecentAlerts(2); // 최근 알림 2개만 반환
     }
 
     @GetMapping("/graph-data")
     public List<Object> getGraphData() {
-        return List.of(
-                List.of("1월", 150),
-                List.of("2월", 180),
-                List.of("3월", 200),
-                List.of("4월", 190),
-                List.of("5월", 220)
-        );
+        return dashboardService.getGraphData();
     }
 }

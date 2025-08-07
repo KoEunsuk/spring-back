@@ -1,6 +1,8 @@
 package com.drive.backend.drive_api.controller;
 
 import com.drive.backend.drive_api.dto.ScheduleDto;
+import com.drive.backend.drive_api.service.ScheduleService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -9,44 +11,33 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/schedules")
-@CrossOrigin(origins = "http://localhost:3000")
+// @CrossOrigin(origins = "http://localhost:3000") // WebConfig에서 전역 CORS 설정 시 제거 가능
 public class ScheduleController {
 
-    private static List<ScheduleDto> schedules = new ArrayList<>(List.of(
-            new ScheduleDto(1L, "12가1234", "박진수", LocalDateTime.now().minusHours(2), LocalDateTime.now().plusHours(1), false),
-            new ScheduleDto(2L, "34나5678", "박윤영", LocalDateTime.now().minusHours(5), LocalDateTime.now().minusHours(1), true)
-    ));
+    private final ScheduleService scheduleService;
+
+    public ScheduleController(ScheduleService scheduleService) {
+        this.scheduleService = scheduleService;
+    }
 
     @GetMapping
-    public List<ScheduleDto> getSchedules() {
-        return schedules;
+    public List<ScheduleDto> getAllSchedules() {
+        return scheduleService.getAllSchedules();
     }
 
     @PostMapping
     public ScheduleDto addSchedule(@RequestBody ScheduleDto newSchedule) {
-        newSchedule.setId((long) (schedules.size() + 1));
-        schedules.add(newSchedule);
-        return newSchedule;
+        return scheduleService.addSchedule(newSchedule);
     }
 
     @PutMapping("/{id}")
     public ScheduleDto updateSchedule(@PathVariable Long id, @RequestBody ScheduleDto updatedSchedule) {
-        for (ScheduleDto s : schedules) {
-            if (s.getId().equals(id)) {
-                s.setVehicleNumber(updatedSchedule.getVehicleNumber());
-                s.setDriverName(updatedSchedule.getDriverName());
-                s.setStartTime(updatedSchedule.getStartTime());
-                s.setEndTime(updatedSchedule.getEndTime());
-                s.setCompleted(updatedSchedule.isCompleted());
-                return s;
-            }
-        }
-        throw new RuntimeException("스케줄 없음");
+        return scheduleService.updateSchedule(id, updatedSchedule);
     }
 
     @DeleteMapping("/{id}")
-    public String deleteSchedule(@PathVariable Long id) {
-        schedules.removeIf(s -> s.getId().equals(id));
-        return "삭제 완료";
+    public ResponseEntity<String> deleteSchedule(@PathVariable Long id) {
+        scheduleService.deleteSchedule(id);
+        return ResponseEntity.ok("삭제 완료");
     }
 }
