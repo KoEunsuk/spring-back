@@ -10,8 +10,6 @@ import lombok.AllArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DriverDto {
-    private Long id;
+    private Integer id;
     private String name;
-    private String phone;
-    private String status;
 }

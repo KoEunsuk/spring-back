@@ -6,6 +6,8 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor; // Lombok AllArgsConstructor 추가
 
+import java.math.BigDecimal;
+
 @Entity // 이 클래스가 JPA Entity임을 명시
 @Table(name = "driver") // ERD의 driver 테이블과 매핑
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor // Lombok 어노테이션
@@ -29,7 +31,7 @@ public class Driver {
     private Integer careerYears;
 
     @Column(name = "avg_driving_score", precision = 4, scale = 2) // ERD 필드명에 맞춤
-    private Double avgDrivingScore;
+    private BigDecimal avgDrivingScore;
 
     @Column(name = "grade", length = 10) // ERD 필드명에 맞춤
     private String grade;

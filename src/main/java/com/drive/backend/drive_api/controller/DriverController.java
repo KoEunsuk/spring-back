@@ -46,13 +46,13 @@ public class DriverController {
         return ResponseEntity.ok("삭제 완료");
     }
 
-    @GetMapping("/status")
-    public List<DriverStatusDto> getAllDriverStatuses() {
-        return driverService.getCurrentDriverStatuses();
-    }
-
-    @GetMapping("/{id}/details")
-    public DriverDetailsDto getDriverDetails(@PathVariable Long id) {
-        return driverService.getDriverDetails(id);
-    }
+//    @GetMapping("/status")
+//    public List<DriverStatusDto> getAllDriverStatuses() {
+//        return driverService.getCurrentDriverStatuses();
+//    }
+//
+//    @GetMapping("/{id}/details")
+//    public DriverDetailsDto getDriverDetails(@PathVariable Long id) {
+//        return driverService.getDriverDetails(id);
+//    }
 }
