@@ -5,6 +5,10 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+
+/**
+ * 프론트엔드 쪽에서 현재 운전자들의 라이브 상태를 조회하려 할때 사용하는 DTo임.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

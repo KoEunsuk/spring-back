@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface OperatorRepository extends JpaRepository<Operator, Integer> {
+public interface OperatorRepository extends JpaRepository<Operator, Long> {
     Optional<Operator> findByOperatorCode(String operatorCode);
 }

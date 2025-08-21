@@ -13,7 +13,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "users")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor // Lombok
+@Getter @Setter @NoArgsConstructor //@AllArgsConstructor // Lombok
 public class User {
 
     @Id
@@ -26,17 +26,16 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Column
-    private String email;
+    //@Column -> 이메일은 일단 보류 아이디 비번만 가지고 기본만.
+    //private String email;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    @Enumerated(EnumType.STRING)
     @Column(name = "role")
-    private Set<String> roles = new HashSet<>();
+    private Role role;
 
     // Admin과의 양방향 OneToOne 매핑 (선택적)
     // 이 User 계정이 어떤 Admin 프로필에 연결되어 있는지 명시.
     // 'mappedBy'는 연관관계의 주인이 아님을 의미하며, Admin 엔티티의 'user' 필드가 연관관계의 주인이 됨.
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Admin adminProfile; // 이 필드를 통해 해당 User에 연결된 Admin 프로필을 조회 가능.
+   // @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+   // private Admin adminProfile; // 이 필드를 통해 해당 User에 연결된 Admin 프로필을 조회 가능.
 }

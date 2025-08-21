@@ -4,23 +4,16 @@ import com.drive.backend.drive_api.dto.JwtResponse;
 import com.drive.backend.drive_api.dto.LoginRequest;
 import com.drive.backend.drive_api.dto.UserDto;
 import com.drive.backend.drive_api.dto.UserResponseDto;
+import com.drive.backend.drive_api.entity.Role;
 import com.drive.backend.drive_api.entity.User;
 import com.drive.backend.drive_api.exception.ResourceNotFoundException;
 import com.drive.backend.drive_api.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
+import java.util.*;
 import org.springframework.transaction.annotation.Transactional; // 트랜잭션 처리를 위해
 
-import java.util.ArrayList;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class AuthService {
@@ -38,7 +31,8 @@ public class AuthService {
         User user = new User();
         user.setUsername(dto.getUsername());
         user.setPassword(dto.getPassword());
-        user.setEmail(dto.getEmail());
+        user.setRole(dto.getRole());
+        //user.setEmail(dto.getEmail());
         return user;
     }
 
@@ -47,8 +41,8 @@ public class AuthService {
         return new UserResponseDto(
                 entity.getId(),
                 entity.getUsername(),
-                entity.getEmail(),
-                new ArrayList<>(entity.getRoles())
+                entity.getRole()
+                //entity.getEmail(),
         );
     }
 
@@ -61,7 +55,7 @@ public class AuthService {
 
         User user = toEntity(userDto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.getRoles().add("ROLE_USER");
+        user.setRole(Role.DRIVER);
 
         User savedUser = userRepository.save(user);
         return toResponseDto(savedUser);
@@ -85,7 +79,7 @@ public class AuthService {
 
         User adminUser = toEntity(adminDto);
         adminUser.setPassword(passwordEncoder.encode(adminUser.getPassword()));
-        adminUser.getRoles().add("ROLE_ADMIN");
+        adminUser.setRole(Role.ADMIN);
 
         return userRepository.save(adminUser); // User 엔티티 자체를 반환
     }
@@ -101,6 +95,6 @@ public class AuthService {
         }
 
         String jwtToken = "mock_jwt_token_for_" + loginRequest.getUsername();
-        return new JwtResponse(jwtToken, user.getUsername(), new ArrayList<>(user.getRoles()));
+        return  new JwtResponse(jwtToken, user.getUsername(), Collections.singletonList(user.getRole().name()));
     }
 }

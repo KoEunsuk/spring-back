@@ -15,7 +15,7 @@ public class Operator {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "operator_id")
-    private Integer operatorId;
+    private Long operatorId;
 
     @Column(name = "operator_code", length = 20, nullable = false, unique = true)
     private String operatorCode;
