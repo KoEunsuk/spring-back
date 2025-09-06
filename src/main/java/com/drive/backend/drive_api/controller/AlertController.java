@@ -2,17 +2,14 @@ package com.drive.backend.drive_api.controller;
 
 import com.drive.backend.drive_api.dto.AlertDto;
 import com.drive.backend.drive_api.service.AlertService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/alerts")
-// @CrossOrigin(origins = "http://localhost:3000") // WebConfig에서 전역 CORS 설정 시 제거 가능
 public class AlertController {
 
     private final AlertService alertService;
@@ -21,18 +18,35 @@ public class AlertController {
         this.alertService = alertService;
     }
 
-    @GetMapping
+    @GetMapping // 모든 알림 조회
     public List<AlertDto> getAllAlerts() {
         return alertService.getAllAlerts();
     }
 
-    @PutMapping("/{id}/read")
-    public AlertDto markAsRead(@PathVariable Long id) {
-        return alertService.markAsRead(id);
+    @GetMapping("/{id}") // ID로 특정 알림 조회
+    public AlertDto getAlertById(@PathVariable Long id) {
+        return alertService.getAlertById(id);
     }
 
-    @GetMapping("/status")
-    public Map<String, Long> getAlertStats() {
-        return alertService.getAlertStats();
+    @PostMapping // 새 알림 등록
+    public ResponseEntity<AlertDto> addAlert(@RequestBody AlertDto alertDto) {
+        AlertDto newAlert = alertService.addAlert(alertDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newAlert); 
+    }
+
+    @PutMapping("/{id}") // 알림 정보 업데이트
+    public AlertDto updateAlert(@PathVariable Long id, @RequestBody AlertDto alertDto) {
+        return alertService.updateAlert(id, alertDto);
+    }
+
+    @DeleteMapping("/{id}") // 알림 삭제
+    public ResponseEntity<String> deleteAlert(@PathVariable Long id) {
+        alertService.deleteAlert(id);
+        return ResponseEntity.ok("알림 삭제 완료");
+    }
+
+    @GetMapping("/driver/{driverId}") // 특정 운전자의 알림 조회
+    public List<AlertDto> getAlertsByDriverId(@PathVariable Long driverId) {
+        return alertService.getAlertsByDriverId(driverId);
     }
 }
