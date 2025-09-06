@@ -2,6 +2,7 @@ package com.drive.backend.drive_api.controller;
 
 import com.drive.backend.drive_api.dto.DriverDetailsDto;
 import com.drive.backend.drive_api.dto.DriverDto;
+import com.drive.backend.drive_api.dto.DriverGetDto;
 import com.drive.backend.drive_api.dto.DriverStatusDto;
 import com.drive.backend.drive_api.service.DriverService;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +21,8 @@ public class DriverController {
         this.driverService = driverService;
     }
 
-    @GetMapping("/management")
-    public List<DriverDto> getAllDriversForManagement() {
+    @GetMapping
+    public List<DriverGetDto> getAllDriversForManagement() {
         return driverService.getAllDrivers();
     }
 
@@ -30,12 +31,12 @@ public class DriverController {
         return driverService.addDriver(newDriver);
     }
 
-    @GetMapping("/management/{id}")
-    public DriverDto getDriverByIdForManagement(@PathVariable Long id) {
+    @GetMapping("/{driverId}")
+    public DriverGetDto getDriverByIdForManagement(@PathVariable Long id) {
         return driverService.getDriverById(id);
     }
 
-    @PutMapping("/management/{id}")
+    @PutMapping("/{driverId}")
     public DriverDto updateDriver(@PathVariable Long id, @RequestBody DriverDto updatedDriver) {
         return driverService.updateDriver(id, updatedDriver);
     }

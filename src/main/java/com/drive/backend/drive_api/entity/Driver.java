@@ -27,8 +27,14 @@ public class Driver {
     @Column(name = "license_number", length = 50) // ERD 필드명에 맞춤
     private String licenseNumber;
 
+    @Column(name = "phone_number", length = 50) // ERD 필드명에 맞춤
+    private String phoneNumber;
+
     @Column(name = "career_years", nullable = true) // ERD 필드명에 맞춤
     private Integer careerYears;
+
+    @Column(name = "operator_id", nullable = true) // ERD 필드명에 맞춤
+    private Integer operatorId;
 
     @Column(name = "avg_driving_score", precision = 4, scale = 2) // ERD 필드명에 맞춤
     private BigDecimal avgDrivingScore;
@@ -38,6 +44,13 @@ public class Driver {
 
     @Column(name = "driver_image_path", length = 255) // ERD 필드명에 맞춤
     private String driverImagePath;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 20)
+    private Status status;
+
+    // avgDrivingScore 추가 필요
+
 }
 
     /** Oprator와의 관계성은 일단 보류하기로해서 주석처리함.

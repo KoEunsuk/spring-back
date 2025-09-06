@@ -28,7 +28,7 @@ public class AdminController {
     // Admin 프로필 ID로 조회
     // GET /api/admins/{id}
     @GetMapping("/{id}")
-    public ResponseEntity<AdminResponseDto> getAdminProfileById(@PathVariable Integer id) {
+    public ResponseEntity<AdminResponseDto> getAdminProfileById(@PathVariable Long id) {
         AdminResponseDto response = adminService.getAdminById(id);
         return ResponseEntity.ok(response);
     }

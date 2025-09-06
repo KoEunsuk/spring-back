@@ -3,6 +3,7 @@ package com.drive.backend.drive_api.service;
 
 import com.drive.backend.drive_api.dto.DriverDto;
 
+import com.drive.backend.drive_api.dto.DriverGetDto;
 import com.drive.backend.drive_api.entity.Driver;
 import com.drive.backend.drive_api.exception.ResourceNotFoundException;
 import com.drive.backend.drive_api.repository.DriverRepository;
@@ -46,18 +47,18 @@ public class DriverService {
 
     //모든 운전자 조회.
     @Transactional(readOnly = true)
-    public List<DriverDto> getAllDrivers() {
+    public List<DriverGetDto> getAllDrivers() {
         return driverRepository.findAll().stream()
-                .map(this::toDto) // toDto 헬퍼 사용
+                .map(DriverGetDto::new)
                 .collect(Collectors.toList());
     }
 
     // 운전자 관리: ID로 상세조회.
     @Transactional(readOnly = true)
-    public DriverDto getDriverById(Long id) {
-        Driver driver = driverRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Driver", "id", id)); // ResourceNotFoundException 사용
-        return toDto(driver); // toDto 헬퍼 사용
+    public DriverGetDto getDriverById(Long driverId) {
+        Driver driver = driverRepository.findById(driverId)
+                .orElseThrow(() -> new ResourceNotFoundException("Driver", "id", driverId));
+        return new DriverGetDto(driver);
     }
 
     @Transactional
