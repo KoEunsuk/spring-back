@@ -57,7 +57,7 @@ public class DriverService {
     @Transactional(readOnly = true)
     public DriverGetDto getDriverById(Long driverId) {
         Driver driver = driverRepository.findById(driverId)
-                .orElseThrow(() -> new ResourceNotFoundException("Driver", "id", driverId));
+                .orElseThrow(() -> new ResourceNotFoundException("Driver", "driverId", driverId));
         return new DriverGetDto(driver);
     }
 
@@ -79,25 +79,47 @@ public class DriverService {
 
     //운전자 관리: 운전자 정보 업데이트.
     @Transactional
-    public DriverDto updateDriver(Long id, DriverDto updatedDriverDto) { // ID는 Long
-        Driver existingDriver = driverRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Driver", "id", id)); //
+    public DriverGetDto updateDriver(Long driverId, DriverGetDto updatedDriverDto) { // ID는 Long
+        Driver existingDriver = driverRepository.findById(driverId)
+                .orElseThrow(() -> new ResourceNotFoundException("Driver", "driverId", driverId)); //
 
-        //DTO에서 받은 정보로 이름과 비밀번호만 업데이트
-        existingDriver.setDriverName(updatedDriverDto.getDriverName());
-        existingDriver.setDriverPassword(updatedDriverDto.getDriverPassword());
+        // DTO의 각 필드가 null이 아닐 경우에만 기존 엔티티의 값을 변경
+        if (updatedDriverDto.getDriverName() != null) {
+            existingDriver.setDriverName(updatedDriverDto.getDriverName());
+        }
+        if (updatedDriverDto.getPhoneNumber() != null) {
+            existingDriver.setPhoneNumber(updatedDriverDto.getPhoneNumber());
+        }
+        if (updatedDriverDto.getLicenseNumber() != null) {
+            existingDriver.setLicenseNumber(updatedDriverDto.getLicenseNumber());
+        }
+        if (updatedDriverDto.getOperatorId() != null) {
+            existingDriver.setOperatorId(updatedDriverDto.getOperatorId());
+        }
+        if (updatedDriverDto.getCareerYears() != null) {
+            existingDriver.setCareerYears(updatedDriverDto.getCareerYears());
+        }
+        if (updatedDriverDto.getGrade() != null) {
+            existingDriver.setGrade(updatedDriverDto.getGrade());
+        }
+        if (updatedDriverDto.getStatus() != null) {
+            existingDriver.setStatus(updatedDriverDto.getStatus());
+        }
+        if (updatedDriverDto.getDriverImagePath() != null) {
+            existingDriver.setDriverImagePath(updatedDriverDto.getDriverImagePath());
+        }
 
-        Driver savedDriver = driverRepository.save(existingDriver);
-        return toDto(savedDriver);
+        // 메서드가 종료될 때 더티 체킹으로 변경된 필드만 자동으로 UPDATE 쿼리가 실행됨
+        return new DriverGetDto(existingDriver);
     }
 
     //  운전자 관리: 운전자 삭제
     @Transactional
-    public void deleteDriver(Long id) {
+    public void deleteDriver(Long driverId) {
         // 삭제 전 존재 여부를 확인해야함.
-        driverRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Driver", "id", id)); // ResourceNotFoundException 사용
-        driverRepository.deleteById(id);
+        driverRepository.findById(driverId)
+                .orElseThrow(() -> new ResourceNotFoundException("Driver", "driverId", driverId)); // ResourceNotFoundException 사용
+        driverRepository.deleteById(driverId);
     }
 }
 

@@ -32,19 +32,19 @@ public class DriverController {
     }
 
     @GetMapping("/{driverId}")
-    public DriverGetDto getDriverByIdForManagement(@PathVariable Long id) {
-        return driverService.getDriverById(id);
+    public DriverGetDto getDriverByIdForManagement(@PathVariable Long driverId) {
+        return driverService.getDriverById(driverId);
     }
 
     @PutMapping("/{driverId}")
-    public DriverDto updateDriver(@PathVariable Long id, @RequestBody DriverDto updatedDriver) {
-        return driverService.updateDriver(id, updatedDriver);
+    public DriverGetDto updateDriver(@PathVariable Long driverId, @RequestBody DriverGetDto updatedDriverDto) {
+        return driverService.updateDriver(driverId, updatedDriverDto);
     }
 
-    @DeleteMapping("/management/{id}")
-    public ResponseEntity<String> deleteDriver(@PathVariable Long id) {
-        driverService.deleteDriver(id);
-        return ResponseEntity.ok("삭제 완료");
+    @DeleteMapping("/{driverId}")
+    public ResponseEntity<Void> deleteDriver(@PathVariable Long driverId) { // 반환 타입을 Void로 변경
+        driverService.deleteDriver(driverId);
+        return ResponseEntity.noContent().build(); // 204 No Content 응답 생성
     }
 
 //    @GetMapping("/status")
