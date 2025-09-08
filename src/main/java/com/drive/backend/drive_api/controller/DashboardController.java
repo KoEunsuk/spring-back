@@ -13,7 +13,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/dashboard")
-// @CrossOrigin(origins = "http://localhost:3000") // WebConfig에서 전역 CORS 설정 시 제거 가능
 public class DashboardController {
 
     private final DashboardService dashboardService;
@@ -32,8 +31,4 @@ public class DashboardController {
         return dashboardService.getRecentAlerts(2); // 최근 알림 2개만 반환
     }
 
-    @GetMapping("/graph-data")
-    public List<Object> getGraphData() {
-        return dashboardService.getGraphData();
-    }
 }
