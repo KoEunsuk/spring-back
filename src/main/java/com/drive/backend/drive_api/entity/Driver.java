@@ -38,12 +38,11 @@ public class Driver {
 
     @Column(name = "driver_image_path", length = 255) // ERD 필드명에 맞춤
     private String driverImagePath;
-}
 
-    /** Oprator와의 관계성은 일단 보류하기로해서 주석처리함.
     // Operator와의 다대일(ManyToOne) 관계
-     // 여러 Driver가 한 Operator에 속함 (ERD의 operatorId FK)
+    // 여러 Driver가 한 Operator에 속함 (ERD의 operatorId FK)
     @ManyToOne(fetch = FetchType.LAZY) // 지연 로딩: Driver 로드 시 Operator를 즉시 로드하지 않고 필요할 때 로드
     @JoinColumn(name = "operator_id") // ERD의 operatorId 컬럼을 외래키로 사용
     private Operator operator; // 이 Driver가 속한 Operator 엔티티 객체
-     **/
+
+}
