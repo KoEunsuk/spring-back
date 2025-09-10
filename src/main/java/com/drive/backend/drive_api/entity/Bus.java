@@ -46,3 +46,5 @@ public class Bus {
     @JoinColumn(name = "operator_id", nullable = false) // FK인 operator_id도 Long 값 참조.
     private Operator operator;
 }
+
+
