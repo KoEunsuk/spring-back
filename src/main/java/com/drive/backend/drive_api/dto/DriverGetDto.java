@@ -19,7 +19,7 @@ public class DriverGetDto {
     private String driverName;
     private String phoneNumber;
     private String licenseNumber;
-    private Integer operatorId;
+    private Long operatorId;
     private Integer careerYears;
     private String grade;
     private Status status;
@@ -31,7 +31,7 @@ public class DriverGetDto {
         this.driverName = driver.getDriverName();
         this.phoneNumber = driver.getPhoneNumber();
         this.licenseNumber = driver.getLicenseNumber();
-        this.operatorId = driver.getOperatorId();
+        this.operatorId = driver.getOperator().getOperatorId();
         this.careerYears = driver.getCareerYears();
         this.grade = driver.getGrade();
 //        this.avgDrivingScore = driver.getAvgDrivingScore();
