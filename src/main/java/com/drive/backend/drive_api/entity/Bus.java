@@ -1,17 +1,22 @@
 package com.drive.backend.drive_api.entity;
 
 
+import com.drive.backend.drive_api.enums.FuelType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "bus")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Bus {
 
     @Id
@@ -45,6 +50,20 @@ public class Bus {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "operator_id", nullable = false) // FK인 operator_id도 Long 값 참조.
     private Operator operator;
+
+    @Enumerated(EnumType.STRING) // DB에 문자열로 저장
+    @Column(name = "fuel_type", length = 20)
+    private FuelType fuelType;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "driver_id", unique = true)
+    private Driver driver;
+
+    @Column(name = "total_mileage")
+    private Long totalMileage;
+
+    @Column(name = "average_fuel_efficiency", precision = 5, scale = 2)
+    private BigDecimal averageFuelEfficiency;
 }
 
 

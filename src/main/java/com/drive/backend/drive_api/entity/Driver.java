@@ -1,5 +1,6 @@
 package com.drive.backend.drive_api.entity;
 
+import com.drive.backend.drive_api.enums.Status;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

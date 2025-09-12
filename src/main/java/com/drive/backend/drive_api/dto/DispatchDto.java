@@ -1,6 +1,7 @@
 package com.drive.backend.drive_api.dto;
 
 
+import com.drive.backend.drive_api.enums.DispatchStatus;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -14,7 +15,7 @@ public class DispatchDto {
     private Long dispatchId; // 배차 ID
     private Long driverId;   // 운전자의 ID
     private Long busId;      // 버스의 ID
-    private String status;   // 배차 상태
+    private DispatchStatus status;   // 배차 상태
     private LocalDate dispatchDate; // 배차 날짜
     private LocalTime scheduledDeparture; // 예정 출발 시간
     private LocalTime actualDeparture;    // 실제 출발 시간

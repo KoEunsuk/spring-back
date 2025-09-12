@@ -4,7 +4,7 @@ import com.drive.backend.drive_api.dto.JwtResponse;
 import com.drive.backend.drive_api.dto.LoginRequest;
 import com.drive.backend.drive_api.dto.UserDto;
 import com.drive.backend.drive_api.dto.UserResponseDto;
-import com.drive.backend.drive_api.entity.Role;
+import com.drive.backend.drive_api.enums.Role;
 import com.drive.backend.drive_api.entity.User;
 import com.drive.backend.drive_api.exception.ResourceNotFoundException;
 import com.drive.backend.drive_api.repository.UserRepository;

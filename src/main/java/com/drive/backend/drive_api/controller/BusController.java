@@ -1,6 +1,6 @@
 package com.drive.backend.drive_api.controller;
 
-import com.drive.backend.drive_api.dto.BusDto;
+import com.drive.backend.drive_api.dto.*;
 import com.drive.backend.drive_api.service.BusService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,13 +19,13 @@ public class BusController {
     }
 
     @GetMapping
-    public List<BusDto> getAllBuses() {
+    public List<BusListDto> getAllBuses() {
         return busService.getAllBuses();
     }
 
-    @GetMapping("/{id}")
-    public BusDto getBusById(@PathVariable Long id) {
-        return busService.getBusById(id);
+    @GetMapping("/{busId}")
+    public BusDto getBusById(@PathVariable Long busId) {
+        return busService.getBusById(busId);
     }
 
     @PostMapping
@@ -34,14 +34,22 @@ public class BusController {
         return ResponseEntity.status(HttpStatus.CREATED).body(newBus);
     }
 
-    @PutMapping("/{id}")
-    public BusDto updateBus(@PathVariable Long id, @RequestBody BusDto busDto) {
-        return busService.updateBus(id, busDto);
+    @PutMapping("/{busId}")
+    public ResponseEntity<BusDto> updateBus(@PathVariable Long busId, @RequestBody BusUpdateRequestDto updateDto) {
+        BusDto updatedBus = busService.updateBus(busId, updateDto);
+
+        return ResponseEntity.ok(updatedBus);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteBus(@PathVariable Long id) {
-        busService.deleteBus(id);
-        return ResponseEntity.ok("버스 삭제 완료");
+    @DeleteMapping("/{busId}")
+    public ResponseEntity<Void> deleteBus(@PathVariable Long busId) {
+        busService.deleteBus(busId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/locations")
+    public ResponseEntity<List<BusLocationDto>> getAllBusesLocations() {
+        List<BusLocationDto> locations = busService.getAllBusesLocations();
+        return ResponseEntity.ok(locations);
     }
 }

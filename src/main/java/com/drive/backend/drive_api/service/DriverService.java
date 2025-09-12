@@ -53,7 +53,7 @@ public class DriverService {
     @Transactional(readOnly = true)
     public List<DriverGetDto> getAllDrivers() {
         return driverRepository.findAll().stream()
-                .map(DriverGetDto::new)
+                .map(DriverGetDto::from)
                 .collect(Collectors.toList());
     }
 
@@ -62,7 +62,7 @@ public class DriverService {
     public DriverGetDto getDriverById(Long driverId) {
         Driver driver = driverRepository.findById(driverId)
                 .orElseThrow(() -> new ResourceNotFoundException("Driver", "driverId", driverId));
-        return new DriverGetDto(driver);
+        return DriverGetDto.from(driver);
     }
 
     @Transactional
@@ -118,7 +118,7 @@ public class DriverService {
         }
 
         // 메서드가 종료될 때 더티 체킹으로 변경된 필드만 자동으로 UPDATE 쿼리가 실행됨
-        return new DriverGetDto(existingDriver);
+        return DriverGetDto.from(existingDriver);
     }
 
     //  운전자 관리: 운전자 삭제

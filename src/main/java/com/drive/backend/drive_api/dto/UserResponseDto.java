@@ -1,11 +1,10 @@
 package com.drive.backend.drive_api.dto;
 
-import com.drive.backend.drive_api.entity.Role;
+import com.drive.backend.drive_api.enums.Role;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import java.util.List;
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class UserResponseDto { // 사용자 정보 응답용 (출력)

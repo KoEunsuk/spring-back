@@ -2,14 +2,11 @@ package com.drive.backend.drive_api.entity;
 
 
 
+import com.drive.backend.drive_api.enums.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor; // AllArgsConstructor가 없을 시 주석 처리하고 NoArgsConstructor만 사용
-
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name = "user")

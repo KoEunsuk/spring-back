@@ -1,11 +1,10 @@
 package com.drive.backend.drive_api.dto;
 
-import com.drive.backend.drive_api.entity.Role;
+import com.drive.backend.drive_api.enums.Role;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import java.util.List; // User의 roles를 List로 받음
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class AdminResponseDto {

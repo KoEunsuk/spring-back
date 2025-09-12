@@ -1,5 +1,6 @@
 package com.drive.backend.drive_api.service;
 
+import com.drive.backend.drive_api.dto.DispatchDetailDto;
 import com.drive.backend.drive_api.dto.DispatchDto;
 import com.drive.backend.drive_api.entity.Bus;
 import com.drive.backend.drive_api.entity.Dispatch;
@@ -75,9 +76,9 @@ public class DispatchService {
 
     // 모든 배차 조회
     @Transactional(readOnly = true)
-    public List<DispatchDto> getAllDispatches() {
+    public List<DispatchDetailDto> getAllDispatches() {
         return dispatchRepository.findAll().stream()
-                .map(this::toDto)
+                .map(DispatchDetailDto::from)
                 .collect(Collectors.toList());
     }
 
@@ -122,9 +123,9 @@ public class DispatchService {
 
     // 배차 삭제
     @Transactional
-    public void deleteDispatch(Long id) {
-        dispatchRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Dispatch", "id", id));
-        dispatchRepository.deleteById(id);
+    public void deleteDispatch(Long dispatchId) {
+        dispatchRepository.findById(dispatchId)
+                .orElseThrow(() -> new ResourceNotFoundException("Dispatch", "dispatchId", dispatchId));
+        dispatchRepository.deleteById(dispatchId);
     }
 }
