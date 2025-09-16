@@ -30,6 +30,10 @@ public class User {
     @Column(name = "role")
     private Role role;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "operator_id")
+    private Operator operator;
+
     // Admin과의 양방향 OneToOne 매핑 (선택적)
     // 이 User 계정이 어떤 Admin 프로필에 연결되어 있는지 명시.
     // 'mappedBy'는 연관관계의 주인이 아님을 의미하며, Admin 엔티티의 'user' 필드가 연관관계의 주인이 됨.

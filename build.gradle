@@ -23,6 +23,14 @@ repositories {
 	mavenCentral()
 }
 
+configurations.all {
+	resolutionStrategy {
+		force 'io.jsonwebtoken:jjwt-api:0.12.5'
+		force 'io.jsonwebtoken:jjwt-impl:0.12.5'
+		force 'io.jsonwebtoken:jjwt-jackson:0.12.5'
+	}
+}
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
@@ -32,7 +40,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'com.mysql:mysql-connector-j:8.2.0'
-
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
 }
 
 tasks.named('test') {

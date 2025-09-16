@@ -47,12 +47,10 @@ public class Driver {
     @Column(name = "status", length = 20)
     private Status status;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", unique = true) // nullable은 필요에 따라 설정
+    private User user;
     // avgDrivingScore 추가 필요
 
-    // Operator와의 다대일(ManyToOne) 관계
-    // 여러 Driver가 한 Operator에 속함 (ERD의 operatorId FK)
-    @ManyToOne(fetch = FetchType.LAZY) // 지연 로딩: Driver 로드 시 Operator를 즉시 로드하지 않고 필요할 때 로드
-    @JoinColumn(name = "operator_id") // ERD의 operatorId 컬럼을 외래키로 사용
-    private Operator operator; // 이 Driver가 속한 Operator 엔티티 객체
 
 }
