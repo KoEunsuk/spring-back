@@ -4,28 +4,31 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-
+import java.util.ArrayList;
 import java.util.List;
+
 @Entity
-@Table(name = "operator")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Table(name = "operators")
+@Getter @Setter @NoArgsConstructor
 public class Operator {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "operator_id")
     private Long operatorId;
 
-    @Column(name = "operator_code", length = 20, nullable = false, unique = true)
+    @Column(nullable = false, unique = true)
     private String operatorCode;
 
-    @Column(name = "operator_name", length = 100, nullable = false)
+    @Column(nullable = false)
     private String operatorName;
 
-    @OneToMany(mappedBy = "operator", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Admin> admins;
+    @OneToMany(mappedBy = "operator", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<User> users = new ArrayList<>();
 
-    @OneToMany(mappedBy = "operator", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Driver> drivers;
+    // 연관관계 설정을 위한 편의 메서드 -> 사용하지 않을 경우, 양쪽 다 추가 잊지말기
+    public void addUser(User user) {
+        this.users.add(user);
+        user.setOperator(this);
+    }
+
 }
