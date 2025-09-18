@@ -1,6 +1,7 @@
 package com.drive.backend.drive_api.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -9,7 +10,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "operators")
-@Getter @Setter @NoArgsConstructor
+@Getter @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Operator {
 
     @Id

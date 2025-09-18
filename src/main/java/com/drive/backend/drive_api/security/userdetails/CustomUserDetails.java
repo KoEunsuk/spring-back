@@ -10,39 +10,45 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Getter
 public class CustomUserDetails implements UserDetails {
 
-    private Long id;
+    private Long userId;
+    private String email;
     private Long operatorId;
 
-    private String username;
+    private String realUsername;
     @JsonIgnore
     private String password;
     private Collection<? extends GrantedAuthority> authorities;
 
     public static CustomUserDetails build(User user) {
-        List<GrantedAuthority> authorities = user.getRole() != null ?
-                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())) :
-                List.of();
+        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
 
         return new CustomUserDetails(
-                user.getId(),
-                user.getOperator() != null ? user.getOperator().getOperatorId() : null,
+                user.getUserId(),
+                user.getEmail(),
                 user.getUsername(),
+                user.getOperator() != null ? user.getOperator().getOperatorId() : null,
                 user.getPassword(),
                 authorities);
     }
 
-    private CustomUserDetails(Long id, Long operatorId, String username, String password, //
+    private CustomUserDetails(Long userId, String email, String realUsername, Long operatorId, String password, //
                               Collection<? extends GrantedAuthority> authorities) {
-        this.id = id;
-        this.operatorId = operatorId; //
-        this.username = username;
+        this.userId = userId;
+        this.email = email;
+        this.realUsername = realUsername;
+        this.operatorId = operatorId;
         this.password = password;
         this.authorities = authorities;
+    }
+
+    @Override
+    public String getUsername() {
+        // Spring Security가 'username'으로 인식할 고유 식별자로 email을 반환
+        return this.email;
     }
 
     @Override
@@ -77,6 +83,6 @@ public class CustomUserDetails implements UserDetails {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CustomUserDetails that = (CustomUserDetails) o;
-        return Objects.equals(id, that.id);
+        return Objects.equals(userId, that.userId);
     }
 }

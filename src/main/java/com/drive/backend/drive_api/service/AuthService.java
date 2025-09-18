@@ -35,16 +35,17 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public void signup(SignupRequestDto signupDto){
+    public UserDetailDto signup(SignupRequestDto signupDto){
         if (userRepository.findByEmail(signupDto.getEmail()).isPresent()) {
-            throw new RuntimeException("이미 사용중인 이메일입니다.");
+            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }
 
         Operator operator = operatorRepository.findByOperatorCode(signupDto.getOperatorCode())
-                .orElseThrow(() -> new RuntimeException("운수사를 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 운수사 코드입니다."));
 
         String encodedPassword = passwordEncoder.encode(signupDto.getPassword());
 
+        User newUser;
         if (signupDto.getRole() == Role.ADMIN) {
             Admin admin = new Admin(
                     signupDto.getEmail(),
@@ -54,7 +55,7 @@ public class AuthService {
                     operator,
                     signupDto.getImagePath()
             );
-            adminRepository.save(admin);
+            newUser = adminRepository.save(admin);
         } else if (signupDto.getRole() == Role.DRIVER) {
             Driver driver = new Driver(
                     signupDto.getEmail(),
@@ -66,9 +67,11 @@ public class AuthService {
                     signupDto.getLicenseNumber(),
                     signupDto.getCareerYears()
             );
-            driverRepository.save(driver);
+            newUser = driverRepository.save(driver);
         } else {
             throw new IllegalArgumentException("유효하지 않은 역할입니다.");
         }
+
+        return UserDetailDto.from(newUser);
     }
 }

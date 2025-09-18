@@ -37,11 +37,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
             // JWT 토큰이 존재하고 유효한지 검증
             if (jwt != null && jwtTokenProvider.validateJwtToken(jwt)) {
-                // 유효한 토큰으로부터 사용자 이름(Subject) 추출
-                String username = jwtTokenProvider.getUserNameFromJwtToken(jwt);
+                
+                // 유효한 토큰으로부터 이메일 추출
+                String email = jwtTokenProvider.getEmailFromJwtToken(jwt);
 
-                //사용자 이름으로 UserDetails(CustomUserDetails) 로드
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                // UserDetails(CustomUserDetails) 로드
+                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
                 // UserDetails를 사용하여 인증 객체(Authentication) 생성
                 // 패스워드는 이미 JWT 검증 과정에서 확인되었으므로 null
