@@ -1,6 +1,8 @@
 package com.drive.backend.drive_api.entity;
 
+import com.drive.backend.drive_api.enums.Role;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -8,7 +10,16 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "admins")
 @DiscriminatorValue("ADMIN")
-@Getter @Setter @NoArgsConstructor
+@Getter @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Admin extends User {
 
+    public Admin(String email, String password, String username, String phoneNumber, Operator operator, String imagePath) {
+        super(email, password, username, phoneNumber, operator, imagePath);
+    }
+
+    @Override
+    public Role getRole() {
+        return Role.ADMIN;
+    }
 }
