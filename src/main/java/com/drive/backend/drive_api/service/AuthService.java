@@ -6,16 +6,12 @@ import com.drive.backend.drive_api.entity.Driver;
 import com.drive.backend.drive_api.entity.Operator;
 import com.drive.backend.drive_api.enums.Role;
 import com.drive.backend.drive_api.entity.User;
-import com.drive.backend.drive_api.exception.ResourceNotFoundException;
 import com.drive.backend.drive_api.repository.AdminRepository;
 import com.drive.backend.drive_api.repository.DriverRepository;
 import com.drive.backend.drive_api.repository.OperatorRepository;
 import com.drive.backend.drive_api.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.*;
-import org.springframework.transaction.annotation.Transactional; // 트랜잭션 처리를 위해
 
 
 @Service
@@ -35,7 +31,7 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public UserDetailDto signup(SignupRequestDto signupDto){
+    public LoginResponseDto signup(SignupRequestDto signupDto){
         if (userRepository.findByEmail(signupDto.getEmail()).isPresent()) {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }
@@ -72,6 +68,6 @@ public class AuthService {
             throw new IllegalArgumentException("유효하지 않은 역할입니다.");
         }
 
-        return UserDetailDto.from(newUser);
+        return LoginResponseDto.from(newUser);
     }
 }
