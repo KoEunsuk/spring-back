@@ -10,9 +10,9 @@ import com.drive.backend.drive_api.repository.AdminRepository;
 import com.drive.backend.drive_api.repository.DriverRepository;
 import com.drive.backend.drive_api.repository.OperatorRepository;
 import com.drive.backend.drive_api.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
