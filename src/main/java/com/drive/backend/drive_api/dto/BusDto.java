@@ -43,7 +43,7 @@ public class BusDto {
         }
 
         public static DriverSimpleDto from(Driver driver) {
-            return new DriverSimpleDto(driver.getDriverId(), driver.getDriverName());
+            return new DriverSimpleDto(driver.getUserId(), driver.getUsername());
         }
     }
 

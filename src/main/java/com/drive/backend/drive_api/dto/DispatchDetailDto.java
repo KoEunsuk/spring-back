@@ -33,7 +33,7 @@ public class DispatchDetailDto {
         this.drivingScore = dispatch.getDrivingScore();
 
         Driver driver = dispatch.getDriver();
-        this.driverId = (driver != null) ? driver.getDriverId() : null;
+        this.driverId = (driver != null) ? driver.getUserId() : null;
 
         Bus bus = dispatch.getBus();
         this.busId = (bus != null) ? bus.getBusId() : null;

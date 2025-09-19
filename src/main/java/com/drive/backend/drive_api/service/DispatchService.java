@@ -60,7 +60,7 @@ public class DispatchService {
     private DispatchDto toDto(Dispatch entity) {
         return new DispatchDto(
                 entity.getDispatchId(),
-                entity.getDriver() != null ? entity.getDriver().getDriverId() : null,
+                entity.getDriver() != null ? entity.getDriver().getUserId() : null,
                 entity.getBus() != null ? entity.getBus().getBusId() : null,
                 entity.getStatus(),
                 entity.getDispatchDate(),
@@ -69,7 +69,7 @@ public class DispatchService {
                 entity.getActualArrival(),
                 entity.getWarningCount(),
                 entity.getDrivingScore(),
-                entity.getDriver() != null ? entity.getDriver().getDriverName() : null,
+                entity.getDriver() != null ? entity.getDriver().getUsername() : null,
                 entity.getBus() != null ? entity.getBus().getVehicleNumber() : null
         );
     }
