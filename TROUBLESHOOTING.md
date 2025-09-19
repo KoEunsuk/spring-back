@@ -29,6 +29,14 @@
     1.  **시간 기록 확인**: 비밀번호 변경 후, DB `users` 테이블의 `password_changed_at` 컬럼에 **UTC 기준의 현재 시간**이 제대로 기록되었는지 확인하세요. `null`이라면 `UserService`의 `changeMyPassword` 메서드에 시간 기록 로직이 누락된 것입니다.
     2.  **`Instant` 타입 통일**: 시간 관련 필드(`passwordChangedAt`, 토큰 생성 시점 등)를 모두 타임존 문제에서 자유로운 `Instant` 타입으로 통일했는지 확인하세요. `LocalDateTime`과 `Date`를 혼용하면 문제가 발생할 수 있습니다.
     3.  **테스트 절차 확인**: '옛날 토큰'을 정확히 복사해두고 테스트하는지 확인하세요. 실수로 비밀번호 변경 후 새로 로그인해서 받은 '새 토큰'으로 테스트하고 있을 수 있습니다.
+- **참고**:
+  - java.time 패키지의 다른 타입들은 아래와 같은 목적에 맞게 사용하시면 됩니다.
+    1. Instant: 특정 시점 (Timestamp). UTC 기준이며, 시간대 문제에서 자유롭습니다.
+       - 사용 예시: createdAt, updatedAt, passwordChangedAt, actualDepartureTime (실제 출발 시각), actualArrivalTime (실제 도착 시각)
+    2. LocalDate: 시간이나 시간대 정보가 없는 날짜. 
+       - 사용 예시: birthDate (생년월일), dispatchDate (배차 일자)
+    3. LocalTime: 날짜나 시간대 정보가 없는 시간.
+       - 사용 예시: openingHour (영업 시작 시간), scheduledDeparture (예정 출발 시간)
 
 ---
 
