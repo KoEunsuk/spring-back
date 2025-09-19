@@ -5,7 +5,7 @@ import com.drive.backend.drive_api.dto.*;
 import com.drive.backend.drive_api.security.jwt.JwtTokenProvider;
 import com.drive.backend.drive_api.security.userdetails.CustomUserDetails;
 import com.drive.backend.drive_api.service.AuthService;
-import com.drive.backend.drive_api.dto.LoginResponseDto;
+import com.drive.backend.drive_api.dto.SignupResponseDto;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,8 +31,8 @@ public class AuthController {
 
     // 회원가입 API
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<LoginResponseDto>> signup(@Valid @RequestBody SignupRequestDto signupDto) {
-        LoginResponseDto createdUser = authService.signup(signupDto);
+    public ResponseEntity<ApiResponse<SignupResponseDto>> signup(@Valid @RequestBody SignupRequestDto signupDto) {
+        SignupResponseDto createdUser = authService.signup(signupDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("회원가입이 성공적으로 완료되었습니다.", createdUser));
     }

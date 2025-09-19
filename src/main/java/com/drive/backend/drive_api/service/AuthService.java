@@ -33,7 +33,7 @@ public class AuthService {
     }
 
     @Transactional
-    public LoginResponseDto signup(SignupRequestDto signupDto){
+    public SignupResponseDto signup(SignupRequestDto signupDto){
         if (userRepository.findByEmail(signupDto.getEmail()).isPresent()) {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }
@@ -70,6 +70,6 @@ public class AuthService {
             throw new IllegalArgumentException("유효하지 않은 역할입니다.");
         }
 
-        return LoginResponseDto.from(newUser);
+        return SignupResponseDto.from(newUser);
     }
 }

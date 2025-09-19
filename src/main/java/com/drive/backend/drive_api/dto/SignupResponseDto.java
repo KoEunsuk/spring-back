@@ -5,7 +5,7 @@ import com.drive.backend.drive_api.entity.User;
 import lombok.Getter;
 
 @Getter
-public class LoginResponseDto {
+public class SignupResponseDto {
     private final Long userId;
     private final String email;
     private final String username;
@@ -14,7 +14,7 @@ public class LoginResponseDto {
     private final Role role;
     private final Long operatorId;
 
-    private LoginResponseDto(User user) {
+    private SignupResponseDto(User user) {
         this.userId = user.getUserId();
         this.email = user.getEmail();
         this.username = user.getUsername();
@@ -24,7 +24,7 @@ public class LoginResponseDto {
         this.operatorId = user.getOperator().getOperatorId();
     }
 
-    public static LoginResponseDto from(User user) {
-        return new LoginResponseDto(user);
+    public static SignupResponseDto from(User user) {
+        return new SignupResponseDto(user);
     }
 }
