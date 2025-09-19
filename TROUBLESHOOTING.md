@@ -1,46 +1,48 @@
-# Drive API 프로젝트 트러블슈팅 가이드
+#  Troubleshooting (문제 해결 가이드)
 
-## 1. 로그인 시 `401 Unauthorized` 에러 발생
+개발 과정에서 자주 발생하는 문제와 해결 방법을 정리합니다.
 
-로그인 API (`POST /api/auth/login`) 호출 시 401 에러가 발생하는 경우.
+---
 
-### 문제 현상
-- `signup`은 정상 동작하지만 `login`만 401 에러를 반환.
-- 서버 로그에 `Full authentication is required...` 메시지 확인됨.
+### 🚨 **문제 1: 로그인(`POST /api/auth/login`) 시 `401 Unauthorized` 에러 발생**
+`signup`은 되는데 `login`만 실패하는 경우입니다.
 
-### 원인 및 해결책
-- **원인**: URL 접근 권한 문제가 아니라, **로그인 프로세스 자체의 인증 실패**입니다.
+- **원인**: URL 접근 권한 문제가 아니라, **로그인 인증 절차 자체의 실패**입니다.
 - **체크리스트**:
-    1.  **비밀번호 불일치**: `AuthService`의 `signup` 메서드에서 `passwordEncoder.encode()`를 사용해 비밀번호를 암호화했는지 확인.
-    2.  **사용자 없음**: Postman 요청 Body의 `email`이 DB에 실제로 존재하는지 확인.
-    3.  **오타**: Postman 요청 Body의 `email` 또는 `password`에 오타가 없는지 확인.
+    1.  **비밀번호 암호화**: `AuthService`의 `signup` 메서드에서 `passwordEncoder.encode()`를 사용해 비밀번호를 암호화해서 DB에 저장했는지 확인하세요.
+    2.  **사용자(이메일) 존재 여부**: Postman에서 요청하는 `email`이 DB `users` 테이블에 실제로 존재하는지 확인하세요. 오타가 없는지 확인합니다.
+    3.  **`SecurityConfig` 경로 확인**: `.requestMatchers("/api/auth/**").permitAll()` 설정이 `AuthController`의 `@RequestMapping("/api/auth")`와 정확히 일치하는지 다시 확인하세요.
 
 ---
 
-## 2. API 호출 시 `HttpMediaTypeNotAcceptableException` 발생
+### 🚨 **문제 2: API 응답이 오지 않고 `HttpMediaTypeNotAcceptableException` 발생**
+- **원인**: 서버가 Java 객체를 **JSON으로 변환하는 데 실패**한 경우입니다.
+- **체크리스트**:
+    1.  **`jackson-databind` 라이브러리 확인**: `build.gradle`에 `implementation 'org.springframework.boot:spring-boot-starter-web'` 의존성이 제대로 포함되어 있는지 확인합니다.
+    2.  **DTO에 `@Getter` 확인**: 클라이언트에게 응답으로 보낼 DTO 클래스(예: `JwtResponseDto`, `UserDetailDto`)에 **`@Getter` 어노테이션이 빠졌는지** 확인하세요. Jackson은 getter를 통해 필드 값을 읽어옵니다.
 
-- **문제 현상**: 특정 API 응답을 생성하지 못하고 406 Not Acceptable 에러 발생.
-- **원인**: Spring이 Java 객체를 JSON으로 변환하지 못하는 경우.
+---
+
+### 🚨 **문제 3: 비밀번호 변경 후에도 옛날 토큰이 계속 사용됨**
+- **원인**: 토큰 무효화 로직의 시간 비교(`tokenIssuedAt.isBefore(passwordChangedAt)`)가 `false`로 평가되는 경우입니다.
+- **체크리스트**:
+    1.  **시간 기록 확인**: 비밀번호 변경 후, DB `users` 테이블의 `password_changed_at` 컬럼에 **UTC 기준의 현재 시간**이 제대로 기록되었는지 확인하세요. `null`이라면 `UserService`의 `changeMyPassword` 메서드에 시간 기록 로직이 누락된 것입니다.
+    2.  **`Instant` 타입 통일**: 시간 관련 필드(`passwordChangedAt`, 토큰 생성 시점 등)를 모두 타임존 문제에서 자유로운 `Instant` 타입으로 통일했는지 확인하세요. `LocalDateTime`과 `Date`를 혼용하면 문제가 발생할 수 있습니다.
+    3.  **테스트 절차 확인**: '옛날 토큰'을 정확히 복사해두고 테스트하는지 확인하세요. 실수로 비밀번호 변경 후 새로 로그인해서 받은 '새 토큰'으로 테스트하고 있을 수 있습니다.
+
+---
+
+### 🚨 **문제 4: `LazyInitializationException` 발생**
+- **원인**: `@Transactional` 범위 밖에서 지연 로딩(`FetchType.LAZY`)으로 설정된 연관 엔티티에 접근하려고 할 때 발생합니다.
 - **해결책**:
-    1.  **`@Getter` 누락 확인**: 응답 DTO 클래스에 Lombok의 `@Getter` 어노테이션이 있는지 확인합니다. Jackson 라이브러리는 getter를 통해 필드 값을 읽어옵니다.
-    2.  **`jackson-databind` 의존성 확인**: `build.gradle` 파일에 `spring-boot-starter-web` 의존성이 제대로 포함되어 있는지 확인합니다.
+    - 연관된 엔티티의 필드에 접근하는 모든 로직(예: DTO 변환)은 **반드시 `@Transactional`이 붙은 서비스 메서드 안에서** 모두 완료해야 합니다.
+    - 컨트롤러나 뷰(View) 계층에서 엔티티의 lazy-loading 필드에 직접 접근하지 마세요.
 
 ---
 
-## 3. 비밀번호 변경 후, 이전 토큰이 계속 사용되는 문제
-
-- **문제 현상**: 비밀번호를 변경했음에도, 변경 전 발급받았던 '옛날 토큰'으로 API 접근이 계속 성공함.
-- **원인**: 토큰 무효화 로직의 시간 비교 문제.
+### 🚨 **문제 5: `NullPointerException` 발생**
+- **원인 1: 컬렉션 미초기화**: `@OneToMany` 필드를 `new ArrayList<>()`로 초기화하지 않은 상태에서 `.getUsers().add()`를 호출하는 경우.
+- **원인 2: 연관 엔티티 미확인**: DTO 변환 시 `user.getOperator().getId()`처럼 연관 객체가 `null`일 가능성을 확인하지 않고 바로 메서드를 호출하는 경우.
 - **해결책**:
-    1.  **테스트 절차 확인**: '옛날 토큰'을 정확히 복사해두고 사용하는지, 테스트 과정에서 실수로 새 토큰을 사용하고 있지 않은지 확인합니다.
-    2.  **`Instant` 타입 사용**: 모든 타임스탬프(`passwordChangedAt`, 토큰 발행시간)를 타임존 문제로부터 자유로운 `Instant` 타입으로 통일하여 비교 로직의 정확성을 높입니다. `JwtAuthFilter`의 비교 로직을 재점검합니다.
-
----
-
-## 4. `NullPointerException` (NPE) 발생
-
-- **문제 현상**: DTO 변환 또는 컬렉션 조작 시 NPE 발생.
-- **원인 및 해결책**:
-    1.  **컬렉션 필드**: `@OneToMany` 등 엔티티의 컬렉션 필드는 `private List<User> users = new ArrayList<>();` 와 같이 선언 시점에 바로 초기화합니다.
-    2.  **연관 엔티티 접근**: DTO 변환 로직에서 `user.getOperator().getId()` 와 같이 연관된 엔티티에 접근할 때는, `if (user.getOperator() != null)` 과 같이 항상 null 체크를 먼저 수행합니다.
-    3.  **`Optional` 처리**: `repository.findById()`의 결과는 `.orElseThrow(...)`를 사용하여 '값이 없는 경우'를 항상 처리해 줍니다.
+    - 모든 `@OneToMany` 필드는 `private List<Type> items = new ArrayList<>();` 와 같이 선언과 동시에 초기화합니다.
+    - DTO 변환 로직 등에서 다른 엔티티에 접근할 때는 항상 `if (user.getOperator() != null)` 과 같은 null 체크를 추가합니다.
