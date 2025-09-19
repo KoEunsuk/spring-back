@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
+
 @Entity
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.JOINED) // 상속: 조인 전략 사용
@@ -37,6 +39,9 @@ public abstract class User {
 
     @Column
     private String imagePath;
+
+    @Column
+    private Instant passwordChangedAt;
 
     protected User(String email, String password, String username, String phoneNumber, Operator operator, String imagePath) {
         this.email = email;

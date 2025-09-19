@@ -15,6 +15,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -54,6 +56,8 @@ public class UserService {
         }
 
         currentUser.setPassword(passwordEncoder.encode(passwordDto.getNewPassword()));
+
+        currentUser.setPasswordChangedAt(Instant.now());
     }
 
     public void deleteMyAccount() {

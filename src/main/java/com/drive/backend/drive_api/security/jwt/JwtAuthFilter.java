@@ -1,5 +1,6 @@
 package com.drive.backend.drive_api.security.jwt;
 
+import com.drive.backend.drive_api.security.userdetails.CustomUserDetails;
 import com.drive.backend.drive_api.security.userdetails.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -15,6 +16,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.util.Date;
 
 public class JwtAuthFilter extends OncePerRequestFilter {
 
@@ -44,6 +47,22 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 // UserDetails(CustomUserDetails) 로드
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
+                // 토큰 무효화 검증 로직
+                CustomUserDetails customUserDetails = (CustomUserDetails) userDetails;
+                Instant passwordChangedAt = customUserDetails.getPasswordChangedAt();
+
+                if (passwordChangedAt != null) {
+                    Date tokenIssuedAtDate = jwtTokenProvider.getIssuedAtFromToken(jwt);
+                    // Date를 Instant로 변환
+                    Instant tokenIssuedAt = tokenIssuedAtDate.toInstant();
+
+                    if (tokenIssuedAt.isBefore(passwordChangedAt)) {
+                        logger.warn("Token for user '{}' rejected due to password change.", email);
+                        filterChain.doFilter(request, response);
+                        return;
+                    }
+                }
+
                 // UserDetails를 사용하여 인증 객체(Authentication) 생성
                 // 패스워드는 이미 JWT 검증 과정에서 확인되었으므로 null
                 UsernamePasswordAuthenticationToken authentication =
@@ -52,7 +71,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                 null,
                                 userDetails.getAuthorities()); // UserDetails의 권한 정보 사용
 
-                // 웹 요청 상세 정보를 인증 객체에 추가
+                // 웹 요청 상세 정보를 인증 객체에 추가 - 삭제 고려
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 // SecurityContextHolder에 인증 객체 설정

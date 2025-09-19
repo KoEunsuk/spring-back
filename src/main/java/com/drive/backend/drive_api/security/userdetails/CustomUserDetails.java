@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -14,14 +15,15 @@ import java.util.Objects;
 @Getter
 public class CustomUserDetails implements UserDetails {
 
-    private Long userId;
-    private String email;
-    private Long operatorId;
+    private final Long userId;
+    private final String email;
+    private final String realUsername;
+    private final Long operatorId;
+    private final Instant passwordChangedAt;
 
-    private String realUsername;
     @JsonIgnore
-    private String password;
-    private Collection<? extends GrantedAuthority> authorities;
+    private final String password;
+    private final Collection<? extends GrantedAuthority> authorities;
 
     public static CustomUserDetails build(User user) {
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
@@ -31,16 +33,19 @@ public class CustomUserDetails implements UserDetails {
                 user.getEmail(),
                 user.getUsername(),
                 user.getOperator() != null ? user.getOperator().getOperatorId() : null,
+                user.getPasswordChangedAt(),
                 user.getPassword(),
                 authorities);
     }
 
-    private CustomUserDetails(Long userId, String email, String realUsername, Long operatorId, String password, //
+    private CustomUserDetails(Long userId, String email, String realUsername, Long operatorId,
+                              Instant passwordChangedAt, String password,
                               Collection<? extends GrantedAuthority> authorities) {
         this.userId = userId;
         this.email = email;
         this.realUsername = realUsername;
         this.operatorId = operatorId;
+        this.passwordChangedAt = passwordChangedAt;
         this.password = password;
         this.authorities = authorities;
     }
