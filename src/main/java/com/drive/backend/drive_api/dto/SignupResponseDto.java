@@ -1,5 +1,6 @@
 package com.drive.backend.drive_api.dto;
 
+import com.drive.backend.drive_api.entity.Operator;
 import com.drive.backend.drive_api.enums.Role;
 import com.drive.backend.drive_api.entity.User;
 import lombok.Getter;
@@ -21,7 +22,12 @@ public class SignupResponseDto {
         this.phoneNumber = user.getPhoneNumber();
         this.imagePath = user.getImagePath();
         this.role = user.getRole();
-        this.operatorId = user.getOperator().getOperatorId();
+        Operator operator = user.getOperator();
+        if (operator != null) {
+            this.operatorId = operator.getOperatorId();
+        } else {
+            this.operatorId = null;
+        }
     }
 
     public static SignupResponseDto from(User user) {

@@ -2,6 +2,7 @@ package com.drive.backend.drive_api.dto;
 
 import com.drive.backend.drive_api.entity.Admin;
 import com.drive.backend.drive_api.entity.Driver;
+import com.drive.backend.drive_api.entity.Operator;
 import com.drive.backend.drive_api.enums.Role;
 import com.drive.backend.drive_api.entity.User;
 import lombok.Getter;
@@ -29,8 +30,14 @@ public class UserDetailDto {
         this.phoneNumber = user.getPhoneNumber();
         this.imagePath = user.getImagePath();
         this.role = user.getRole();
-        this.operatorId = user.getOperator().getOperatorId();
-        this.operatorName = user.getOperator().getOperatorName();
+        Operator operator = user.getOperator();
+        if (operator != null) {
+            this.operatorId = operator.getOperatorId();
+            this.operatorName = operator.getOperatorName(); // Operator의 getName() 메서드 사용
+        } else {
+            this.operatorId = null;
+            this.operatorName = null;
+        }
 
         if (user instanceof Driver driver) {
             // user가 Driver 타입일 경우
