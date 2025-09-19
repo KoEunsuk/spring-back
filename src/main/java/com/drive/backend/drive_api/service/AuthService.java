@@ -10,12 +10,15 @@ import com.drive.backend.drive_api.repository.AdminRepository;
 import com.drive.backend.drive_api.repository.DriverRepository;
 import com.drive.backend.drive_api.repository.OperatorRepository;
 import com.drive.backend.drive_api.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class AuthService {
 
     private final UserRepository userRepository;
@@ -23,14 +26,6 @@ public class AuthService {
     private final DriverRepository driverRepository;
     private final OperatorRepository operatorRepository;
     private final PasswordEncoder passwordEncoder;
-
-    public AuthService(UserRepository userRepository, AdminRepository adminRepository, DriverRepository driverRepository, OperatorRepository operatorRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.adminRepository = adminRepository;
-        this.driverRepository = driverRepository;
-        this.operatorRepository = operatorRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     @Transactional
     public SignupResponseDto signup(SignupRequestDto signupDto){

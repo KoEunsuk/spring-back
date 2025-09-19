@@ -19,17 +19,17 @@ import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Transactional(readOnly = true)
     public UserDetailDto getMyProfile() {
         return UserDetailDto.from(getCurrentUserEntity());
     }
 
+    @Transactional
     public UserDetailDto updateMyProfile(UserUpdateDto updateDto) {
         User currentUser = getCurrentUserEntity();
         // 공통 정보 업데이트
@@ -48,6 +48,7 @@ public class UserService {
         return UserDetailDto.from(currentUser);
     }
 
+    @Transactional
     public void changeMyPassword(PasswordChangeDto passwordDto) {
         User currentUser = getCurrentUserEntity();
 
@@ -60,6 +61,7 @@ public class UserService {
         currentUser.setPasswordChangedAt(Instant.now());
     }
 
+    @Transactional
     public void deleteMyAccount() {
         userRepository.delete(getCurrentUserEntity());
     }
