@@ -1,7 +1,6 @@
 package com.drive.backend.drive_api.config;
 
 
-import com.drive.backend.drive_api.security.CustomAccessDeniedHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,16 +29,13 @@ public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final AuthEntryPointJwt unauthorizedHandler;
     private final JwtTokenProvider jwtTokenProvider;
-    private final CustomAccessDeniedHandler accessDeniedHandler;
 
     public SecurityConfig(CustomUserDetailsService userDetailsService,
                           AuthEntryPointJwt unauthorizedHandler,
-                          JwtTokenProvider jwtTokenProvider,
-                          CustomAccessDeniedHandler accessDeniedHandler) {
+                          JwtTokenProvider jwtTokenProvider) {
         this.userDetailsService = userDetailsService;
         this.unauthorizedHandler = unauthorizedHandler;
         this.jwtTokenProvider = jwtTokenProvider;
-        this.accessDeniedHandler = accessDeniedHandler;
     }
 
     @Bean
@@ -70,8 +66,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(unauthorizedHandler)
-                        .accessDeniedHandler(accessDeniedHandler))
+                        .authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()

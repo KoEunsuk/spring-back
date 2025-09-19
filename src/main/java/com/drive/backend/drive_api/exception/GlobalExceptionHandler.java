@@ -4,6 +4,7 @@ import com.drive.backend.drive_api.common.ApiResponse; // ApiResponse import
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
@@ -62,6 +63,14 @@ public class GlobalExceptionHandler {
         // 보안을 위해 "비밀번호가 틀렸습니다" 대신 더 일반적인 메시지를 사용
         ApiResponse<Void> response = ApiResponse.error("이메일 또는 비밀번호가 일치하지 않습니다.", null);
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
+
+    // 👇 403 Forbidden - 권한 없음 예외 처리기 추가
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAccessDeniedException(AccessDeniedException ex) {
+        log.warn("Access Denied: {}", ex.getMessage());
+        ApiResponse<Void> response = ApiResponse.error("이 리소스에 접근할 권한이 없습니다.", null);
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
 
     // 500 처리
