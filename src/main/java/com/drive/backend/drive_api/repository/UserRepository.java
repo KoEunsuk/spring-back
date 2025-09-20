@@ -8,7 +8,6 @@ import java.util.Optional;
 
 
 @Repository
-// JpaRepository<[매핑할 엔티티 타입], [엔티티의 ID(기본 키) 타입]> 상속
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
 }
