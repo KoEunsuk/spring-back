@@ -42,7 +42,7 @@ public class Driver extends User {
     private BigDecimal avgDrivingScore;
 
     public Driver(String email, String password, String username, String phoneNumber, Operator operator, String imagePath, String licenseNumber, Integer careerYears) {
-        super(email, password, username, phoneNumber, operator, imagePath);
+        super(email, password, username, phoneNumber, operator);
         this.licenseNumber = licenseNumber;
         this.careerYears = careerYears;
     }

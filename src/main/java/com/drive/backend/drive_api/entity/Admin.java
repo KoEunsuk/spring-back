@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class Admin extends User {
 
     public Admin(String email, String password, String username, String phoneNumber, Operator operator, String imagePath) {
-        super(email, password, username, phoneNumber, operator, imagePath);
+        super(email, password, username, phoneNumber, operator);
     }
 
     @Override

@@ -43,13 +43,13 @@ public abstract class User {
     @Column
     private Instant passwordChangedAt;
 
-    protected User(String email, String password, String username, String phoneNumber, Operator operator, String imagePath) {
+    // 필수정보 누락 방지
+    protected User(String email, String password, String username, String phoneNumber, Operator operator) {
         this.email = email;
         this.password = password;
         this.username = username;
         this.phoneNumber = phoneNumber;
         this.operator = operator;
-        this.imagePath = imagePath;
     }
 
     public abstract Role getRole();
