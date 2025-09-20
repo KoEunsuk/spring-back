@@ -1,6 +1,5 @@
 package com.drive.backend.drive_api.dto;
 
-import com.drive.backend.drive_api.entity.Bus_old;
 import com.drive.backend.drive_api.entity.Dispatch;
 import com.drive.backend.drive_api.entity.Driver;
 import com.drive.backend.drive_api.enums.DispatchStatus;

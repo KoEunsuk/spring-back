@@ -28,7 +28,7 @@ public class Dispatch {
     // ManyToOne 관계: 이 배차에 할당된 Bus (N:1 관계)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bus_id") // DB의 'bus_id' 컬럼이 Bus 테이블을 참조
-    private Bus_old busOld; // 할당된 Bus 엔티티 객체
+    private Bus busOld; // 할당된 Bus 엔티티 객체
 
     @Column(length = 20)
     private DispatchStatus status; // 배차의 현재 상태 (예: "대기", "운행 중", "완료", "취소")

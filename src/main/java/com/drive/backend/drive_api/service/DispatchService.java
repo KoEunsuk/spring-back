@@ -2,11 +2,9 @@ package com.drive.backend.drive_api.service;
 
 import com.drive.backend.drive_api.dto.DispatchDetailDto;
 import com.drive.backend.drive_api.dto.DispatchDto;
-import com.drive.backend.drive_api.entity.Bus_old;
 import com.drive.backend.drive_api.entity.Dispatch;
 import com.drive.backend.drive_api.entity.Driver;
 import com.drive.backend.drive_api.exception.ResourceNotFoundException;
-import com.drive.backend.drive_api.repository.BusRepository_old;
 import com.drive.backend.drive_api.repository.DispatchRepository;
 import com.drive.backend.drive_api.repository.DriverRepository;
 import org.springframework.stereotype.Service;
