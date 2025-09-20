@@ -1,11 +1,20 @@
-HELP.md
+# ===================================================================
+# ## Build & Dependency Cache (Gradle)
+# ===================================================================
 .gradle
 build/
-!gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
 
-### STS ###
+# ===================================================================
+# ## IDE Files (IntelliJ, Eclipse/STS, VSCode, NetBeans)
+# ===================================================================
+# IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Eclipse/STS
 .apt_generated
 .classpath
 .factorypath
@@ -14,24 +23,41 @@ build/
 .springBeans
 .sts4-cache
 bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
+# VS Code
+.vscode/
 
-### NetBeans ###
+# NetBeans
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
 
-### VS Code ###
-.vscode/
+# ===================================================================
+# ## Operating System Files
+# ===================================================================
+.DS_Store
+Thumbs.db
+
+# ===================================================================
+# ## Log Files
+# ===================================================================
+logs/
+*.log
+
+# ===================================================================
+# ## Sensitive Information (VERY IMPORTANT!)
+# ===================================================================
+application.properties
+application.yml
+application-*.properties
+application-*.yml
+
+# ===================================================================
+# ## Other Generated Files
+# ===================================================================
+*.pid
+*.seed
+*.rar
+*.zip
