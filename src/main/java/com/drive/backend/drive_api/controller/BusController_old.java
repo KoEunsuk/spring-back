@@ -10,11 +10,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/buses")
-public class BusController {
+public class BusController_old {
 
     private final BusService busService;
 
-    public BusController(BusService busService) {
+    public BusController_old(BusService busService) {
         this.busService = busService;
     }
 

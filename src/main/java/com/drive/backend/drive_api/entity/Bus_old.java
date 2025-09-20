@@ -12,12 +12,12 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "bus")
+@Table(name = "buses")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Bus {
+public class Bus_old {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

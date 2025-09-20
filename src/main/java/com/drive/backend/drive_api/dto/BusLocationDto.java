@@ -1,6 +1,6 @@
 package com.drive.backend.drive_api.dto;
 
-import com.drive.backend.drive_api.entity.Bus;
+import com.drive.backend.drive_api.entity.Bus_old;
 import lombok.Getter;
 
 @Getter
@@ -10,11 +10,11 @@ public class BusLocationDto {
 
 
 
-    private BusLocationDto(Bus bus) {
+    private BusLocationDto(Bus_old busOld) {
 
     }
 
-    public static BusLocationDto from(Bus bus) {
-        return new BusLocationDto(bus);
+    public static BusLocationDto from(Bus_old busOld) {
+        return new BusLocationDto(busOld);
     }
 }

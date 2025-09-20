@@ -2,11 +2,11 @@ package com.drive.backend.drive_api.service;
 
 import com.drive.backend.drive_api.dto.DispatchDetailDto;
 import com.drive.backend.drive_api.dto.DispatchDto;
-import com.drive.backend.drive_api.entity.Bus;
+import com.drive.backend.drive_api.entity.Bus_old;
 import com.drive.backend.drive_api.entity.Dispatch;
 import com.drive.backend.drive_api.entity.Driver;
 import com.drive.backend.drive_api.exception.ResourceNotFoundException;
-import com.drive.backend.drive_api.repository.BusRepository;
+import com.drive.backend.drive_api.repository.BusRepository_old;
 import com.drive.backend.drive_api.repository.DispatchRepository;
 import com.drive.backend.drive_api.repository.DriverRepository;
 import org.springframework.stereotype.Service;
@@ -20,12 +20,12 @@ public class DispatchService {
 
     private final DispatchRepository dispatchRepository;
     private final DriverRepository driverRepository;
-    private final BusRepository busRepository;
+    private final BusRepository_old busRepositoryOld;
 
-    public DispatchService(DispatchRepository dispatchRepository, DriverRepository driverRepository, BusRepository busRepository) {
+    public DispatchService(DispatchRepository dispatchRepository, DriverRepository driverRepository, BusRepository_old busRepositoryOld) {
         this.dispatchRepository = dispatchRepository;
         this.driverRepository = driverRepository;
-        this.busRepository = busRepository;
+        this.busRepositoryOld = busRepositoryOld;
     }
 
     // DTO를 엔티티로 변환
@@ -42,9 +42,9 @@ public class DispatchService {
         }
         // Bus 연결
         if (dto.getBusId() != null) {
-            Bus bus = busRepository.findById(dto.getBusId())
+            Bus_old busOld = busRepositoryOld.findById(dto.getBusId())
                     .orElseThrow(() -> new ResourceNotFoundException("Bus", "id", dto.getBusId()));
-            dispatch.setBus(bus);
+            dispatch.setBusOld(busOld);
         }
         dispatch.setStatus(dto.getStatus());
         dispatch.setDispatchDate(dto.getDispatchDate());
@@ -61,7 +61,7 @@ public class DispatchService {
         return new DispatchDto(
                 entity.getDispatchId(),
                 entity.getDriver() != null ? entity.getDriver().getUserId() : null,
-                entity.getBus() != null ? entity.getBus().getBusId() : null,
+                entity.getBusOld() != null ? entity.getBusOld().getBusId() : null,
                 entity.getStatus(),
                 entity.getDispatchDate(),
                 entity.getScheduledDeparture(),
@@ -70,7 +70,7 @@ public class DispatchService {
                 entity.getWarningCount(),
                 entity.getDrivingScore(),
                 entity.getDriver() != null ? entity.getDriver().getUsername() : null,
-                entity.getBus() != null ? entity.getBus().getVehicleNumber() : null
+                entity.getBusOld() != null ? entity.getBusOld().getVehicleNumber() : null
         );
     }
 

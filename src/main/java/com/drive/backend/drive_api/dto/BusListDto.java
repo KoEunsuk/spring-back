@@ -1,6 +1,6 @@
 package com.drive.backend.drive_api.dto;
 
-import com.drive.backend.drive_api.entity.Bus;
+import com.drive.backend.drive_api.entity.Bus_old;
 import com.drive.backend.drive_api.enums.FuelType;
 import lombok.Getter;
 
@@ -19,20 +19,20 @@ public class BusListDto {
     private Integer repairCount;
     private FuelType fuelType;
 
-    private BusListDto(Bus bus) {
-        this.routeNumber = bus.getRouteNumber();
-        this.routeType = bus.getRouteType();
-        this.capacity = bus.getCapacity();
-        this.vehicleNumber = bus.getVehicleNumber();
-        this.vehicleType = bus.getVehicleType();
-        this.vehicleYear = bus.getVehicleYear();
-        this.lastMaintenance = bus.getLastMaintenance();
-        this.repairCount = bus.getRepairCount();
-        this.fuelType = bus.getFuelType();
+    private BusListDto(Bus_old busOld) {
+        this.routeNumber = busOld.getRouteNumber();
+        this.routeType = busOld.getRouteType();
+        this.capacity = busOld.getCapacity();
+        this.vehicleNumber = busOld.getVehicleNumber();
+        this.vehicleType = busOld.getVehicleType();
+        this.vehicleYear = busOld.getVehicleYear();
+        this.lastMaintenance = busOld.getLastMaintenance();
+        this.repairCount = busOld.getRepairCount();
+        this.fuelType = busOld.getFuelType();
     }
 
-    public static BusListDto from(Bus bus) {
-        return new BusListDto(bus);
+    public static BusListDto from(Bus_old busOld) {
+        return new BusListDto(busOld);
     }
 
 }

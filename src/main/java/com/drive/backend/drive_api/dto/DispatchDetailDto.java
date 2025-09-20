@@ -1,6 +1,6 @@
 package com.drive.backend.drive_api.dto;
 
-import com.drive.backend.drive_api.entity.Bus;
+import com.drive.backend.drive_api.entity.Bus_old;
 import com.drive.backend.drive_api.entity.Dispatch;
 import com.drive.backend.drive_api.entity.Driver;
 import com.drive.backend.drive_api.enums.DispatchStatus;
@@ -35,8 +35,8 @@ public class DispatchDetailDto {
         Driver driver = dispatch.getDriver();
         this.driverId = (driver != null) ? driver.getUserId() : null;
 
-        Bus bus = dispatch.getBus();
-        this.busId = (bus != null) ? bus.getBusId() : null;
+        Bus_old busOld = dispatch.getBusOld();
+        this.busId = (busOld != null) ? busOld.getBusId() : null;
     }
 
     public static DispatchDetailDto from(Dispatch dispatch) {

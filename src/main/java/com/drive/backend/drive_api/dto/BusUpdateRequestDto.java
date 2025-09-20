@@ -1,6 +1,5 @@
 package com.drive.backend.drive_api.dto;
 
-import com.drive.backend.drive_api.entity.Bus;
 import lombok.Getter;
 
 import java.time.LocalDate;

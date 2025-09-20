@@ -1,6 +1,6 @@
 package com.drive.backend.drive_api.dto;
 
-import com.drive.backend.drive_api.entity.Bus;
+import com.drive.backend.drive_api.entity.Bus_old;
 import com.drive.backend.drive_api.entity.Driver;
 import com.drive.backend.drive_api.enums.FuelType;
 import lombok.*;
@@ -47,28 +47,28 @@ public class BusDto {
         }
     }
 
-    private BusDto(Bus bus) {
-        this.busId = bus.getBusId();
-        this.routeNumber = bus.getRouteNumber();
-        this.routeType = bus.getRouteType();
-        this.capacity = bus.getCapacity();
-        this.vehicleNumber = bus.getVehicleNumber();
-        this.vehicleType = bus.getVehicleType();
-        this.vehicleYear = bus.getVehicleYear();
-        this.lastMaintenance = bus.getLastMaintenance();
-        this.repairCount = bus.getRepairCount();
-        this.operatorId = bus.getOperator().getOperatorId();
-        this.fuelType = bus.getFuelType();
-        this.totalMileage = bus.getTotalMileage();
-        this.averageFuelEfficiency = bus.getAverageFuelEfficiency();
+    private BusDto(Bus_old busOld) {
+        this.busId = busOld.getBusId();
+        this.routeNumber = busOld.getRouteNumber();
+        this.routeType = busOld.getRouteType();
+        this.capacity = busOld.getCapacity();
+        this.vehicleNumber = busOld.getVehicleNumber();
+        this.vehicleType = busOld.getVehicleType();
+        this.vehicleYear = busOld.getVehicleYear();
+        this.lastMaintenance = busOld.getLastMaintenance();
+        this.repairCount = busOld.getRepairCount();
+        this.operatorId = busOld.getOperator().getOperatorId();
+        this.fuelType = busOld.getFuelType();
+        this.totalMileage = busOld.getTotalMileage();
+        this.averageFuelEfficiency = busOld.getAverageFuelEfficiency();
 
-        this.currentDriver = (bus.getDriver() != null)
-                ? DriverSimpleDto.from(bus.getDriver())
+        this.currentDriver = (busOld.getDriver() != null)
+                ? DriverSimpleDto.from(busOld.getDriver())
                 : null;
     }
 
-    public static BusDto from(Bus bus) {
-        return new BusDto(bus);
+    public static BusDto from(Bus_old busOld) {
+        return new BusDto(busOld);
     }
 
 }
