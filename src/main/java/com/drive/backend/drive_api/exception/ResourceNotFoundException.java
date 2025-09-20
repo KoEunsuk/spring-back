@@ -9,6 +9,6 @@ public class ResourceNotFoundException extends RuntimeException {
         super(message);
     }
     public ResourceNotFoundException(String resourceName, String fieldName, Object fieldValue) {
-        super(String.format("%s not found with %s : '%s'", resourceName, fieldName, fieldValue));
+        super(String.format("요청하신 리소스를 찾을 수 없습니다. (%s %s: '%s')", resourceName, fieldName, fieldValue));
     }
 }

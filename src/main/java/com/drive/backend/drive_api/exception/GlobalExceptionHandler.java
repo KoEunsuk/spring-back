@@ -26,7 +26,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ApiResponse.error(ex.getMessage(), null), HttpStatus.NOT_FOUND);
     }
 
-    // 400 - 잘못된 요청 인자 (새로 추가)
+    // 400 - 잘못된 요청 인자
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse<Void>> handleIllegalArgumentException(IllegalArgumentException ex) {
         log.warn("Illegal argument: {}", ex.getMessage());
@@ -60,12 +60,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiResponse<Void>> handleBadCredentialsException(BadCredentialsException ex) {
         log.warn("Login failed: Invalid credentials");
-        // 보안을 위해 "비밀번호가 틀렸습니다" 대신 더 일반적인 메시지를 사용
         ApiResponse<Void> response = ApiResponse.error("이메일 또는 비밀번호가 일치하지 않습니다.", null);
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 
-    // 👇 403 Forbidden - 권한 없음 예외 처리기 추가
+    // 403 Forbidden - 권한 없음 예외 처리
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiResponse<Void>> handleAccessDeniedException(AccessDeniedException ex) {
         log.warn("Access Denied: {}", ex.getMessage());
@@ -76,7 +75,6 @@ public class GlobalExceptionHandler {
     // 500 처리
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleAllExceptions(Exception ex) {
-        // 실제 운영에서는 어떤 에러인지 파악하기 위해 로그를 남기는 것이 매우 중요합니다.
         log.error("Unhandled exception occurred", ex);
 
         ApiResponse<Void> response = ApiResponse.error("서버 내부 오류가 발생했습니다. 관리자에게 문의하세요.", null);
