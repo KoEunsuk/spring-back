@@ -14,12 +14,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class BusService {
+public class BusService_old {
 
     private final BusRepository_old busRepositoryOld;
     private final OperatorRepository operatorRepository;
 
-    public BusService(BusRepository_old busRepositoryOld, OperatorRepository operatorRepository) {
+    public BusService_old(BusRepository_old busRepositoryOld, OperatorRepository operatorRepository) {
         this.busRepositoryOld = busRepositoryOld;
         this.operatorRepository = operatorRepository;
     }
