@@ -45,8 +45,7 @@ public class AuthService {
                     encodedPassword,
                     signupDto.getUsername(),
                     signupDto.getPhoneNumber(),
-                    operator,
-                    signupDto.getImagePath()
+                    operator
             );
             newUser = adminRepository.save(admin);
         } else if (signupDto.getRole() == Role.DRIVER) {
@@ -55,11 +54,14 @@ public class AuthService {
                     encodedPassword,
                     signupDto.getUsername(),
                     signupDto.getPhoneNumber(),
-                    operator,
-                    signupDto.getImagePath(),
-                    signupDto.getLicenseNumber(),
-                    signupDto.getCareerYears()
+                    operator
             );
+            if (signupDto.getLicenseNumber() != null) {
+                driver.setLicenseNumber(signupDto.getLicenseNumber());
+            }
+            if (signupDto.getCareerYears() != null) {
+                driver.setCareerYears(signupDto.getCareerYears());
+            }
             newUser = driverRepository.save(driver);
         } else {
             throw new IllegalArgumentException("유효하지 않은 역할입니다.");
