@@ -47,6 +47,8 @@ public class AuthService {
                     signupDto.getPhoneNumber(),
                     operator
             );
+
+            operator.addUser(admin);
             newUser = adminRepository.save(admin);
         } else if (signupDto.getRole() == Role.DRIVER) {
             Driver driver = new Driver(
@@ -62,6 +64,8 @@ public class AuthService {
             if (signupDto.getCareerYears() != null) {
                 driver.setCareerYears(signupDto.getCareerYears());
             }
+
+            operator.addUser(driver);
             newUser = driverRepository.save(driver);
         } else {
             throw new IllegalArgumentException("유효하지 않은 역할입니다.");

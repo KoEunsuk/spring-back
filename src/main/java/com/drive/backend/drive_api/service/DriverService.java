@@ -29,7 +29,7 @@ public class DriverService {
                 .map(CustomUserDetails::getOperatorId)
                 .orElseThrow(() -> new RuntimeException("인증 정보가 없습니다."));
 
-        return driverRepository.findByOperatorOperatorId(adminOperatorId).stream()
+        return driverRepository.findByOperator_OperatorId(adminOperatorId).stream()
                 .map(DriverDetailDto::from)
                 .collect(Collectors.toList());
     }

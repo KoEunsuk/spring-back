@@ -41,6 +41,9 @@ public class Driver extends User {
     @Column(precision = 5, scale = 2)
     private BigDecimal avgDrivingScore;
 
+    @OneToOne(mappedBy = "driver")
+    private Bus bus;
+
     // 필수값 생성자
     public Driver(String email, String password, String username, String phoneNumber, Operator operator) {
         super(email, password, username, phoneNumber, operator);

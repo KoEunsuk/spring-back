@@ -27,10 +27,17 @@ public class Operator {
     @OneToMany(mappedBy = "operator", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<User> users = new ArrayList<>();
 
+    @OneToMany(mappedBy = "operator", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Bus> buses = new ArrayList<>();
+
     // 연관관계 설정을 위한 편의 메서드 -> 사용하지 않을 경우, 양쪽 다 추가 잊지말기
     public void addUser(User user) {
         this.users.add(user);
         user.setOperator(this);
+    }
+    public void addBus(Bus bus) {
+        this.buses.add(bus);
+        bus.setOperator(this);
     }
 
 }

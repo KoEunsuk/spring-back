@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface DriverRepository extends JpaRepository<Driver, Long> {
-    List<Driver> findByOperatorOperatorId(Long operatorId);
+    List<Driver> findByOperator_OperatorId(Long operatorId);
 }
