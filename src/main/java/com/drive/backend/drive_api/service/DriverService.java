@@ -3,9 +3,13 @@ package com.drive.backend.drive_api.service;
 import com.drive.backend.drive_api.dto.DriverAdminUpdateRequestDto;
 import com.drive.backend.drive_api.dto.DriverDetailDto;
 import com.drive.backend.drive_api.entity.Driver;
+import com.drive.backend.drive_api.entity.Operator;
 import com.drive.backend.drive_api.exception.ResourceNotFoundException;
 import com.drive.backend.drive_api.repository.DriverRepository;
+import com.drive.backend.drive_api.security.SecurityUtil;
+import com.drive.backend.drive_api.security.userdetails.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,23 +25,25 @@ public class DriverService {
 
     // 전체 운전자 목록 조회
     public List<DriverDetailDto> findAllDrivers() {
-        return driverRepository.findAll().stream()
+        Long adminOperatorId = SecurityUtil.getCurrentUser()
+                .map(CustomUserDetails::getOperatorId)
+                .orElseThrow(() -> new RuntimeException("인증 정보가 없습니다."));
+
+        return driverRepository.findByOperatorOperatorId(adminOperatorId).stream()
                 .map(DriverDetailDto::from)
                 .collect(Collectors.toList());
     }
 
     // 특정 운전자 상세 조회
     public DriverDetailDto findDriverById(Long driverId) {
-        Driver driver = driverRepository.findById(driverId)
-                .orElseThrow(() -> new ResourceNotFoundException("Driver", "id", driverId));
+        Driver driver = findDriverAndCheckPermission(driverId);
         return DriverDetailDto.from(driver);
     }
 
     // 운전자 정보 수정 (관리자용)
     @Transactional
     public DriverDetailDto updateDriverByAdmin(Long driverId, DriverAdminUpdateRequestDto updateDto) {
-        Driver driver = driverRepository.findById(driverId)
-                .orElseThrow(() -> new ResourceNotFoundException("Driver", "id", driverId));
+        Driver driver = findDriverAndCheckPermission(driverId);
 
         if (updateDto.getPhoneNumber() != null) driver.setPhoneNumber(updateDto.getPhoneNumber());
         if (updateDto.getLicenseNumber() != null) driver.setLicenseNumber(updateDto.getLicenseNumber());
@@ -50,9 +56,30 @@ public class DriverService {
     // 운전자 삭제
     @Transactional
     public void deleteDriverByAdmin(Long driverId) {
-        Driver driverToDelete = driverRepository.findById(driverId)
-                .orElseThrow(() -> new ResourceNotFoundException("Driver", "id", driverId));
+        Driver driverToDelete = findDriverAndCheckPermission(driverId);
 
         driverRepository.delete(driverToDelete);
+    }
+
+    // 동일 회사 소속인지 검사하기 위한 헬퍼 메서드
+    private Driver findDriverAndCheckPermission(Long driverId) {
+        CustomUserDetails currentUser = SecurityUtil.getCurrentUser()
+                .orElseThrow(() -> new RuntimeException("인증 정보를 찾을 수 없습니다."));
+        Long adminOperatorId = currentUser.getOperatorId();
+
+        Driver driver = driverRepository.findById(driverId)
+                .orElseThrow(() -> new ResourceNotFoundException("Driver", "id", driverId));
+
+        Operator driverOperator = driver.getOperator();
+        if (driverOperator == null) {
+            // 이 경우는 데이터가 잘못된 심각한 상황일 수 있으므로 서버 에러로 처리
+            throw new IllegalStateException("Driver " + driverId + " has no assigned operator.");
+        }
+
+        if (!adminOperatorId.equals(driverOperator.getOperatorId())) {
+            throw new AccessDeniedException("다른 운수사의 직원을 관리할 권한이 없습니다.");
+        }
+
+        return driver;
     }
 }
