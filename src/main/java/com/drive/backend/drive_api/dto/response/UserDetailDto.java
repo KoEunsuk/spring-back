@@ -1,4 +1,4 @@
-package com.drive.backend.drive_api.dto;
+package com.drive.backend.drive_api.dto.response;
 
 import com.drive.backend.drive_api.entity.Admin;
 import com.drive.backend.drive_api.entity.Driver;

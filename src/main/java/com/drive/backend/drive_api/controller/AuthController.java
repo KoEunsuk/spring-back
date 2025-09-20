@@ -1,11 +1,13 @@
 package com.drive.backend.drive_api.controller;
 
 import com.drive.backend.drive_api.common.ApiResponse;
-import com.drive.backend.drive_api.dto.*;
+import com.drive.backend.drive_api.dto.request.LoginRequestDto;
+import com.drive.backend.drive_api.dto.request.SignupRequestDto;
+import com.drive.backend.drive_api.dto.response.JwtResponseDto;
 import com.drive.backend.drive_api.security.jwt.JwtTokenProvider;
 import com.drive.backend.drive_api.security.userdetails.CustomUserDetails;
 import com.drive.backend.drive_api.service.AuthService;
-import com.drive.backend.drive_api.dto.SignupResponseDto;
+import com.drive.backend.drive_api.dto.response.SignupResponseDto;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

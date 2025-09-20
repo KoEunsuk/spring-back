@@ -1,8 +1,8 @@
 package com.drive.backend.drive_api.controller;
 
 import com.drive.backend.drive_api.common.ApiResponse;
-import com.drive.backend.drive_api.dto.DriverAdminUpdateRequestDto;
-import com.drive.backend.drive_api.dto.DriverDetailDto;
+import com.drive.backend.drive_api.dto.request.DriverAdminUpdateRequestDto;
+import com.drive.backend.drive_api.dto.response.DriverDetailDto;
 import com.drive.backend.drive_api.service.DriverService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

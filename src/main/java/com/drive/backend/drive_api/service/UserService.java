@@ -1,8 +1,8 @@
 package com.drive.backend.drive_api.service;
 
-import com.drive.backend.drive_api.dto.PasswordChangeDto;
-import com.drive.backend.drive_api.dto.UserDetailDto;
-import com.drive.backend.drive_api.dto.UserUpdateDto;
+import com.drive.backend.drive_api.dto.request.PasswordChangeDto;
+import com.drive.backend.drive_api.dto.response.UserDetailDto;
+import com.drive.backend.drive_api.dto.request.UserUpdateDto;
 import com.drive.backend.drive_api.entity.Admin;
 import com.drive.backend.drive_api.entity.Driver;
 import com.drive.backend.drive_api.entity.User;

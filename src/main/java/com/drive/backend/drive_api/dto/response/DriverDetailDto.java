@@ -1,4 +1,4 @@
-package com.drive.backend.drive_api.dto;
+package com.drive.backend.drive_api.dto.response;
 
 import com.drive.backend.drive_api.entity.Driver;
 import com.drive.backend.drive_api.enums.Grade;

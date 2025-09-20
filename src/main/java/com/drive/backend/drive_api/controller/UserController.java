@@ -1,9 +1,9 @@
 package com.drive.backend.drive_api.controller;
 
 import com.drive.backend.drive_api.common.ApiResponse;
-import com.drive.backend.drive_api.dto.PasswordChangeDto;
-import com.drive.backend.drive_api.dto.UserDetailDto;
-import com.drive.backend.drive_api.dto.UserUpdateDto;
+import com.drive.backend.drive_api.dto.request.PasswordChangeDto;
+import com.drive.backend.drive_api.dto.response.UserDetailDto;
+import com.drive.backend.drive_api.dto.request.UserUpdateDto;
 import com.drive.backend.drive_api.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;

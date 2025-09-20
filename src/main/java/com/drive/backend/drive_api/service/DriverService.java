@@ -1,7 +1,7 @@
 package com.drive.backend.drive_api.service;
 
-import com.drive.backend.drive_api.dto.DriverAdminUpdateRequestDto;
-import com.drive.backend.drive_api.dto.DriverDetailDto;
+import com.drive.backend.drive_api.dto.request.DriverAdminUpdateRequestDto;
+import com.drive.backend.drive_api.dto.response.DriverDetailDto;
 import com.drive.backend.drive_api.entity.Driver;
 import com.drive.backend.drive_api.entity.Operator;
 import com.drive.backend.drive_api.exception.ResourceNotFoundException;

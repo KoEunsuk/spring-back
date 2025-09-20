@@ -1,6 +1,7 @@
 package com.drive.backend.drive_api.service;
 
-import com.drive.backend.drive_api.dto.*;
+import com.drive.backend.drive_api.dto.request.SignupRequestDto;
+import com.drive.backend.drive_api.dto.response.SignupResponseDto;
 import com.drive.backend.drive_api.entity.Admin;
 import com.drive.backend.drive_api.entity.Driver;
 import com.drive.backend.drive_api.entity.Operator;
