@@ -48,6 +48,9 @@ public class AuthService {
                     signupDto.getPhoneNumber(),
                     operator
             );
+            if (signupDto.getImagePath() != null) {
+                admin.setImagePath(signupDto.getImagePath());
+            }
 
             operator.addUser(admin);
             newUser = adminRepository.save(admin);
@@ -59,6 +62,9 @@ public class AuthService {
                     signupDto.getPhoneNumber(),
                     operator
             );
+            if (signupDto.getImagePath() != null) {
+                driver.setImagePath(signupDto.getImagePath());
+            }
             if (signupDto.getLicenseNumber() != null) {
                 driver.setLicenseNumber(signupDto.getLicenseNumber());
             }

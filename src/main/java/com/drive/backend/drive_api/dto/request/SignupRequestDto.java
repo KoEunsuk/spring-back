@@ -10,8 +10,9 @@ public class SignupRequestDto {
     private String username;
     private String operatorCode;
     private String phoneNumber;
-    private String imagePath;
     private Role role;
+    //공통이지만 널허용
+    private String imagePath;
 
     private String licenseNumber;
     private Integer careerYears;
