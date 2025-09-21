@@ -67,16 +67,32 @@ public class BusService {
 
         return BusDetailDto.from(busRepository.save(newBus));
     }
+
     // 버스 수정
     @Transactional
     public BusDetailDto updateBus(Long busId, BusUpdateRequestDto updateDto) {
         Bus bus = findBusAndCheckPermission(busId);
 
+        if (updateDto.getVehicleNumber() != null && !updateDto.getVehicleNumber().isBlank()) {
+            String newVehicleNumber = updateDto.getVehicleNumber();
+
+            // 새로운 차량 번호를 가진 버스가 있는지 찾아봅니다.
+            busRepository.findByVehicleNumber(newVehicleNumber)
+                    // 찾은 버스가 현재 수정하려는 버스와 다른 버스일 경우에만 예외를 발생시킵니다.
+                    .ifPresent(foundBus -> {
+                        if (!foundBus.getBusId().equals(bus.getBusId())) {
+                            throw new IllegalArgumentException("이미 다른 버스가 사용 중인 차량 번호입니다: " + newVehicleNumber);
+                        }
+                    });
+
+            // 중복이 아니면 차량 번호를 업데이트합니다.
+            bus.setVehicleNumber(newVehicleNumber);
+        }
+
         if (updateDto.getRouteNumber() != null) bus.setRouteNumber(updateDto.getRouteNumber());
         if (updateDto.getRouteType() != null) bus.setRouteType(updateDto.getRouteType());
         if (updateDto.getLastMaintenance() != null) bus.setLastMaintenance(updateDto.getLastMaintenance());
         if (updateDto.getCapacity() != null) bus.setCapacity(updateDto.getCapacity());
-        if (updateDto.getVehicleNumber() != null) bus.setVehicleNumber(updateDto.getVehicleNumber());
         if (updateDto.getRepairCount() != null) bus.setRepairCount(updateDto.getRepairCount());
 
         return BusDetailDto.from(bus);
