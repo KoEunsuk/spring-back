@@ -21,6 +21,8 @@ import com.drive.backend.drive_api.security.jwt.JwtAuthFilter;
 import com.drive.backend.drive_api.security.jwt.JwtTokenProvider;
 import com.drive.backend.drive_api.security.userdetails.CustomUserDetailsService;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -64,6 +66,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(unauthorizedHandler))
