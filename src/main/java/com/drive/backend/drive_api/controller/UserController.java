@@ -6,6 +6,7 @@ import com.drive.backend.drive_api.dto.response.UserDetailDto;
 import com.drive.backend.drive_api.dto.request.UserUpdateDto;
 import com.drive.backend.drive_api.service.UserService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -13,12 +14,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/users")
 @PreAuthorize("isAuthenticated()")
+@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     // 내 정보 조회 API
     @GetMapping("/me")
