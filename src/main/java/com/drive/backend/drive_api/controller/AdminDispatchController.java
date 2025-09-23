@@ -22,7 +22,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/dispatches")
-@PreAuthorize("hasRole('admin')")
+@PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
 public class AdminDispatchController {
 

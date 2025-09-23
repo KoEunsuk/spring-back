@@ -15,7 +15,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/driver/me/dispatch")
+@RequestMapping("/api/driver/me/dispatches")
 @PreAuthorize("hasRole('DRIVER')")
 @RequiredArgsConstructor
 public class DriverDispatchController {
