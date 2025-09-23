@@ -1,6 +1,6 @@
 package com.drive.backend.drive_api.enums;
 
-public enum WarningType {
+public enum DrivingEventType {
     DROWSINESS,
     ACCELERATION,
     BRAKING,
