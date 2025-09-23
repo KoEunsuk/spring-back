@@ -108,6 +108,11 @@ public class BusService {
     @Transactional
     public void deleteBus(Long busId) {
         Bus bus = findBusAndCheckPermission(busId);
+
+        if (!bus.getDispatches().isEmpty()) {
+            throw new IllegalStateException("해당 버스에 배차 기록이 존재하여 삭제할 수 없습니다.");
+        }
+
         busRepository.delete(bus);
     }
 

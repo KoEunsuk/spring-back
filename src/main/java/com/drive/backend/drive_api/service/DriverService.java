@@ -58,6 +58,10 @@ public class DriverService {
     public void deleteDriverByAdmin(Long driverId) {
         Driver driverToDelete = findDriverAndCheckPermission(driverId);
 
+        if (!driverToDelete.getDispatches().isEmpty()) {
+            throw new IllegalStateException("해당 운전자에 배차 기록이 존재하여 삭제할 수 없습니다.");
+        }
+
         driverRepository.delete(driverToDelete);
     }
 

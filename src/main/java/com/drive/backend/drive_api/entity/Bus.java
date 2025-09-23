@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "buses")
@@ -56,6 +58,9 @@ public class Bus {
     @Column(nullable = false)
     private FuelType fuelType;
 
+    @OneToMany(mappedBy = "bus")
+    private List<Dispatch> dispatches = new ArrayList<>();
+
     // 필수값 생성자
     public Bus(Integer capacity, String vehicleNumber, VehicleType vehicleType, Integer vehicleYear, Operator operator, FuelType fuelType) {
         this.capacity = capacity;
@@ -64,6 +69,14 @@ public class Bus {
         this.vehicleYear = vehicleYear;
         this.operator = operator;
         this.fuelType = fuelType;
+    }
+
+    // 연관관계 편의 메서드
+    public void addDispatch(Dispatch dispatch) {
+        this.dispatches.add(dispatch);
+        if (dispatch.getBus() != this) {
+            dispatch.setBus(this);
+        }
     }
 
 }
