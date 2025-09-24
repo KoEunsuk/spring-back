@@ -36,16 +36,13 @@ public class DriverController {
         return ResponseEntity.ok(ApiResponse.success("운전자 정보 수정 성공", updatedDriver));
     }
 
-    // 운전자 삭제
+    // 운전자 물리적 삭제
     @DeleteMapping("/{driverId}")
     public ResponseEntity<ApiResponse<Void>> deleteDriver(@PathVariable Long driverId) {
         driverService.deleteDriverByAdmin(driverId);
         return ResponseEntity.ok(ApiResponse.success("운전자 삭제 성공"));
     }
-
-    // 배차가능 운전자 조회
-
-
+    
     // 특정 운전자 상세 조회
     @GetMapping("/{driverId}")
     public ResponseEntity<ApiResponse<DriverDetailDto>> getDriverById(@PathVariable Long driverId) {

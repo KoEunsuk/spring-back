@@ -104,7 +104,7 @@ public class BusService {
         return BusDetailDto.from(bus);
     }
 
-    // 버스 삭제
+    // 버스 물리적 삭제
     @Transactional
     public void deleteBus(Long busId) {
         Bus bus = findBusAndCheckPermission(busId);

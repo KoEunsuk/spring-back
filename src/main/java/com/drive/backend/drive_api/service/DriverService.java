@@ -53,7 +53,7 @@ public class DriverService {
         return DriverDetailDto.from(driver);
     }
 
-    // 운전자 삭제
+    // 운전자 물리적 삭제
     @Transactional
     public void deleteDriverByAdmin(Long driverId) {
         Driver driverToDelete = findDriverAndCheckPermission(driverId);
