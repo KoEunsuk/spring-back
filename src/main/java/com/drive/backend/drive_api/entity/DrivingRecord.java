@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "driving_records")
 @Getter
@@ -20,6 +23,9 @@ public class DrivingRecord {
     @JoinColumn(name = "dispatch_id")
     private Dispatch dispatch;
 
+    @OneToMany(mappedBy = "drivingRecord", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DrivingEvent> drivingEvents = new ArrayList<>();
+
     private Integer drowsinessCount = 0;
     private Integer accelerationCount = 0;
     private Integer brakingCount = 0;
@@ -29,5 +35,12 @@ public class DrivingRecord {
     // 생성자
     public DrivingRecord(Dispatch dispatch) {
         this.dispatch = dispatch;
+    }
+
+    public void addDrivingEvent(DrivingEvent event) {
+        this.drivingEvents.add(event);
+        if (event.getDrivingRecord() != this) {
+            event.setDrivingRecord(this);
+        }
     }
 }
