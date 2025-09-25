@@ -17,10 +17,7 @@ public interface BusRepository extends JpaRepository<Bus, Long> {
     // 특정 운수회사 ID로 소속 버스 목록 조회
     List<Bus> findAllByOperator_OperatorId(Long operatorId);
 
-    // 특정 운수회사(Operator 엔티티)의 모든 버스 조회
-    List<Bus> findAllByOperator(Operator operator);
-
     // 특정 운수회사 소속 버스 중, 주어진 ID 목록에 포함되지 않은 버스들 조회
-    List<Bus> findByOperatorAndBusIdNotIn(Operator operator, List<Long> ids);
+    List<Bus> findByOperator_OperatorIdAndBusIdNotIn(Long operatorId, List<Long> ids);
 
 }

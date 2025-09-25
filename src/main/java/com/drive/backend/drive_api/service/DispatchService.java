@@ -69,15 +69,14 @@ public class DispatchService {
     // 관리자 - 배차 가능한 버스 목록 조회
     @Transactional(readOnly = true)
     public List<BusDetailDto> findAvailableBuses(LocalDateTime startTime, LocalDateTime endTime, CustomUserDetails currentUser) {
-        Operator currentOperator = operatorRepository.findById(currentUser.getOperatorId())
-                .orElseThrow(() -> new ResourceNotFoundException("Operator", "id", currentUser.getOperatorId()));
+        Long operatorId = currentUser.getOperatorId();
 
         List<Long> dispatchedBusIds = dispatchRepository.findDispatchedBusIdsBetween(startTime, endTime, ACTIVE_STATUSES);
         List<Bus> availableBuses;
         if (dispatchedBusIds.isEmpty()) {
-            availableBuses = busRepository.findAllByOperator(currentOperator);
+            availableBuses = busRepository.findAllByOperator_OperatorId(operatorId);
         } else {
-            availableBuses = busRepository.findByOperatorAndBusIdNotIn(currentOperator, dispatchedBusIds);
+            availableBuses = busRepository.findByOperator_OperatorIdAndBusIdNotIn(operatorId, dispatchedBusIds);
         }
         return availableBuses.stream().map(BusDetailDto::from).collect(Collectors.toList());
     }
@@ -85,15 +84,14 @@ public class DispatchService {
     // 관리자 - 배차 가능한 운전자 목록 조회
     @Transactional(readOnly = true)
     public List<DriverDetailDto> findAvailableDrivers(LocalDateTime startTime, LocalDateTime endTime, CustomUserDetails currentUser) {
-        Operator currentOperator = operatorRepository.findById(currentUser.getOperatorId())
-                .orElseThrow(() -> new ResourceNotFoundException("Operator", "id", currentUser.getOperatorId()));
+        Long operatorId = currentUser.getOperatorId();
 
         List<Long> dispatchedDriverIds = dispatchRepository.findDispatchedDriverIdsBetween(startTime, endTime, ACTIVE_STATUSES);
         List<Driver> availableDrivers;
         if (dispatchedDriverIds.isEmpty()) {
-            availableDrivers = driverRepository.findAllByOperator(currentOperator);
+            availableDrivers = driverRepository.findAllByOperator_OperatorId(operatorId);
         } else {
-            availableDrivers = driverRepository.findByOperatorAndUserIdNotIn(currentOperator, dispatchedDriverIds);
+            availableDrivers = driverRepository.findByOperator_OperatorIdAndUserIdNotIn(operatorId, dispatchedDriverIds);
         }
         return availableDrivers.stream().map(DriverDetailDto::from).collect(Collectors.toList());
     }
