@@ -18,7 +18,7 @@ import java.util.List;
 @RequestMapping("/api/admin/buses")
 @PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
-public class BusController {
+public class AdminBusController {
 
     private final BusService busService;
 
