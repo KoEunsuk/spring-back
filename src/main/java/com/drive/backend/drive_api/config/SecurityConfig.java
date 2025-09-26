@@ -47,7 +47,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthFilter authenticationJwtTokenFilter() {
-        return new JwtAuthFilter(jwtTokenProvider, userDetailsService);
+        return new JwtAuthFilter(jwtTokenProvider);
     }
 
     @Bean
@@ -73,6 +73,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/ws/**", "/ws-native/**").permitAll()
                         .anyRequest().authenticated()
                 );
 

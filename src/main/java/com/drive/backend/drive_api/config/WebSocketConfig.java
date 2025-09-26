@@ -1,6 +1,9 @@
 package com.drive.backend.drive_api.config;
 
+import com.drive.backend.drive_api.security.StompHandler;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -8,7 +11,10 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 @Configuration
 @EnableWebSocketMessageBroker
+@RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+    private final StompHandler stompHandler;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
@@ -25,9 +31,21 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // 3. 웹소켓 연결을 위한 최초 접속 엔드포인트 설정
         //      클라이언트는 "/ws" 경로로 웹소켓 연결을 시작함
+        // 3-1. 순수 WebSocket을 위한 엔드포인트 (네이티브 앱용)
+        registry.addEndpoint("/ws-native")
+                .setAllowedOriginPatterns("*");
+
+        // 3-2. SockJS를 지원하는 엔드포인트 (웹 브라우저용)
         registry.addEndpoint("/ws")
-                .setAllowedOrigins("http://localhost:3000")  // CORS 설정
-                .withSockJS();  // SockJS 지원
+                .setAllowedOriginPatterns("http://localhost:3000")
+                .withSockJS()
+        ;
+    }
+
+    // StompHandler를 웹소켓 메시지 인터셉터로 등록
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(stompHandler);
     }
 
 }
