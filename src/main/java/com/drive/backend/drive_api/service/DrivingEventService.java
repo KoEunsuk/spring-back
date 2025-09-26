@@ -66,8 +66,8 @@ public class DrivingEventService {
             case ABNORMAL:
                 record.setAbnormalCount(record.getAbnormalCount() + 1);
                 break;
-            default:
-                record.setDrivingScore(Math.max(0, record.getDrivingScore() - 10));
         }
+
+        record.setDrivingScore(Math.max(0, record.getDrivingScore() - 10));
     }
 }
