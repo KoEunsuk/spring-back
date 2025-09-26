@@ -38,7 +38,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 // 1. Provider가 인증 객체 '생성' (내부적으로 UserDetails 조회 및 비밀번호 변경 검증까지 모두 처리)
                 Authentication authentication = jwtTokenProvider.getAuthentication(jwt);
 
-                // (선택) 웹 요청 상세 정보(IP 주소 등)를 추가. 이 로직은 request 객체가 있는 Filter에 남겨두는 것이 자연스러움.
+                // (선택) 웹 요청 상세 정보(IP 주소 등)를 추가.
                 if (authentication instanceof UsernamePasswordAuthenticationToken authToken) {
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 }
