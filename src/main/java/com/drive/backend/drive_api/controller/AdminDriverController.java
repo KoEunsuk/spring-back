@@ -16,7 +16,7 @@ import java.util.List;
 @RequestMapping("/api/admin/drivers")
 @PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
-public class DriverController {
+public class AdminDriverController {
 
     private final DriverService driverService;
 
