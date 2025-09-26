@@ -1,7 +1,6 @@
 package com.drive.backend.drive_api.security.jwt;
 
-import com.drive.backend.drive_api.security.userdetails.CustomUserDetails;
-import com.drive.backend.drive_api.security.userdetails.CustomUserDetailsService;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,26 +8,22 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.time.Instant;
-import java.util.Date;
 
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final CustomUserDetailsService userDetailsService;
 
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthFilter.class);
 
-    public JwtAuthFilter(JwtTokenProvider jwtTokenProvider, CustomUserDetailsService userDetailsService) {
+    public JwtAuthFilter(JwtTokenProvider jwtTokenProvider) {
         this.jwtTokenProvider = jwtTokenProvider;
-        this.userDetailsService = userDetailsService;
     }
 
     @Override
@@ -39,49 +34,24 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             String jwt = parseJwt(request);
 
             // JWT 토큰이 존재하고 유효한지 검증
-            if (jwt != null && jwtTokenProvider.validateJwtToken(jwt)) {
-                
-                // 유효한 토큰으로부터 이메일 추출
-                String email = jwtTokenProvider.getEmailFromJwtToken(jwt);
+            if (StringUtils.hasText(jwt) && jwtTokenProvider.validateJwtToken(jwt)) {
+                // 1. Provider가 인증 객체 '생성' (내부적으로 UserDetails 조회 및 비밀번호 변경 검증까지 모두 처리)
+                Authentication authentication = jwtTokenProvider.getAuthentication(jwt);
 
-                // UserDetails(CustomUserDetails) 로드
-                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-
-                // 토큰 무효화 검증 로직
-                CustomUserDetails customUserDetails = (CustomUserDetails) userDetails;
-                Instant passwordChangedAt = customUserDetails.getPasswordChangedAt();
-
-                if (passwordChangedAt != null) {
-                    Date tokenIssuedAtDate = jwtTokenProvider.getIssuedAtFromToken(jwt);
-                    // Date를 Instant로 변환
-                    Instant tokenIssuedAt = tokenIssuedAtDate.toInstant();
-
-                    if (tokenIssuedAt.isBefore(passwordChangedAt)) {
-                        logger.warn("Token for user '{}' rejected due to password change.", email);
-                        filterChain.doFilter(request, response);
-                        return;
-                    }
+                // (선택) 웹 요청 상세 정보(IP 주소 등)를 추가. 이 로직은 request 객체가 있는 Filter에 남겨두는 것이 자연스러움.
+                if (authentication instanceof UsernamePasswordAuthenticationToken authToken) {
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 }
-
-                // UserDetails를 사용하여 인증 객체(Authentication) 생성
-                // 패스워드는 이미 JWT 검증 과정에서 확인되었으므로 null
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities()); // UserDetails의 권한 정보 사용
-
-                // 웹 요청 상세 정보를 인증 객체에 추가 - 삭제 고려
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                // SecurityContextHolder에 인증 객체 설정
-                // 이렇게 함으로써 현재 요청에 대해 사용자가 인증되었음을 Spring Security에 알림
+                // 2. Filter가 생성된 인증 객체를 SecurityContext에 '등록' (필수!)
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
+        } catch (JwtException e) {
+            // [수정] 비밀번호 변경으로 인한 예외 등 JWT 관련 예외 처리
+            logger.error("JWT 인증 처리 중 오류 발생: {}", e.getMessage());
+            SecurityContextHolder.clearContext(); // 컨텍스트를 깨끗하게 비움
         } catch (Exception e) {
-            logger.error("Cannot set user authentication: {}", e.getMessage());
+            logger.error("사용자 인증을 설정할 수 없습니다: {}", e.getMessage());
         }
-
 
         filterChain.doFilter(request, response);
     }

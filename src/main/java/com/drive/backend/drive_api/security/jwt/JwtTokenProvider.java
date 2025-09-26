@@ -1,16 +1,21 @@
 package com.drive.backend.drive_api.security.jwt;
 
 import com.drive.backend.drive_api.security.userdetails.CustomUserDetails;
+import com.drive.backend.drive_api.security.userdetails.CustomUserDetailsService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,10 +25,12 @@ public class JwtTokenProvider { // 토큰의 생성, 검증 담당
 
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
     private final SecretKey key;
+    private final CustomUserDetailsService userDetailsService;
 
-    public JwtTokenProvider(@Value("${jwt.secret}") String secret) {
+    public JwtTokenProvider(@Value("${jwt.secret}") String secret, CustomUserDetailsService userDetailsService) {
         // Base64 디코딩 대신, 문자열을 바로 키로 변환
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        this.userDetailsService = userDetailsService;
     }
 
     @Value("${app.jwtExpirationMs}") // 프로퍼티에서 값 획득
@@ -85,5 +92,30 @@ public class JwtTokenProvider { // 토큰의 생성, 검증 담당
                 .parseSignedClaims(token)
                 .getPayload()
                 .getIssuedAt();
+    }
+
+    // JWT 토큰을 복호화하여 인증정보를 가져오는 메서드
+    public Authentication getAuthentication(String token) {
+        // 1. 토큰에서 이메일 추출
+        String email = getEmailFromJwtToken(token);
+
+        // 2. UserDetails 로드
+        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+
+        // 3. [추가] 비밀번호 변경 시간 검증 로직
+        CustomUserDetails customUserDetails = (CustomUserDetails) userDetails;
+        Instant passwordChangedAt = customUserDetails.getPasswordChangedAt();
+
+        if (passwordChangedAt != null) {
+            Date tokenIssuedAtDate = getIssuedAtFromToken(token);
+            Instant tokenIssuedAt = tokenIssuedAtDate.toInstant();
+            if (tokenIssuedAt.isBefore(passwordChangedAt)) {
+                // 토큰이 비밀번호 변경 전에 발급되었다면, 유효하지 않은 토큰으로 처리
+                throw new JwtException("비밀번호 변경으로 인해 토큰이 무효화되었습니다.");
+            }
+        }
+
+        // 4. 모든 검증 통과 시, Authentication 객체 생성하여 반환
+        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 }
