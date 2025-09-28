@@ -1,26 +1,27 @@
 package com.drive.backend.drive_api.service;
 
 import com.drive.backend.drive_api.dto.websocket.DrivingEventRequest;
-import com.drive.backend.drive_api.dto.websocket.DrivingWarningNotification;
-import com.drive.backend.drive_api.entity.Dispatch;
-import com.drive.backend.drive_api.entity.DrivingEvent;
-import com.drive.backend.drive_api.entity.DrivingRecord;
+import com.drive.backend.drive_api.entity.*;
+import com.drive.backend.drive_api.enums.NotificationType;
 import com.drive.backend.drive_api.exception.ResourceNotFoundException;
+import com.drive.backend.drive_api.repository.AdminRepository;
 import com.drive.backend.drive_api.repository.DispatchRepository;
 import com.drive.backend.drive_api.repository.DrivingEventRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class DrivingEventService {
 
+    private final AdminRepository adminRepository;
     private final DispatchRepository dispatchRepository;
     private final DrivingEventRepository drivingEventRepository;
-    private final SimpMessagingTemplate messagingTemplate;  // WebSocket 메시지 전송을 위한 템플릿
+    private final NotificationService notificationService;
 
     @Async  // 비동기 실행
     @Transactional
@@ -38,18 +39,18 @@ public class DrivingEventService {
         record.addDrivingEvent(newEvent);   // DrivingRecord의 이벤트 목록에도 추가하여 양방향 관계를 동기화
         drivingEventRepository.save(newEvent);
 
-        // 4. 관리자에게 보낼 알림 메시지 생성
+        // 4. 알림 메시지와 이동 URL 생성
         String message = String.format("경고: %s 차량(%s)에서 %s 이벤트 발생",
                 dispatch.getBus().getVehicleNumber(), dispatch.getDriver().getUsername(), eventRequest.getEventType());
+        String url = "/dispatches/" + dispatch.getDispatchId();
 
-        DrivingWarningNotification notification = new DrivingWarningNotification(
-                dispatch.getDispatchId(), dispatch.getBus().getVehicleNumber(), dispatch.getDriver().getUsername(),
-                eventRequest.getEventType(), eventRequest.getEventTimestamp(), message);
+        // 5. 해당 운수회사의 모든 관리자(Admin)를 찾음
+        List<Admin> adminsToNotify = adminRepository.findAllByOperator_OperatorId(dispatch.getBus().getOperator().getOperatorId());
 
-        // 5. 해당 운수회사를 구독 중인 관리자 채널로 알림 메시지 전송
-        Long operatorId = dispatch.getBus().getOperator().getOperatorId();
-        String destination = "/topic/operator/" + operatorId + "/warnings";
-        messagingTemplate.convertAndSend(destination, notification);
+        // 6. 각 관리자에게 알림을 생성하고 실시간으로 발송
+        for (Admin admin : adminsToNotify) {
+            notificationService.createAndSendNotification(admin, dispatch, message, NotificationType.DRIVING_WARNING, url);
+        }
     }
 
     private void updateRecordCounters(DrivingRecord record, DrivingEventRequest eventRequest) {
