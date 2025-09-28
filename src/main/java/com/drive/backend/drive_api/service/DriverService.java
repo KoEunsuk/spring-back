@@ -4,6 +4,8 @@ import com.drive.backend.drive_api.dto.request.DriverAdminUpdateRequestDto;
 import com.drive.backend.drive_api.dto.response.DriverDetailDto;
 import com.drive.backend.drive_api.entity.Driver;
 import com.drive.backend.drive_api.entity.Operator;
+import com.drive.backend.drive_api.exception.BusinessException;
+import com.drive.backend.drive_api.exception.ErrorCode;
 import com.drive.backend.drive_api.exception.ResourceNotFoundException;
 import com.drive.backend.drive_api.repository.DriverRepository;
 import com.drive.backend.drive_api.security.SecurityUtil;
@@ -59,7 +61,7 @@ public class DriverService {
         Driver driverToDelete = findDriverAndCheckPermission(driverId);
 
         if (!driverToDelete.getDispatches().isEmpty()) {
-            throw new IllegalStateException("해당 운전자에 배차 기록이 존재하여 삭제할 수 없습니다.");
+            throw new BusinessException(ErrorCode.DRIVER_HAS_DISPATCHES);
         }
 
         driverRepository.delete(driverToDelete);
@@ -76,8 +78,7 @@ public class DriverService {
 
         Operator driverOperator = driver.getOperator();
         if (driverOperator == null) {
-            // 이 경우는 데이터가 잘못된 심각한 상황일 수 있으므로 서버 에러로 처리
-            throw new IllegalStateException("Driver " + driverId + " has no assigned operator.");
+            throw new BusinessException(ErrorCode.DRIVER_WITHOUT_OPERATOR);
         }
 
         if (!adminOperatorId.equals(driverOperator.getOperatorId())) {

@@ -138,3 +138,87 @@
 - 문제 해결 능력: 표면적인 현상에 매몰되지 않고, 아키텍처와 프레임워크의 동작 원리까지 파고들어 근본적인 원인을 찾아내는 체계적인 접근법의 중요성을 체감했다.
 
 - 실용적인 설계: '관심사 분리' 같은 설계 원칙은 이상적인 상황뿐만 아니라, 이처럼 프레임워크의 한계를 우회하는 실용적인 코드를 작성할 때도 코드의 품질을 높이는 핵심적인 도구가 된다.
+
+-----
+
+## **API 에러 처리 개선을 통한 서버 안정성 및 응집도 향상**
+
+### \#\# 1. 문제 상황 (Problem)
+
+프로젝트 초기 단계에서 예측 가능한 **비즈니스 규칙 위반** 상황(예: 배차 기록이 있는 버스 삭제 시도)에 대해 `IllegalStateException`을 발생시켜 처리하고 있었습니다. 이 방식은 다음과 같은 문제점을 야기했습니다.
+
+1.  **API 응답의 모호성**: 모든 `IllegalStateException`이 공통 예외 핸들러를 통해 일괄적으로 \*\*`500 Internal Server Error`\*\*로 처리되었습니다. 이는 클라이언트 입장에서 '잘못된 요청'인지 '서버 내부 오류'인지 구분할 수 없게 만들어 디버깅을 어렵게 하고, 잘못된 오류 정보를 전달하는 원인이 되었습니다.
+2.  **낮은 코드 가독성 및 유지보수 비용 증가**: 서비스 코드 내에서 `throw new IllegalStateException("에러 메시지")` 구문은 어떤 종류의 비즈니스 규칙 위반인지 한눈에 파악하기 어려웠습니다. 또한, 유사한 비즈니스 예외가 여러 곳에서 발생할 때마다 새로운 예외 메시지를 작성해야 했고, 일관성 있는 관리가 어려워 유지보수 비용을 증가시켰습니다.
+3.  **비효율적인 확장 구조**: 만약 각 상황에 맞는 HTTP 상태 코드를 반환하기 위해 개별 커스텀 예외(`BusConflictException`, `DriverConflictException` 등)를 생성한다면, 예외 클래스와 핸들러 메서드의 수가 비즈니스 규칙의 수만큼 폭발적으로 증가하여 코드가 비대해지고 비효율적으로 변할 것이라 예상됐습니다.
+
+-----
+
+### \#\# 2. 해결 과정 (Solution)
+
+이 문제를 해결하기 위해, 모든 비즈니스 예외를 중앙에서 효율적으로 관리하고 명확한 API 응답을 제공하는 것을 목표로 삼았습니다. **`ErrorCode` Enum**과 이를 담는 단일 **`BusinessException`** 클래스를 도입하는 패턴을 적용했습니다.
+
+#### **1단계: `ErrorCode` Enum 설계**
+
+애플리케이션에서 발생할 수 있는 모든 예측 가능한 비즈니스 규칙 위반 상황을 하나의 `ErrorCode` Enum으로 정의했습니다. 각 Enum 상수는 \*\*HTTP 상태 코드(`HttpStatus`)\*\*와 \*\*클라이언트에게 전달될 메시지(`String`)\*\*를 멤버 변수로 갖도록 설계했습니다.
+
+* `409 Conflict`: 상태 충돌 또는 데이터 중복 (예: `BUS_HAS_DISPATCHES`)
+* `400 Bad Request`: 유효성 검사 외의 잘못된 요청 값
+* `403 Forbidden`: 특정 리소스에 대한 접근 권한 부재
+* `500 Internal Server Error`: 데이터 무결성 오류 등 예측 못한 서버 내부 문제
+
+<!-- end list -->
+
+```java
+@Getter
+@RequiredArgsConstructor
+public enum ErrorCode {
+    BUS_HAS_DISPATCHES(HttpStatus.CONFLICT, "해당 버스에 배차 기록이 존재하여 삭제할 수 없습니다."),
+    DRIVER_ALREADY_DISPATCHED(HttpStatus.CONFLICT, "해당 운전자는 요청된 시간에 이미 다른 배차가 있습니다."),
+    DISPATCH_NOT_IN_RUNNING_STATE(HttpStatus.CONFLICT, "'운행 중' 상태인 배차만 운행을 종료할 수 있습니다."),
+    DRIVER_WITHOUT_OPERATOR(HttpStatus.INTERNAL_SERVER_ERROR, "운전자의 소속 정보를 찾을 수 없습니다.");
+
+    private final HttpStatus status;
+    private final String message;
+}
+```
+
+#### **2단계: `BusinessException` 및 핸들러 구현**
+
+`ErrorCode`를 담을 수 있는 `BusinessException` 커스텀 예외 클래스를 생성했습니다. 그리고 `GlobalExceptionHandler`에 이 예외를 처리하는 **단 하나의 핸들러 메서드**를 추가했습니다. 이 핸들러는 `BusinessException`에서 `ErrorCode`를 꺼내, 미리 정의된 HTTP 상태 코드와 메시지를 사용하여 일관된 `ResponseEntity`를 생성합니다.
+
+* **Before (서비스 코드)**
+  ```java
+  if (!bus.getDispatches().isEmpty()) {
+      throw new IllegalStateException("해당 버스에 배차 기록이 존재하여 삭제할 수 없습니다.");
+  }
+  ```
+* **After (서비스 코드)**
+  ```java
+  if (!bus.getDispatches().isEmpty()) {
+      throw new BusinessException(ErrorCode.BUS_HAS_DISPATCHES);
+  }
+  ```
+* **`GlobalExceptionHandler` 추가**
+  ```java
+  @ExceptionHandler(BusinessException.class)
+  public ResponseEntity<ApiResponse<Void>> handleBusinessException(BusinessException ex) {
+      ErrorCode errorCode = ex.getErrorCode();
+      log.warn("Business exception: {}", errorCode.getMessage());
+      return new ResponseEntity<>(
+          ApiResponse.error(errorCode.getMessage(), null),
+          errorCode.getStatus()
+      );
+  }
+  ```
+
+-----
+
+### \#\# 3. 결과 및 배운 점 (Result & Key Learnings)
+
+이번 리팩토링을 통해 다음과 같은 긍정적인 결과를 얻을 수 있었습니다.
+
+1.  **명확한 API 응답 체계 확립**: 클라이언트는 이제 비즈니스 규칙 위반 시 `4xx` 계열의 명확한 상태 코드와 메시지를 응답받게 되어, 오류의 원인을 명확히 파악하고 후속 조치를 취하기 용이해졌습니다. 이는 API의 신뢰성을 높이는 중요한 요소가 되었습니다.
+2.  **코드 가독성 및 응집도 향상**: 서비스 로직에서 `throw new BusinessException(ErrorCode.BUS_HAS_DISPATCHES);`와 같은 코드는 그 자체로 어떤 비즈니스 오류인지 명확하게 설명해 주는 **자기 서술적인(Self-describing) 코드**가 되었습니다. 또한, 모든 비즈니스 오류 정책이 `ErrorCode` Enum에 중앙 관리되어 코드의 응집도가 높아졌습니다.
+3.  **유지보수 효율성 증대**: 새로운 비즈니스 예외 정책이 추가될 때, `ErrorCode`에 새로운 상수만 정의하면 되므로 **확장성**이 크게 향상되었습니다. 별도의 예외 클래스나 핸들러를 추가할 필요가 없어 개발 생산성이 높아졌고, 일관된 오류 처리 정책을 유지하기 쉬워졌습니다.
+
+이번 경험을 통해 단순한 기능 구현을 넘어, **견고하고 확장 가능한 예외 처리 구조**를 설계하는 것의 중요성을 깊이 깨달았습니다. 특히 API 서버에서 일관된 오류 응답은 클라이언트와의 명확한 소통 규약이라는 점에서 핵심적인 품질 요소임을 배울 수 있었습니다.

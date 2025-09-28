@@ -5,6 +5,8 @@ import com.drive.backend.drive_api.dto.request.BusUpdateRequestDto;
 import com.drive.backend.drive_api.dto.response.BusDetailDto;
 import com.drive.backend.drive_api.entity.Bus;
 import com.drive.backend.drive_api.entity.Operator;
+import com.drive.backend.drive_api.exception.BusinessException;
+import com.drive.backend.drive_api.exception.ErrorCode;
 import com.drive.backend.drive_api.exception.ResourceNotFoundException;
 import com.drive.backend.drive_api.repository.BusRepository;
 import com.drive.backend.drive_api.repository.OperatorRepository;
@@ -110,7 +112,7 @@ public class BusService {
         Bus bus = findBusAndCheckPermission(busId);
 
         if (!bus.getDispatches().isEmpty()) {
-            throw new IllegalStateException("해당 버스에 배차 기록이 존재하여 삭제할 수 없습니다.");
+            throw new BusinessException(ErrorCode.BUS_HAS_DISPATCHES);
         }
 
         busRepository.delete(bus);

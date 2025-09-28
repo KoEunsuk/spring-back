@@ -6,6 +6,8 @@ import com.drive.backend.drive_api.dto.response.DispatchDetailDto;
 import com.drive.backend.drive_api.dto.response.DriverDetailDto;
 import com.drive.backend.drive_api.entity.*;
 import com.drive.backend.drive_api.enums.DispatchStatus;
+import com.drive.backend.drive_api.exception.BusinessException;
+import com.drive.backend.drive_api.exception.ErrorCode;
 import com.drive.backend.drive_api.exception.ResourceNotFoundException;
 import com.drive.backend.drive_api.repository.BusRepository;
 import com.drive.backend.drive_api.repository.DispatchRepository;
@@ -147,7 +149,7 @@ public class DispatchService {
         Dispatch dispatch = findAndCheckPermission(dispatchId, currentUser);
 
         if (dispatch.getStatus() != DispatchStatus.SCHEDULED) {
-            throw new IllegalStateException("'배차 예정' 상태인 배차만 운행을 시작할 수 있습니다.");
+            throw new BusinessException(ErrorCode.DISPATCH_STATUS_NOT_SCHEDULED);
         }
 
         dispatch.setStatus(DispatchStatus.RUNNING);
@@ -161,7 +163,7 @@ public class DispatchService {
         Dispatch dispatch = findAndCheckPermission(dispatchId, currentUser);
 
         if (dispatch.getStatus() != DispatchStatus.RUNNING) {
-            throw new IllegalStateException("'운행 중' 상태인 배차만 운행을 종료할 수 있습니다.");
+            throw new BusinessException(ErrorCode.DISPATCH_NOT_IN_RUNNING_STATE);
         }
 
         dispatch.setStatus(DispatchStatus.COMPLETED);
@@ -179,7 +181,7 @@ public class DispatchService {
         }
 
         if (dispatch.getStatus() != DispatchStatus.SCHEDULED) {
-            throw new IllegalStateException("이미 시작된 배차는 취소할 수 없습니다.");
+            throw new BusinessException(ErrorCode.DISPATCH_ALREADY_STARTED);
         }
 
         dispatch.setStatus(DispatchStatus.CANCELED);
@@ -207,11 +209,11 @@ public class DispatchService {
     private void validateNoConflict(Long busId, Long driverId, LocalDateTime startTime, LocalDateTime endTime) {
         if (dispatchRepository.existsByBus_BusIdAndStatusInAndScheduledDepartureTimeBeforeAndScheduledArrivalTimeAfter(
                 busId, ACTIVE_STATUSES, endTime, startTime)) {
-            throw new IllegalStateException("해당 버스는 요청된 시간에 이미 다른 배차가 있습니다.");
+            throw new BusinessException(ErrorCode.BUS_ALREADY_DISPATCHED);
         }
         if (dispatchRepository.existsByDriver_UserIdAndStatusInAndScheduledDepartureTimeBeforeAndScheduledArrivalTimeAfter(
                 driverId, ACTIVE_STATUSES, endTime, startTime)) {
-            throw new IllegalStateException("해당 운전자는 요청된 시간에 이미 다른 배차가 있습니다.");
+            throw new BusinessException(ErrorCode.DRIVER_ALREADY_DISPATCHED);
         }
     }
 

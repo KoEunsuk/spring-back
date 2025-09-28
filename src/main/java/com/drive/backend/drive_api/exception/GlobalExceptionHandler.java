@@ -72,6 +72,18 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
 
+    // 비즈니스 관련 예외를 처리 - 커스텀
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ApiResponse<Void>> handleBusinessException(BusinessException ex) {
+        ErrorCode errorCode = ex.getErrorCode();
+        log.warn("Business exception occurred: {}", errorCode.getMessage());
+
+        ApiResponse<Void> response = ApiResponse.error(errorCode.getMessage(), null);
+
+        // ErrorCode에 정의된 HttpStatus와 메시지를 사용하여 응답 생성
+        return new ResponseEntity<>(response, errorCode.getStatus());
+    }
+
     // 500 처리
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleAllExceptions(Exception ex) {
