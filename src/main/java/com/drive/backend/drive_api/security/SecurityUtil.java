@@ -16,4 +16,9 @@ public final class SecurityUtil {
         }
         return Optional.of((CustomUserDetails) authentication.getPrincipal());
     }
+
+    public static CustomUserDetails getAuthenticatedUser() {
+        return getCurrentUser()
+                .orElseThrow(() -> new RuntimeException("인증 정보를 찾을 수 없습니다."));
+    }
 }

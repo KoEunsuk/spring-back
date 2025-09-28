@@ -2,8 +2,6 @@ package com.drive.backend.drive_api.controller;
 
 import com.drive.backend.drive_api.common.ApiResponse;
 import com.drive.backend.drive_api.dto.response.DispatchDetailDto;
-import com.drive.backend.drive_api.security.SecurityUtil;
-import com.drive.backend.drive_api.security.userdetails.CustomUserDetails;
 import com.drive.backend.drive_api.service.DispatchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -13,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+
+import static com.drive.backend.drive_api.security.SecurityUtil.getAuthenticatedUser;
 
 @RestController
 @RequestMapping("/api/driver/me/dispatches")
@@ -28,34 +28,28 @@ public class DriverDispatchController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     ) {
-        List<DispatchDetailDto> responseData = dispatchService.getDispatchesForDriverByDateRange(getCurrentUser(), startDate, endDate);
+        List<DispatchDetailDto> responseData = dispatchService.getDispatchesForDriverByDateRange(getAuthenticatedUser(), startDate, endDate);
         return ResponseEntity.ok(ApiResponse.success("지정된 기간의 배차 목록을 조회했습니다.", responseData));
     }
 
     // 자신에게 할당된 특정 배차 상세 조회
     @GetMapping("/{dispatchId}")
     public ResponseEntity<ApiResponse<DispatchDetailDto>> getMyDispatchById(@PathVariable Long dispatchId) {
-        DispatchDetailDto responseData = dispatchService.getDispatchById(dispatchId, getCurrentUser());
+        DispatchDetailDto responseData = dispatchService.getDispatchById(dispatchId, getAuthenticatedUser());
         return ResponseEntity.ok(ApiResponse.success("배차 상세 정보를 조회했습니다.", responseData));
     }
 
     // 자신의 배차 운행 시작
     @PatchMapping("/{dispatchId}/start")
     public ResponseEntity<ApiResponse<DispatchDetailDto>> startMyDispatch(@PathVariable Long dispatchId) {
-        DispatchDetailDto responseData = dispatchService.startDispatch(dispatchId, getCurrentUser());
+        DispatchDetailDto responseData = dispatchService.startDispatch(dispatchId, getAuthenticatedUser());
         return ResponseEntity.ok(ApiResponse.success("배차 운행을 시작합니다.", responseData));
     }
 
     // 자신의 배차 운행 종료
     @PatchMapping("/{dispatchId}/end")
     public ResponseEntity<ApiResponse<DispatchDetailDto>> endMyDispatch(@PathVariable Long dispatchId) {
-        DispatchDetailDto responseData = dispatchService.endDispatch(dispatchId, getCurrentUser());
+        DispatchDetailDto responseData = dispatchService.endDispatch(dispatchId, getAuthenticatedUser());
         return ResponseEntity.ok(ApiResponse.success("배차 운행을 종료했습니다.", responseData));
-    }
-
-    // 현재 로그인한 사용자 정보를 가져오는 헬퍼 메서드
-    private CustomUserDetails getCurrentUser() {
-        return SecurityUtil.getCurrentUser()
-                .orElseThrow(() -> new RuntimeException("인증 정보를 찾을 수 없습니다."));
     }
 }
