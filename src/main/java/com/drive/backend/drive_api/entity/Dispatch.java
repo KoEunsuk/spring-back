@@ -9,6 +9,8 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "dispatches")
@@ -50,6 +52,9 @@ public class Dispatch {
     @OneToOne(mappedBy = "dispatch", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private DrivingRecord drivingRecord;
 
+    @OneToMany(mappedBy = "dispatch")
+    private List<Notification> notifications = new ArrayList<>();
+
     // 필수값 생성자
     public Dispatch(Bus bus, Driver driver, LocalDateTime scheduledDepartureTime, LocalDateTime scheduledArrivalTime) {
         this.bus = bus;
@@ -66,6 +71,13 @@ public class Dispatch {
         this.drivingRecord = drivingRecord;
         if (drivingRecord.getDispatch() != this) {
             drivingRecord.setDispatch(this);
+        }
+    }
+
+    public void addNotification(Notification notification) {
+        this.notifications.add(notification);
+        if (notification.getDispatch() != this) {
+            notification.setDispatch(this);
         }
     }
 }

@@ -8,6 +8,8 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -43,6 +45,9 @@ public abstract class User {
     @Column
     private Instant passwordChangedAt;
 
+    @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notification> notifications = new ArrayList<>();
+
     // 필수정보 누락 방지
     protected User(String email, String password, String username, String phoneNumber, Operator operator) {
         this.email = email;
@@ -53,5 +58,13 @@ public abstract class User {
     }
 
     public abstract Role getRole();
+
+    // 연관관계 편의 메서드
+    public void addNotification(Notification notification) {
+        this.notifications.add(notification);
+        if (notification.getRecipient() != this) {
+            notification.setRecipient(this);
+        }
+    }
 
 }
