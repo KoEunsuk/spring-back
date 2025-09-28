@@ -24,21 +24,23 @@ public class WebSocketAuthService {
         if (!StringUtils.hasText(destination)) {
             return;
         }
-
-        if (destination.startsWith("/topic/operator/")) {
-            if (hasAuthority(authentication, "ROLE_ADMIN")) return;
-            String errorMessage = "해당 토픽을 구독할 ADMIN 권한이 없습니다.";
-            log.warn("인가 실패: 사용자 '{}', 목적지: {}, 이유: {}", authentication.getName(), destination, errorMessage);
-            throw new AccessDeniedException(errorMessage);
+        
+        // 개인 알림 구독은 인증정보가 있으면 허용
+        if (destination.startsWith("/user/queue/")) {
+            if (authentication.isAuthenticated()) {
+                return;
+            }
         }
 
-        if (destination.startsWith("/app/")) {
+        // 운행 이벤트 발행은 DRIVER 역할만 허용
+        if (destination.startsWith("/app/drive-events")) {
             if (hasAuthority(authentication, "ROLE_DRIVER")) return;
-            String errorMessage = "해당 경로에 메시지를 보낼 DRIVER 권한이 없습니다.";
+            String errorMessage = "운행 이벤트를 발행할 DRIVER 권한이 없습니다.";
             log.warn("인가 실패: 사용자 '{}', 목적지: {}, 이유: {}", authentication.getName(), destination, errorMessage);
             throw new AccessDeniedException(errorMessage);
         }
 
+        // 그 외 명시되지 않은 모든 경로는 접근 거부
         String errorMessage = "접근 권한이 없는 목적지입니다.";
         log.warn("인가 실패: 사용자 '{}', 목적지: {}, 이유: {}", authentication.getName(), destination, errorMessage);
         throw new AccessDeniedException(errorMessage);
