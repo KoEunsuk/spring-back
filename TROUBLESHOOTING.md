@@ -276,3 +276,139 @@ public enum ErrorCode {
 **현대적인 웹/앱 개발 환경에서는 방식 A (API 분리)가 표준적인 설계로 권장됩니다.**
 
 React, Vue, Angular와 같은 컴포넌트 기반 프레임워크는 여러 API를 비동기적으로 호출하고, 데이터가 도착하는 순서대로 화면을 점진적으로 렌더링하는 방식에 매우 최적화되어 있습니다. 따라서 API를 기능별로 잘게 분리하는 것이 **사용자 경험, 시스템 유연성, 확장성, 유지보수성** 모든 측면에서 더 큰 이점을 제공합니다.
+
+---
+
+# NotificationResponse DTO – Payload 적용
+
+## 1. 문제 상황
+
+알림(Notification) 엔티티는 다양한 알림 타입(DRIVING_WARNING, NEW_DISPATCH_ASSIGNED 등)을 저장하지만, 타입별로 필요한 상세 데이터가 다릅니다.
+기존 DTO 설계에서는 모든 필드를 단일 객체에 넣거나 null을 허용하는 방식으로 구현했으나, 다음과 같은 문제가 발생했습니다:
+
+* **불필요한 null 값 증가** → 클라이언트 처리 로직 복잡화
+* **UI 구성 유연성 제한** → 타입별로 필요한 정보만 제공하기 어려움
+* **DTO 유지보수 어려움** → 알림 타입이 늘어날 때마다 필드 추가 필요
+
+---
+
+## 2. 해결 과정
+
+### 2.1 설계 전략
+
+1. 공통 필드 + 타입별 확장 데이터(payload) 구조 도입
+2. payload는 **Map<String, Object>** 또는 향후 필요 시 Record 기반 DTO로 구성
+3. DTO 변환 로직에서 **Dispatch null 체크** 및 필드 안전성 확보
+
+---
+
+### 2.2 DTO 구조
+
+#### 공통 필드
+
+| 필드               | 타입               | 설명          |
+| ---------------- | ---------------- | ----------- |
+| notificationId   | Long             | 알림 고유 ID    |
+| message          | String           | 알림 메시지      |
+| isRead           | boolean          | 읽음 여부       |
+| notificationType | NotificationType | 알림 타입       |
+| relatedUrl       | String           | 클릭 시 이동 URL |
+| createdAt        | LocalDateTime    | 알림 생성 시간    |
+
+#### 타입별 payload 예시
+
+**DRIVING_WARNING**
+
+| Key           | Value                  |
+| ------------- | ---------------------- |
+| dispatchId    | Dispatch ID (nullable) |
+| vehicleNumber | 차량 번호 (nullable)       |
+| driverName    | 운전자 이름 (nullable)      |
+| latitude      | 이벤트 발생 위도              |
+| longitude     | 이벤트 발생 경도              |
+
+**NEW_DISPATCH_ASSIGNED**
+
+| Key                    | Value       |
+| ---------------------- | ----------- |
+| dispatchId             | Dispatch ID |
+| vehicleNumber          | 차량 번호       |
+| driverName             | 운전자 이름      |
+| scheduledDepartureTime | 예정 출발 시각    |
+
+---
+
+### 2.3 구현 예시
+
+```java
+Map<String, Object> payload = new HashMap<>();
+Dispatch dispatch = notification.getDispatch();
+
+switch (notification.getNotificationType()) {
+    case DRIVING_WARNING -> {
+        if (dispatch != null) {
+            payload.put("dispatchId", dispatch.getDispatchId());
+            payload.put("vehicleNumber", dispatch.getBus().getVehicleNumber());
+            payload.put("driverName", dispatch.getDriver().getUsername());
+        }
+        payload.put("latitude", notification.getLatitude());
+        payload.put("longitude", notification.getLongitude());
+    }
+    case NEW_DISPATCH_ASSIGNED -> {
+        if (dispatch != null) {
+            payload.put("dispatchId", dispatch.getDispatchId());
+            payload.put("vehicleNumber", dispatch.getBus().getVehicleNumber());
+            payload.put("driverName", dispatch.getDriver().getUsername());
+            payload.put("scheduledDepartureTime", dispatch.getScheduledDepartureTime());
+        }
+    }
+    default -> payload = null;
+}
+```
+
+---
+
+## 3. 트러블슈팅 / 주의 사항
+
+### 3.1 `Map.of` vs `HashMap`
+
+* `Map.of`는 null value를 허용하지 않음 → DRIVING_WARNING 등 null 가능 필드에서 런타임 에러 발생
+* 해결: **HashMap** 사용
+
+### 3.2 Dispatch null 체크
+
+* 알림에 연관된 배차(dispatch)가 없을 수 있음 → null 안전성 확보 필수
+
+### 3.3 payload 없는 타입 처리
+
+* 기본적으로 null 반환
+* 프론트에서 존재 여부로 타입 구분 가능
+
+### 3.4 중복 필드 관리
+
+* 여러 타입에서 공통 필드(dispatchId, vehicleNumber, driverName) 반복됨
+* 장기적 리팩토링 시 공통 빌더 메서드로 추출 가능
+
+### 3.5 타입 안정성
+
+* Map<String, Object> 사용 시 컴파일 타임 체크 불가
+* 필요 시 Record 또는 DTO 클래스별 payload로 전환 가능
+
+---
+
+## 4. 결과 및 배운 점
+
+1. **DTO 유연성 확보**: 공통 필드 + payload 구조로 알림 타입별 다양한 데이터를 안정적으로 제공 가능
+2. **클라이언트 UX 향상**: 필요한 데이터만 payload로 제공 → UI에서 조건부 렌더링 가능
+3. **유지보수 효율성**: 알림 타입이 추가되어도 payload 로직만 확장하면 되므로, DTO 구조 변경 최소화
+4. **null 안전성 확보**: HashMap + dispatch null 체크로 런타임 예외 방지
+
+---
+
+## 5. 결론
+
+* NotificationResponse DTO에 **payload**를 적용하면, 타입별로 필요한 정보를 효율적으로 전달하면서 기존 공통 필드와 통합 관리 가능
+* 프론트/백엔드 간 계약 명확화 및 유지보수 효율성을 크게 개선
+* 향후 DTO 확장이 필요한 경우, Map에서 Record/DTO 기반 payload로 전환하여 타입 안정성을 강화 가능
+
+---
