@@ -42,7 +42,7 @@ public class DrivingEventService {
         // 4. 알림 메시지와 이동 URL 생성
         String message = String.format("경고: %s 차량(%s)에서 %s 이벤트 발생",
                 dispatch.getBus().getVehicleNumber(), dispatch.getDriver().getUsername(), eventRequest.getEventType());
-        String url = "/dispatches/" + dispatch.getDispatchId();
+        String url = "/dispatches/" + dispatch.getDispatchId(); // TODO
 
         // 5. 해당 운수회사의 모든 관리자(Admin)를 찾음
         List<Admin> adminsToNotify = adminRepository.findAllByOperator_OperatorId(dispatch.getBus().getOperator().getOperatorId());

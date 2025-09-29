@@ -6,6 +6,7 @@ import com.drive.backend.drive_api.dto.response.DispatchDetailDto;
 import com.drive.backend.drive_api.dto.response.DriverDetailDto;
 import com.drive.backend.drive_api.entity.*;
 import com.drive.backend.drive_api.enums.DispatchStatus;
+import com.drive.backend.drive_api.enums.NotificationType;
 import com.drive.backend.drive_api.exception.BusinessException;
 import com.drive.backend.drive_api.exception.ErrorCode;
 import com.drive.backend.drive_api.exception.ResourceNotFoundException;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,7 +36,7 @@ public class DispatchService {
     private final DispatchRepository dispatchRepository;
     private final BusRepository busRepository;
     private final DriverRepository driverRepository;
-    private final OperatorRepository operatorRepository;
+    private final NotificationService notificationService;
     private static final List<DispatchStatus> ACTIVE_STATUSES = List.of(DispatchStatus.SCHEDULED, DispatchStatus.RUNNING);
 
     // 관리자 - 신규 배차 생성
@@ -58,14 +60,27 @@ public class DispatchService {
 
         Dispatch newDispatch = new Dispatch(bus, driver, createDto.getScheduledDepartureTime(), createDto.getScheduledArrivalTime());
 
-        // 운행 기록 엔티티도 함께 생성
-        newDispatch.setDrivingRecord(new DrivingRecord(newDispatch));
-
         // 양방향 관계 동기화
+        newDispatch.setDrivingRecord(new DrivingRecord(newDispatch));
         bus.addDispatch(newDispatch);
         driver.addDispatch(newDispatch);
 
-        return DispatchDetailDto.from(dispatchRepository.save(newDispatch));
+        Dispatch savedDispatch = dispatchRepository.save(newDispatch);
+
+        // 운전자에게 배차 할당 알림 전송
+        String departureTime = savedDispatch.getScheduledDepartureTime()
+                .format(DateTimeFormatter.ofPattern("M월 d일 HH:mm"));
+        String message = String.format("새로운 배차가 할당되었습니다. (출발: %s)", departureTime);
+        String url = "/dispatches/" + savedDispatch.getDispatchId();    // TODO
+        notificationService.createAndSendNotification(
+                driver,
+                savedDispatch,
+                message,
+                NotificationType.NEW_DISPATCH_ASSIGNED,
+                url
+        );
+
+        return DispatchDetailDto.from(savedDispatch);
     }
 
     // 관리자 - 배차 가능한 버스 목록 조회
