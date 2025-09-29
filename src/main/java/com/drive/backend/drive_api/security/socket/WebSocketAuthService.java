@@ -32,6 +32,22 @@ public class WebSocketAuthService {
             }
         }
 
+        // 실시간 위치 구독은 ADMIN 역할만 허용
+        if (destination.startsWith("/topic/dispatch/")) {
+            if (hasAuthority(authentication, "ROLE_ADMIN")) return;
+            String errorMessage = "실시간 위치 정보를 구독할 ADMIN 권한이 없습니다.";
+            log.warn("인가 실패: 사용자 '{}', 목적지: {}, 이유: {}", authentication.getName(), destination, errorMessage);
+            throw new AccessDeniedException(errorMessage);
+        }
+        
+        // 실시간 위치 발행은 DRIVER 역할만 허용
+        if (destination.startsWith("/app/location/update")) {
+            if (hasAuthority(authentication, "ROLE_DRIVER")) return;
+            String errorMessage = "실시간 위치 정보를 발행할 DRIVER 권한이 없습니다.";
+            log.warn("인가 실패: 사용자 '{}', 목적지: {}, 이유: {}", authentication.getName(), destination, errorMessage);
+            throw new AccessDeniedException(errorMessage);
+        }
+
         // 운행 이벤트 발행은 DRIVER 역할만 허용
         if (destination.startsWith("/app/drive-events")) {
             if (hasAuthority(authentication, "ROLE_DRIVER")) return;

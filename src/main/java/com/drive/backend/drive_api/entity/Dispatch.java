@@ -55,6 +55,9 @@ public class Dispatch {
     @OneToMany(mappedBy = "dispatch")
     private List<Notification> notifications = new ArrayList<>();
 
+    @OneToMany(mappedBy = "dispatch", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<LocationHistory> locationHistories = new ArrayList<>();
+
     // 필수값 생성자
     public Dispatch(Bus bus, Driver driver, LocalDateTime scheduledDepartureTime, LocalDateTime scheduledArrivalTime) {
         this.bus = bus;
@@ -78,6 +81,13 @@ public class Dispatch {
         this.notifications.add(notification);
         if (notification.getDispatch() != this) {
             notification.setDispatch(this);
+        }
+    }
+
+    public void addLocationHistory(LocationHistory locationHistory) {
+        this.locationHistories.add(locationHistory);
+        if (locationHistory.getDispatch() != this) {
+            locationHistory.setDispatch(this);
         }
     }
 }
