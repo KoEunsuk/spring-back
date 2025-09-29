@@ -11,4 +11,6 @@ public class DrivingEventRequest {
     private Long dispatchId;
     private DrivingEventType eventType;
     private LocalDateTime eventTimestamp;
+    private Double latitude;
+    private Double longitude;
 }

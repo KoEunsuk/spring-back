@@ -35,7 +35,7 @@ public class DrivingEventService {
         updateRecordCounters(record, eventRequest);
 
         // 3. 이벤트 발생 이력(DrivingEvent)을 DB에 저장
-        DrivingEvent newEvent = new DrivingEvent(record, eventRequest.getEventType(), eventRequest.getEventTimestamp());
+        DrivingEvent newEvent = new DrivingEvent(record, eventRequest.getEventType(), eventRequest.getEventTimestamp(), eventRequest.getLatitude(), eventRequest.getLongitude());
         record.addDrivingEvent(newEvent);   // DrivingRecord의 이벤트 목록에도 추가하여 양방향 관계를 동기화
         drivingEventRepository.save(newEvent);
 

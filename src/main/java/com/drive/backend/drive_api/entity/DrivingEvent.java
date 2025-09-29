@@ -32,9 +32,14 @@ public class DrivingEvent {
     @Column(nullable = false)
     private LocalDateTime eventTimestamp;
 
-    public DrivingEvent(DrivingRecord drivingRecord, DrivingEventType eventType, LocalDateTime eventTimestamp) {
+    private Double latitude;
+    private Double longitude;
+
+    public DrivingEvent(DrivingRecord drivingRecord, DrivingEventType eventType, LocalDateTime eventTimestamp, Double latitude, Double longitude) {
         this.drivingRecord = drivingRecord;
         this.eventType = eventType;
         this.eventTimestamp = eventTimestamp;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 }
