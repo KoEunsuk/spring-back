@@ -49,7 +49,7 @@ public class DrivingEventService {
 
         // 6. 각 관리자에게 알림을 생성하고 실시간으로 발송
         for (Admin admin : adminsToNotify) {
-            notificationService.createAndSendNotification(admin, dispatch, message, NotificationType.DRIVING_WARNING, url);
+            notificationService.createAndSendNotification(admin, dispatch, message, NotificationType.DRIVING_WARNING, url, eventRequest.getLatitude(), eventRequest.getLongitude());
         }
     }
 

@@ -22,6 +22,10 @@ public class NotificationResponse {
     @Getter private final String vehicleNumber;
     @Getter private final String driverName;
 
+    // 알림 발생 위치
+    @Getter private final Double latitude;
+    @Getter private final Double longitude;
+
     @JsonProperty("isRead")
     public boolean isRead() {
         return this.isRead;
@@ -35,6 +39,8 @@ public class NotificationResponse {
         this.notificationType = notification.getNotificationType();
         this.relatedUrl = notification.getRelatedUrl();
         this.createdAt = notification.getCreatedAt();
+        this.latitude = notification.getLatitude();
+        this.longitude = notification.getLongitude();
 
         // Dispatch 정보가 있을 경우에만 관련 데이터를 채움
         if (notification.getDispatch() != null) {

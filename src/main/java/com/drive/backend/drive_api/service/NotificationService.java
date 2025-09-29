@@ -23,10 +23,11 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
+    // 위치 정보가 있는 알림 생성
     @Transactional
-    public void createAndSendNotification(User recipient, Dispatch dispatch, String message, NotificationType type, String url) {
+    public void createAndSendNotification(User recipient, Dispatch dispatch, String message, NotificationType type, String url, Double latitude, Double longitude) {
         // 1. 알림을 DB에 저장
-        Notification notification = new Notification(recipient, dispatch, message, type, url);
+        Notification notification = new Notification(recipient, dispatch, message, type, url, latitude, longitude);
 
         recipient.addNotification(notification);
         dispatch.addNotification(notification);
@@ -41,6 +42,26 @@ public class NotificationService {
         messagingTemplate.convertAndSendToUser(
                 recipient.getEmail(),         // Spring Security User Principal의 name (우리 시스템에서는 email)
                 "/queue/notifications",       // 개인 알림을 위한 구독 경로
+                notificationDto
+        );
+    }
+
+    // 위치 정보가 없는 알림 생성
+    @Transactional
+    public void createAndSendNotification(User recipient, Dispatch dispatch, String message, NotificationType type, String url) {
+        // 위치 정보 없는 엔티티 생성자 호출
+        Notification notification = new Notification(recipient, dispatch, message, type, url);
+
+        recipient.addNotification(notification);
+        dispatch.addNotification(notification);
+
+        notificationRepository.save(notification);
+
+        NotificationResponse notificationDto = NotificationResponse.from(notification);
+
+        messagingTemplate.convertAndSendToUser(
+                recipient.getEmail(),
+                "/queue/notifications",
                 notificationDto
         );
     }

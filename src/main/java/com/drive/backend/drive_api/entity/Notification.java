@@ -49,12 +49,22 @@ public class Notification {
 
     private String relatedUrl; // 알림 클릭 시 이동할 경로
 
+    private Double latitude;
+    private Double longitude;
+
     public Notification(User recipient, Dispatch dispatch, String message, NotificationType type, String relatedUrl) {
+        // 위치 정보없는 생성자
+        this(recipient, dispatch, message, type, relatedUrl, null, null);
+    }
+
+    public Notification(User recipient, Dispatch dispatch, String message, NotificationType type, String relatedUrl, Double latitude, Double longitude) {
         this.recipient = recipient;
         this.dispatch = dispatch;
         this.message = message;
         this.notificationType = type;
         this.relatedUrl = relatedUrl;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     // 읽음 처리 메서드
