@@ -1,10 +1,7 @@
 package com.drive.backend.drive_api.service;
 
 import com.drive.backend.drive_api.dto.request.DispatchCreateRequest;
-import com.drive.backend.drive_api.dto.response.BusDetailDto;
-import com.drive.backend.drive_api.dto.response.DispatchDetailDto;
-import com.drive.backend.drive_api.dto.response.DriverDetailDto;
-import com.drive.backend.drive_api.dto.response.DrivingRecordResponse;
+import com.drive.backend.drive_api.dto.response.*;
 import com.drive.backend.drive_api.entity.*;
 import com.drive.backend.drive_api.enums.DispatchStatus;
 import com.drive.backend.drive_api.enums.NotificationType;
@@ -25,6 +22,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -215,6 +214,24 @@ public class DispatchService {
         }
 
         return DrivingRecordResponse.from(drivingRecord);
+    }
+
+    // 공통 - 특정 배차의 운행 이벤트(DrivingEvent) 목록 조회
+    @Transactional(readOnly = true)
+    public List<DrivingEventResponse> getDrivingEventsForDispatch(Long dispatchId, CustomUserDetails currentUser) {
+        Dispatch dispatch = findAndCheckPermission(dispatchId, currentUser);
+        
+        DrivingRecord drivingRecord = dispatch.getDrivingRecord();
+        if (drivingRecord == null) {
+            // 운행 기록이 없으면 빈 리스트를 반환
+            return Collections.emptyList();
+        }
+        
+        // 최신 이벤트가 위쪽으로 오게 반환
+        return drivingRecord.getDrivingEvents().stream()
+                .sorted(Comparator.comparing(DrivingEvent::getEventTimestamp).reversed())
+                .map(DrivingEventResponse::from)
+                .collect(Collectors.toList());
     }
 
     // 배차 조회 및 역할 기반 권한 검사 헬퍼 메서드

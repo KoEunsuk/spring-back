@@ -2,6 +2,7 @@ package com.drive.backend.drive_api.controller;
 
 import com.drive.backend.drive_api.common.ApiResponse;
 import com.drive.backend.drive_api.dto.response.DispatchDetailDto;
+import com.drive.backend.drive_api.dto.response.DrivingEventResponse;
 import com.drive.backend.drive_api.dto.response.DrivingRecordResponse;
 import com.drive.backend.drive_api.service.DispatchService;
 import lombok.RequiredArgsConstructor;
@@ -54,10 +55,17 @@ public class DriverDispatchController {
         return ResponseEntity.ok(ApiResponse.success("배차 운행을 종료했습니다.", responseData));
     }
 
-    // 자신의 배차 운행 기록(DrivingRecord) 조회
+    // 자신 특정 배차 운행 기록(DrivingRecord) 조회
     @GetMapping("/{dispatchId}/driving-record")
     public ResponseEntity<ApiResponse<DrivingRecordResponse>> getMyDrivingRecord(@PathVariable Long dispatchId) {
         DrivingRecordResponse responseData = dispatchService.getDrivingRecordForDispatch(dispatchId, getAuthenticatedUser());
         return ResponseEntity.ok(ApiResponse.success("운행 기록 조회에 성공했습니다.", responseData));
+    }
+
+    // 자신 특정 배차의 운행 이벤트(DrivingEvent) 목록 조회
+    @GetMapping("/{dispatchId}/events")
+    public ResponseEntity<ApiResponse<List<DrivingEventResponse>>> getMyDrivingEvents(@PathVariable Long dispatchId) {
+        List<DrivingEventResponse> responseData = dispatchService.getDrivingEventsForDispatch(dispatchId, getAuthenticatedUser());
+        return ResponseEntity.ok(ApiResponse.success("운행 이벤트 목록 조회에 성공했습니다.", responseData));
     }
 }
