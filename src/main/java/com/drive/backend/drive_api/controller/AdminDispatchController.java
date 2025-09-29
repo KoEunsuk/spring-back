@@ -5,6 +5,7 @@ import com.drive.backend.drive_api.dto.request.DispatchCreateRequest;
 import com.drive.backend.drive_api.dto.response.BusDetailDto;
 import com.drive.backend.drive_api.dto.response.DispatchDetailDto;
 import com.drive.backend.drive_api.dto.response.DriverDetailDto;
+import com.drive.backend.drive_api.dto.response.DrivingRecordResponse;
 import com.drive.backend.drive_api.enums.DispatchStatus;
 import com.drive.backend.drive_api.service.DispatchService;
 import lombok.RequiredArgsConstructor;
@@ -95,4 +96,10 @@ public class AdminDispatchController {
         return ResponseEntity.ok(ApiResponse.success("배차를 취소했습니다.", responseData));
     }
 
+    // 특정 배차의 운행 기록(DrivingRecord) 조회
+    @GetMapping("/{dispatchId}/driving-record")
+    public ResponseEntity<ApiResponse<DrivingRecordResponse>> getDrivingRecord(@PathVariable Long dispatchId) {
+        DrivingRecordResponse responseData = dispatchService.getDrivingRecordForDispatch(dispatchId, getAuthenticatedUser());
+        return ResponseEntity.ok(ApiResponse.success("운행 기록 조회에 성공했습니다.", responseData));
+    }
 }

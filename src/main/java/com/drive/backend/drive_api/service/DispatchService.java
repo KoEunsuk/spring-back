@@ -4,6 +4,7 @@ import com.drive.backend.drive_api.dto.request.DispatchCreateRequest;
 import com.drive.backend.drive_api.dto.response.BusDetailDto;
 import com.drive.backend.drive_api.dto.response.DispatchDetailDto;
 import com.drive.backend.drive_api.dto.response.DriverDetailDto;
+import com.drive.backend.drive_api.dto.response.DrivingRecordResponse;
 import com.drive.backend.drive_api.entity.*;
 import com.drive.backend.drive_api.enums.DispatchStatus;
 import com.drive.backend.drive_api.enums.NotificationType;
@@ -13,7 +14,6 @@ import com.drive.backend.drive_api.exception.ResourceNotFoundException;
 import com.drive.backend.drive_api.repository.BusRepository;
 import com.drive.backend.drive_api.repository.DispatchRepository;
 import com.drive.backend.drive_api.repository.DriverRepository;
-import com.drive.backend.drive_api.repository.OperatorRepository;
 import com.drive.backend.drive_api.security.userdetails.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -201,6 +201,20 @@ public class DispatchService {
 
         dispatch.setStatus(DispatchStatus.CANCELED);
         return DispatchDetailDto.from(dispatch);
+    }
+
+    // 공통 - 특정 배차의 운행 기록(DrivingRecord) 조회
+    @Transactional(readOnly = true)
+    public DrivingRecordResponse getDrivingRecordForDispatch(Long dispatchId, CustomUserDetails currentUser) {
+        Dispatch dispatch = findAndCheckPermission(dispatchId, currentUser);
+
+        DrivingRecord drivingRecord = dispatch.getDrivingRecord();
+
+        if (drivingRecord == null) {
+            throw new ResourceNotFoundException("DrivingRecord", "dispatchId", dispatchId);
+        }
+
+        return DrivingRecordResponse.from(drivingRecord);
     }
 
     // 배차 조회 및 역할 기반 권한 검사 헬퍼 메서드

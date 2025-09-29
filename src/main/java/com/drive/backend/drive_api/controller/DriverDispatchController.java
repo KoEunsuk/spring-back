@@ -2,6 +2,7 @@ package com.drive.backend.drive_api.controller;
 
 import com.drive.backend.drive_api.common.ApiResponse;
 import com.drive.backend.drive_api.dto.response.DispatchDetailDto;
+import com.drive.backend.drive_api.dto.response.DrivingRecordResponse;
 import com.drive.backend.drive_api.service.DispatchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -51,5 +52,12 @@ public class DriverDispatchController {
     public ResponseEntity<ApiResponse<DispatchDetailDto>> endMyDispatch(@PathVariable Long dispatchId) {
         DispatchDetailDto responseData = dispatchService.endDispatch(dispatchId, getAuthenticatedUser());
         return ResponseEntity.ok(ApiResponse.success("배차 운행을 종료했습니다.", responseData));
+    }
+
+    // 자신의 배차 운행 기록(DrivingRecord) 조회
+    @GetMapping("/{dispatchId}/driving-record")
+    public ResponseEntity<ApiResponse<DrivingRecordResponse>> getMyDrivingRecord(@PathVariable Long dispatchId) {
+        DrivingRecordResponse responseData = dispatchService.getDrivingRecordForDispatch(dispatchId, getAuthenticatedUser());
+        return ResponseEntity.ok(ApiResponse.success("운행 기록 조회에 성공했습니다.", responseData));
     }
 }
