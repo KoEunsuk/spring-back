@@ -1,6 +1,6 @@
 package com.drive.backend.drive_api.controller;
 
-import com.drive.backend.drive_api.dto.request.DrivingEventRequest;
+import com.drive.backend.drive_api.dto.websocket.DrivingEventRequest;
 import com.drive.backend.drive_api.service.DrivingEventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;

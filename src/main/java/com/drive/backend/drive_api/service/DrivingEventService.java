@@ -1,6 +1,6 @@
 package com.drive.backend.drive_api.service;
 
-import com.drive.backend.drive_api.dto.request.DrivingEventRequest;
+import com.drive.backend.drive_api.dto.websocket.DrivingEventRequest;
 import com.drive.backend.drive_api.entity.*;
 import com.drive.backend.drive_api.enums.NotificationType;
 import com.drive.backend.drive_api.exception.ResourceNotFoundException;

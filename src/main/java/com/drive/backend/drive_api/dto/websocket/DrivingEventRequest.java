@@ -1,4 +1,4 @@
-package com.drive.backend.drive_api.dto.request;
+package com.drive.backend.drive_api.dto.websocket;
 
 import com.drive.backend.drive_api.enums.DrivingEventType;
 import lombok.Getter;
