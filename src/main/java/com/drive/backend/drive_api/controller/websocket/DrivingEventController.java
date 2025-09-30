@@ -1,4 +1,4 @@
-package com.drive.backend.drive_api.controller.rest;
+package com.drive.backend.drive_api.controller.websocket;
 
 import com.drive.backend.drive_api.dto.websocket.DrivingEventRequest;
 import com.drive.backend.drive_api.service.DrivingEventService;
