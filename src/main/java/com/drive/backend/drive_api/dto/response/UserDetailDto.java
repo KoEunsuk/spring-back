@@ -9,6 +9,8 @@ import com.drive.backend.drive_api.entity.User;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 
 @Getter
 public class UserDetailDto {
@@ -22,18 +24,10 @@ public class UserDetailDto {
     private final Long operatorId;
     private final String operatorName;
 
-    // 역할별 선택적 필드
-    // 운전자
-    private final String licenseNumber;
-    private final Integer careerYears;
-    private final Grade grade;
-    private final BigDecimal avgDrowsinessCount;
-    private final BigDecimal avgAccelerationCount;
-    private final BigDecimal avgBrakingCount;
-    private final BigDecimal avgAbnormalCount;
-    private final BigDecimal avgDrivingScore;
+    // 역할별 확장 데이터
+    private final Map<String, Object> payload;
 
-    private UserDetailDto(User user) {
+    private UserDetailDto(User user, Map<String, Object> payload) {
         this.userId = user.getUserId();
         this.email = user.getEmail();
         this.username = user.getUsername();
@@ -41,49 +35,28 @@ public class UserDetailDto {
         this.imagePath = user.getImagePath();
         this.role = user.getRole();
         Operator operator = user.getOperator();
-        if (operator != null) {
-            this.operatorId = operator.getOperatorId();
-            this.operatorName = operator.getOperatorName(); // Operator의 getName() 메서드 사용
-        } else {
-            this.operatorId = null;
-            this.operatorName = null;
-        }
+        this.operatorId = (operator != null) ? operator.getOperatorId() : null;
+        this.operatorName = (operator != null) ? operator.getOperatorName() : null;
 
-        // 선택적 생성자 처리
-        if (user instanceof Driver driver) {
-            // user가 Driver 타입일 경우
-            this.licenseNumber = driver.getLicenseNumber();
-            this.careerYears = driver.getCareerYears();
-            this.grade = driver.getGrade();
-            this.avgDrowsinessCount = driver.getAvgDrowsinessCount();
-            this.avgAccelerationCount = driver.getAvgAccelerationCount();
-            this.avgBrakingCount = driver.getAvgBrakingCount();
-            this.avgAbnormalCount = driver.getAvgAbnormalCount();
-            this.avgDrivingScore = driver.getAvgDrivingScore();
-        } else if (user instanceof Admin admin) {
-            // user가 Admin 타입일 경우
-            this.licenseNumber = null;
-            this.careerYears = null;
-            this.grade = null;
-            this.avgDrowsinessCount = null;
-            this.avgAccelerationCount = null;
-            this.avgBrakingCount = null;
-            this.avgAbnormalCount = null;
-            this.avgDrivingScore = null;
-        } else {
-            // Driver도 Admin도 아닌 제3의 User
-            this.licenseNumber = null;
-            this.careerYears = null;
-            this.grade = null;
-            this.avgDrowsinessCount = null;
-            this.avgAccelerationCount = null;
-            this.avgBrakingCount = null;
-            this.avgAbnormalCount = null;
-            this.avgDrivingScore = null;
-        }
+        this.payload = payload;
     }
 
     public static UserDetailDto from(User user) {
-        return new UserDetailDto(user);
+        Map<String, Object> payload = new HashMap<>();
+
+        if (user instanceof Driver driver) {
+            payload.put("licenseNumber", driver.getLicenseNumber());
+            payload.put("careerYears", driver.getCareerYears());
+            payload.put("grade", driver.getGrade());
+            payload.put("avgDrowsinessCount", driver.getAvgDrowsinessCount());
+            payload.put("avgAccelerationCount", driver.getAvgAccelerationCount());
+            payload.put("avgBrakingCount", driver.getAvgBrakingCount());
+            payload.put("avgAbnormalCount", driver.getAvgAbnormalCount());
+            payload.put("avgDrivingScore", driver.getAvgDrivingScore());
+        } else if (user instanceof Admin) {
+            // Admin은 별도 payload 없음 → 빈 Map 유지
+        }
+
+        return new UserDetailDto(user, payload.isEmpty() ? null : payload);
     }
 }

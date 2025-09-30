@@ -40,11 +40,10 @@ public class NotificationResponse {
     }
 
     public static NotificationResponse from(Notification notification) {
-        Map<String, Object> payload = null;
+        Map<String, Object> payload = new HashMap<>();
 
         switch (notification.getNotificationType()) {
             case DRIVING_WARNING -> {
-                payload = new HashMap<>();
                 Dispatch dispatch = notification.getDispatch();
                 if (dispatch != null) {
                     payload.put("dispatchId", dispatch.getDispatchId());
@@ -57,16 +56,17 @@ public class NotificationResponse {
             case NEW_DISPATCH_ASSIGNED -> {
                 Dispatch dispatch = notification.getDispatch();
                 if (dispatch != null) {
-                    payload = new HashMap<>();
                     payload.put("dispatchId", dispatch.getDispatchId());
                     payload.put("vehicleNumber", dispatch.getBus().getVehicleNumber());
                     payload.put("driverName", dispatch.getDriver().getUsername());
                     payload.put("scheduledDepartureTime", dispatch.getScheduledDepartureTime());
                 }
             }
-            default -> payload = null; // 다른 타입은 payload 필요 없음
+            default -> {
+                // 다른 타입은 payload 없음
+            }
         }
 
-        return new NotificationResponse(notification, payload);
+        return new NotificationResponse(notification, payload.isEmpty() ? null : payload);
     }
 }
