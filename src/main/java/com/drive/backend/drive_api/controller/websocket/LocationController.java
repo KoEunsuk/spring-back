@@ -1,4 +1,4 @@
-package com.drive.backend.drive_api.controller;
+package com.drive.backend.drive_api.controller.websocket;
 
 import com.drive.backend.drive_api.dto.websocket.LocationUpdateRequest;
 import com.drive.backend.drive_api.service.LocationService;

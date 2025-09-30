@@ -1,4 +1,4 @@
-package com.drive.backend.drive_api.controller;
+package com.drive.backend.drive_api.controller.websocket;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

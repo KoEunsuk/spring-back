@@ -1,4 +1,4 @@
-package com.drive.backend.drive_api.controller;
+package com.drive.backend.drive_api.controller.rest;
 
 import com.drive.backend.drive_api.common.ApiResponse;
 import com.drive.backend.drive_api.dto.request.LoginRequestDto;
