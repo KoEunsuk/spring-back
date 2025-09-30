@@ -106,4 +106,12 @@ public class AdminDispatchController {
         List<DrivingEventResponse> responseData = dispatchService.getDrivingEventsForDispatch(dispatchId, getAuthenticatedUser());
         return ResponseEntity.ok(ApiResponse.success("운행 이벤트 목록 조회에 성공했습니다.", responseData));
     }
+
+    // 특정 배차의 과거 운행 경로 전체 조회
+    @GetMapping("/{dispatchId}/locations")
+    public ResponseEntity<ApiResponse<List<LocationHistoryResponse>>> getLocationHistories(@PathVariable Long dispatchId) {
+        List<LocationHistoryResponse> responseData = dispatchService.getLocationHistoriesForDispatch(dispatchId, getAuthenticatedUser());
+        return ResponseEntity.ok(ApiResponse.success("운행 경로 조회에 성공했습니다.", responseData));
+    }
+
 }

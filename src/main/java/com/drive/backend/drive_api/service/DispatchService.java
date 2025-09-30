@@ -234,6 +234,20 @@ public class DispatchService {
                 .collect(Collectors.toList());
     }
 
+    // 관리자 - 특정 배차의 과거 운행 경로 전체 조회
+    @Transactional(readOnly = true)
+    public List<LocationHistoryResponse> getLocationHistoriesForDispatch(Long dispatchId, CustomUserDetails currentUser) {
+        Dispatch dispatch = findAndCheckPermission(dispatchId, currentUser);
+
+        List<LocationHistory> histories = dispatch.getLocationHistories();
+
+        // 기록된 시간 오름차순(오래된 순)으로 정렬하여 DTO로 변환한 뒤 반환
+        return histories.stream()
+                .sorted(Comparator.comparing(LocationHistory::getRecordedAt))
+                .map(LocationHistoryResponse::from)
+                .collect(Collectors.toList());
+    }
+
     // 배차 조회 및 역할 기반 권한 검사 헬퍼 메서드
     private Dispatch findAndCheckPermission(Long dispatchId, CustomUserDetails currentUser) {
         Dispatch dispatch = dispatchRepository.findById(dispatchId)
