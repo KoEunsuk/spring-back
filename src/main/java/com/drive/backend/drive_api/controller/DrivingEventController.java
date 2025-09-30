@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 @Controller
 @RequiredArgsConstructor
 public class DrivingEventController {
+
     private final DrivingEventService drivingEventService;
 
     // 클라이언트가 "/app/drive-events"로 메시지를 보내면 이 메서드가 처리
