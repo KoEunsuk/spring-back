@@ -47,8 +47,8 @@ public class Bus {
     @Column
     private LocalDate lastMaintenance;
 
-    @Column
-    private Integer repairCount;
+    @Column(nullable = false)
+    private Integer repairCount = 0;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "operator_id", nullable = false)

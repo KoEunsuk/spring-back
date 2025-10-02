@@ -1,6 +1,7 @@
 package com.drive.backend.drive_api.dto.websocket;
 
 import com.drive.backend.drive_api.enums.DrivingEventType;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -8,9 +9,16 @@ import java.time.LocalDateTime;
 // 모바일 클라이언트가 서버로 보내는 운행 이벤트 메세지
 @Getter
 public class DrivingEventRequest {
+
+    @NotNull
     private Long dispatchId;
+
+    @NotNull
     private DrivingEventType eventType;
+
+    @NotNull
     private LocalDateTime eventTimestamp;
+
     private Double latitude;
     private Double longitude;
 }

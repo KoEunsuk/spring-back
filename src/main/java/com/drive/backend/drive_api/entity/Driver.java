@@ -18,30 +18,30 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Driver extends User {
 
-    @Column
+    @Column(nullable = false)
     private String licenseNumber;
 
     @Column
     private Integer careerYears;
 
     @Enumerated(EnumType.STRING)
-    @Column
-    private Grade grade;
+    @Column(nullable = false)
+    private Grade grade = Grade.E;
 
-    @Column(precision = 5, scale = 2)
-    private BigDecimal avgDrowsinessCount;
+    @Column(nullable = false, precision = 5, scale = 2)
+    private BigDecimal avgDrowsinessCount = BigDecimal.ZERO;
 
-    @Column(precision = 5, scale = 2)
-    private BigDecimal avgAccelerationCount;
+    @Column(nullable = false, precision = 5, scale = 2)
+    private BigDecimal avgAccelerationCount = BigDecimal.ZERO;
 
-    @Column(precision = 5, scale = 2)
-    private BigDecimal avgBrakingCount;
+    @Column(nullable = false, precision = 5, scale = 2)
+    private BigDecimal avgBrakingCount = BigDecimal.ZERO;
 
-    @Column(precision = 5, scale = 2)
-    private BigDecimal avgAbnormalCount;
+    @Column(nullable = false, precision = 5, scale = 2)
+    private BigDecimal avgAbnormalCount = BigDecimal.ZERO;
 
-    @Column(precision = 5, scale = 2)
-    private BigDecimal avgDrivingScore;
+    @Column(nullable = false, precision = 5, scale = 2)
+    private BigDecimal avgDrivingScore = new BigDecimal("100.00");
 
     @OneToMany(mappedBy = "driver")
     private List<Dispatch> dispatches = new ArrayList<>();

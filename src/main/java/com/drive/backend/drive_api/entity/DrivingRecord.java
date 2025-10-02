@@ -26,10 +26,19 @@ public class DrivingRecord {
     @OneToMany(mappedBy = "drivingRecord", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DrivingEvent> drivingEvents = new ArrayList<>();
 
+    @Column(nullable = false)
     private Integer drowsinessCount = 0;
+
+    @Column(nullable = false)
     private Integer accelerationCount = 0;
+
+    @Column(nullable = false)
     private Integer brakingCount = 0;
+
+    @Column(nullable = false)
     private Integer abnormalCount = 0;
+
+    @Column(nullable = false)
     private Integer drivingScore = 100;
 
     // 생성자

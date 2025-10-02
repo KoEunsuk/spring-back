@@ -5,6 +5,7 @@ import com.drive.backend.drive_api.dto.request.DispatchCreateRequest;
 import com.drive.backend.drive_api.dto.response.*;
 import com.drive.backend.drive_api.enums.DispatchStatus;
 import com.drive.backend.drive_api.service.DispatchService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +29,7 @@ public class AdminDispatchController {
 
     // 신규 배차 생성
     @PostMapping
-    public ResponseEntity<ApiResponse<DispatchDetailDto>> createDispatch(@RequestBody DispatchCreateRequest createRequest) {
+    public ResponseEntity<ApiResponse<DispatchDetailDto>> createDispatch(@Valid @RequestBody DispatchCreateRequest createRequest) {
         DispatchDetailDto responseData = dispatchService.createDispatch(createRequest, getAuthenticatedUser());
         URI location = URI.create("/api/admin/dispatches/" + responseData.getDispatchId());
         return ResponseEntity.created(location).body(ApiResponse.success("신규 배차 생성에 성공했습니다.", responseData));
