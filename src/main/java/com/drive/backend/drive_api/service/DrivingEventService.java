@@ -53,7 +53,7 @@ public class DrivingEventService {
         }
     }
 
-    private void updateRecordCounters(DrivingRecord record, DrivingEventRequest eventRequest) {
+    private void updateRecordCounters(DrivingRecord record, DrivingEventRequest eventRequest) { // TODO: 가중치 설정
         switch (eventRequest.getEventType()) {
             case DROWSINESS:
                 record.setDrowsinessCount(record.getDrowsinessCount() + 1);
