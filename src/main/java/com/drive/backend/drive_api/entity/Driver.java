@@ -47,8 +47,9 @@ public class Driver extends User {
     private List<Dispatch> dispatches = new ArrayList<>();
 
     // 필수값 생성자
-    public Driver(String email, String password, String username, String phoneNumber, Operator operator) {
+    public Driver(String email, String password, String username, String phoneNumber, Operator operator, String licenseNumber) {
         super(email, password, username, phoneNumber, operator);
+        this.licenseNumber = licenseNumber;
     }
 
     @Override

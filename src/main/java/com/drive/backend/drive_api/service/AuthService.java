@@ -60,13 +60,11 @@ public class AuthService {
                     encodedPassword,
                     signupDto.getUsername(),
                     signupDto.getPhoneNumber(),
-                    operator
+                    operator,
+                    signupDto.getLicenseNumber()
             );
             if (signupDto.getImagePath() != null) {
                 driver.setImagePath(signupDto.getImagePath());
-            }
-            if (signupDto.getLicenseNumber() != null) {
-                driver.setLicenseNumber(signupDto.getLicenseNumber());
             }
             if (signupDto.getCareerYears() != null) {
                 driver.setCareerYears(signupDto.getCareerYears());
