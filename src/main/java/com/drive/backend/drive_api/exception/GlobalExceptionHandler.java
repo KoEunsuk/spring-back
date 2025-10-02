@@ -4,6 +4,7 @@ import com.drive.backend.drive_api.common.ApiResponse; // ApiResponse import
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -11,12 +12,13 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
     // 404 - 리소스 없음
@@ -70,6 +72,14 @@ public class GlobalExceptionHandler {
         log.warn("Access Denied: {}", ex.getMessage());
         ApiResponse<Void> response = ApiResponse.error("이 리소스에 접근할 권한이 없습니다.", null);
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
+
+    // 동시성 문제 (낙관적 락) 예외 처리 - 409 Conflict
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<ApiResponse<Void>> handleOptimisticLockingFailureException(ObjectOptimisticLockingFailureException ex) {
+        log.warn("Optimistic locking failure: {}", ex.getMessage());
+        ApiResponse<Void> response = ApiResponse.error("다른 사용자에 의해 정보가 먼저 수정되었습니다. 페이지를 새로고침한 후 다시 시도해주세요.", null);
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
     // 비즈니스 관련 예외를 처리 - 커스텀
