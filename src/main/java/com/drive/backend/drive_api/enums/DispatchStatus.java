@@ -5,5 +5,5 @@ public enum DispatchStatus {
     SCHEDULED,
     RUNNING,
     COMPLETED,
-    CANCELED;
+    CANCELED
 }
