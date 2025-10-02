@@ -2,15 +2,14 @@ package com.drive.backend.drive_api.exception;
 
 import com.drive.backend.drive_api.common.ApiResponse; // ApiResponse import
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -75,8 +74,8 @@ public class GlobalExceptionHandler {
     }
 
     // 동시성 문제 (낙관적 락) 예외 처리 - 409 Conflict
-    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
-    public ResponseEntity<ApiResponse<Void>> handleOptimisticLockingFailureException(ObjectOptimisticLockingFailureException ex) {
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    public ResponseEntity<ApiResponse<Void>> handleOptimisticLockingFailureException(OptimisticLockingFailureException ex) {
         log.warn("Optimistic locking failure: {}", ex.getMessage());
         ApiResponse<Void> response = ApiResponse.error("다른 사용자에 의해 정보가 먼저 수정되었습니다. 페이지를 새로고침한 후 다시 시도해주세요.", null);
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
