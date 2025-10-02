@@ -63,8 +63,16 @@ public class UserService {
 
     @Transactional
     public void deleteMyAccount() {
-        userRepository.delete(getCurrentUserEntity());
-    }
+        User currentUser = getCurrentUserEntity();
+
+        // Driver의 경우, 배차가 남아있으면 삭제 불가.
+        if (currentUser instanceof Driver driver) {
+            if (!driver.getDispatches().isEmpty()) {
+                throw new IllegalStateException("배차 기록이 존재하여 계정을 삭제할 수 없습니다. 관리자에게 문의하세요.");
+            }
+        }
+
+        userRepository.delete(currentUser);    }
 
     private User getCurrentUserEntity() {
         Long currentUserId = SecurityUtil.getCurrentUser()
