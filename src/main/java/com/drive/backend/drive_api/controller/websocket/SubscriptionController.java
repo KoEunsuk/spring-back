@@ -1,6 +1,5 @@
 package com.drive.backend.drive_api.controller.websocket;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
@@ -10,7 +9,6 @@ import java.security.Principal;
 
 @Slf4j
 @Controller
-@RequiredArgsConstructor
 public class SubscriptionController {
 
     /**
