@@ -34,7 +34,7 @@ public class UserController {
     }
 
     // 비밀번호 수정 전용 API
-    @PostMapping("/me/password")
+    @PatchMapping("/me/password")
     public ResponseEntity<ApiResponse<Void>> changeMyPassword(@Valid @RequestBody PasswordChangeDto passwordDto) {
         userService.changeMyPassword(passwordDto);
         return ResponseEntity.ok(ApiResponse.success("비밀번호가 성공적으로 변경되었습니다."));
