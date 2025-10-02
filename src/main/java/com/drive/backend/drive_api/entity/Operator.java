@@ -3,8 +3,9 @@ package com.drive.backend.drive_api.entity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.List;
 

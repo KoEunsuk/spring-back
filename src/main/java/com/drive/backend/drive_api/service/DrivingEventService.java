@@ -1,7 +1,10 @@
 package com.drive.backend.drive_api.service;
 
 import com.drive.backend.drive_api.dto.websocket.DrivingEventRequest;
-import com.drive.backend.drive_api.entity.*;
+import com.drive.backend.drive_api.entity.Admin;
+import com.drive.backend.drive_api.entity.Dispatch;
+import com.drive.backend.drive_api.entity.DrivingEvent;
+import com.drive.backend.drive_api.entity.DrivingRecord;
 import com.drive.backend.drive_api.enums.NotificationType;
 import com.drive.backend.drive_api.exception.ResourceNotFoundException;
 import com.drive.backend.drive_api.repository.AdminRepository;

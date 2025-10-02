@@ -1,6 +1,6 @@
 package com.drive.backend.drive_api.exception;
 
-import com.drive.backend.drive_api.common.ApiResponse; // ApiResponse import
+import com.drive.backend.drive_api.common.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;

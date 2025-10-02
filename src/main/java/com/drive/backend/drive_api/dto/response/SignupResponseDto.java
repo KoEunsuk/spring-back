@@ -1,8 +1,8 @@
 package com.drive.backend.drive_api.dto.response;
 
 import com.drive.backend.drive_api.entity.Operator;
-import com.drive.backend.drive_api.enums.Role;
 import com.drive.backend.drive_api.entity.User;
+import com.drive.backend.drive_api.enums.Role;
 import lombok.Getter;
 
 @Getter

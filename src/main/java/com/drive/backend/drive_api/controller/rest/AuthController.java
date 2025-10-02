@@ -4,10 +4,10 @@ import com.drive.backend.drive_api.common.ApiResponse;
 import com.drive.backend.drive_api.dto.request.LoginRequestDto;
 import com.drive.backend.drive_api.dto.request.SignupRequestDto;
 import com.drive.backend.drive_api.dto.response.JwtResponseDto;
+import com.drive.backend.drive_api.dto.response.SignupResponseDto;
 import com.drive.backend.drive_api.security.jwt.JwtTokenProvider;
 import com.drive.backend.drive_api.security.userdetails.CustomUserDetails;
 import com.drive.backend.drive_api.service.AuthService;
-import com.drive.backend.drive_api.dto.response.SignupResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +15,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
 
