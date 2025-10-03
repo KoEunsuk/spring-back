@@ -446,3 +446,75 @@ switch (notification.getNotificationType()) {
 -   **최종 결정**: `@Where`를 사용하지 않고, **Repository 메서드에 `Status` 조건을 명시적으로 추가**하는 규칙을 적용.
     -   **일반 조회**: `findByBusIdAndStatus(id, BusStatus.ACTIVE)`처럼 항상 `ACTIVE` 상태를 조건으로 조회하는 메서드를 만들어 사용. (`findById` 직접 사용 자제)
     -   **특수 조회**: 관리자가 비활성화된 데이터를 포함하여 모든 데이터를 봐야 할 때만 `findAll()`이나 `findById()` 같은 기본 메서드를 사용하도록 역할을 명확히 분리.
+
+-----
+
+## **STOMP Interceptor에서 추가한 헤더 정보가 Controller에서 유실되는 문제**
+
+### 트러블슈팅 및 해결 과정
+
+### 1\. 문제 상황 (Problem)
+
+**WebSocket STOMP** 통신 환경에서, 클라이언트의 최초 연결 시 `ChannelInterceptor`의 `preSend()` 메소드를 이용해 **JWT 토큰을 검증하고 인증된 사용자의 정보를 메시지 헤더에 추가**하는 로직을 구현했습니다.
+
+이후 `@MessageMapping`이 선언된 컨트롤러에서 해당 헤더 값을 꺼내 비즈니스 로직에 사용하려고 했으나, 분명히 Interceptor에서 헤더에 값을 정상적으로 추가했음에도 불구하고 **컨트롤러에서 헤더를 조회하면 해당 값이 `null`로 반환**되는 현상이 발생했습니다.
+
+### 2\. 원인 분석 (Cause Analysis)
+
+처음에는 Interceptor의 로직 순서나 비동기 처리 문제라고 추측했지만, 디버깅을 통해 Interceptor에서는 헤더 추가가 성공적으로 이루어지는 것을 확인했습니다. 문제의 핵심은 **헤더에 접근하는 방식**에 있었습니다.
+
+#### **기존 코드의 문제점**
+
+Interceptor와 Controller 양쪽에서 아래와 같이 헤더에 접근하고 있었습니다.
+
+```java
+// Interceptor 또는 Controller 내부
+StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+String userId = (String) accessor.getSessionAttributes().get("userId"); // null 반환
+```
+
+`StompHeaderAccessor.wrap(message)` 메소드는 호출될 때마다 **기존 메시지를 감싸는 새로운 Accessor 인스턴스를 생성**합니다. 즉, 이 메소드는 원본 메시지의 '읽기 전용 복사본(Read-Only Snapshot)'을 만드는 것과 유사하게 동작합니다.
+
+따라서 `Interceptor`에서 `wrap()`을 통해 생성한 \*\*'복사본 A'\*\*에 헤더 값을 추가하더라도, 이후 `Controller`에서 `wrap()`을 호출하면 원본 메시지를 바탕으로 한 \*\*'또 다른 복사본 B'\*\*가 생성됩니다. '복사본 B'에는 '복사본 A'에서 변경된 내용이 전혀 반영되어 있지 않았기 때문에 값을 읽어올 수 없었던 것입니다.
+
+이는 메시지 처리 파이프라인을 거치면서 **상태가 공유되지 않는 문제**였습니다.
+
+### 3\. 해결 방안 (Solution)
+
+문제의 원인은 메시지 처리 과정에서 헤더의 상태가 공유되지 않았기 때문이므로, 파이프라인 전반에 걸쳐 **동일한 헤더 인스턴스에 접근**하도록 코드를 변경했습니다.
+
+`MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class)` 메소드를 사용하여 이 문제를 해결했습니다.
+
+#### **수정된 코드**
+
+* **변경 전 (Before)**
+
+  ```java
+  StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+  ```
+
+* **변경 후 (After)**
+
+  ```java
+  StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+  ```
+
+#### **해결 원리**
+
+`MessageHeaderAccessor.getAccessor()` 메소드는 다음과 같이 동작합니다.
+
+1.  메시지 헤더에 이미 `StompHeaderAccessor` 인스턴스가 존재하면, **기존의 인스턴스를 그대로 반환**합니다.
+2.  존재하지 않으면, 새로 생성하여 메시지 헤더에 등록한 뒤 반환합니다.
+
+이 방식을 사용하면 `Interceptor`에서 처음 생성된 Accessor가 메시지와 함께 전달되고, `Controller`에서는 **이미 존재하는 바로 그 Accessor 인스턴스를 받게 됩니다.** 따라서 `Interceptor`에서 헤더에 추가한 값을 `Controller`에서 정상적으로 조회할 수 있게 됩니다.
+
+### 4\. 결과 및 학습 내용 (Result & Learnings)
+
+* **결과**: 코드 수정 후, Interceptor에서 추가한 인증 정보가 Controller까지 정상적으로 전달되어 `null` 문제 없이 비즈니스 로직을 처리할 수 있었습니다.
+
+* **학습 내용 (Key Takeaways)**:
+
+    1.  **`wrap()`과 `getAccessor()`의 명확한 차이 이해**: `wrap()`은 일회성의 읽기 전용 뷰를 생성하는 반면, `getAccessor()`는 메시지 생명주기 동안 공유되는 가변(Mutable) 뷰를 제공한다는 점을 학습했습니다.
+    2.  **Spring Messaging의 상태 관리 중요성**: Spring의 메시징 파이프라인(Interceptor 체인)을 통과하는 `Message` 객체는 상태를 가지며, 이 상태를 올바르게 수정하고 공유하는 방법의 중요성을 깨달았습니다.
+    3.  **문제 해결을 위한 공식 문서의 중요성**: 유사한 문제를 겪는 개발자들이 많았고, Spring 공식 문서에서는 이러한 상태 공유 시나리오에서 `getAccessor()` 사용을 권장하고 있음을 확인하며 공식 문서의 중요성을 다시 한번 느꼈습니다.
+    4.  **Best Practice 확립**: 앞으로 Spring WebSocket 환경에서 Interceptor와 Controller 간에 헤더 정보를 공유해야 할 경우, **반드시 `MessageHeaderAccessor.getAccessor()`를 사용**하는 것을 원칙으로 삼게 되었습니다.

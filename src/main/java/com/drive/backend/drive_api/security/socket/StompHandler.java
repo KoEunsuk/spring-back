@@ -7,6 +7,7 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
+import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -22,7 +23,7 @@ public class StompHandler implements ChannelInterceptor {
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
-        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+        StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
         StompCommand command = accessor.getCommand();
 
         // 1. JWT를 이용한 인증 처리 (모든 메시지에 대해)
@@ -46,7 +47,7 @@ public class StompHandler implements ChannelInterceptor {
                 .map(header -> header.substring(7));
 
         if (jwtOpt.isPresent() && tokenProvider.validateJwtToken(jwtOpt.get())) {
-            Authentication authentication = tokenProvider.getWebSocketAuthentication(jwtOpt.get());
+            Authentication authentication = tokenProvider.getAuthentication(jwtOpt.get());
             accessor.setUser(authentication); // 메시지에 인증 정보 설정
             return authentication;
         }
