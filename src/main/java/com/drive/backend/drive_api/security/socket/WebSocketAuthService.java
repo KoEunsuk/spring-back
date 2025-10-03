@@ -29,6 +29,11 @@ public class WebSocketAuthService {
         if (destination.startsWith("/user/queue/")) {
             if (authentication.isAuthenticated()) {
                 return;
+            } else {
+            // 실패 시 명시적으로 예외를 발생시킵니다.
+            String errorMessage = "개인 알림 구독은 인증된 사용자만 가능합니다.";
+            log.warn("인가 실패: 사용자 '{}', 목적지: {}, 이유: {}", authentication.getName(), destination, errorMessage);
+            throw new AccessDeniedException(errorMessage);
             }
         }
 
