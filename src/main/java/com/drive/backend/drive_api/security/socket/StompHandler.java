@@ -46,7 +46,7 @@ public class StompHandler implements ChannelInterceptor {
                 .map(header -> header.substring(7));
 
         if (jwtOpt.isPresent() && tokenProvider.validateJwtToken(jwtOpt.get())) {
-            Authentication authentication = tokenProvider.getAuthentication(jwtOpt.get());
+            Authentication authentication = tokenProvider.getWebSocketAuthentication(jwtOpt.get());
             accessor.setUser(authentication); // 메시지에 인증 정보 설정
             return authentication;
         }

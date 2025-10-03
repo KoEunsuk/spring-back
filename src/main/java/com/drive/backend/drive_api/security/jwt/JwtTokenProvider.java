@@ -118,4 +118,23 @@ public class JwtTokenProvider { // 토큰의 생성, 검증 담당
         // 4. 모든 검증 통과 시, Authentication 객체 생성하여 반환
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
+
+    // 웹소켓 StompHandler 전용으로 새 메서드를 만듭니다.
+    public Authentication getWebSocketAuthentication(String token) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(getEmailFromJwtToken(token));
+
+        CustomUserDetails customUserDetails = (CustomUserDetails) userDetails;
+
+        Instant passwordChangedAt = customUserDetails.getPasswordChangedAt();
+        if (passwordChangedAt != null) {
+            Date tokenIssuedAtDate = getIssuedAtFromToken(token);
+            Instant tokenIssuedAt = tokenIssuedAtDate.toInstant();
+            if (tokenIssuedAt.isBefore(passwordChangedAt)) {
+                throw new JwtException("비밀번호 변경으로 인해 토큰이 무효화되었습니다.");
+            }
+        }
+
+        // Principal로 객체가 아닌 이메일 문자열(getUsername())을 명시적으로 사용
+        return new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null, userDetails.getAuthorities());
+    }
 }

@@ -28,6 +28,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         // 2. 메시지 발행(송신) 요청의 prefix 설정 -> 컨트롤러가 처리
         //      클라이언트가 "/app/..." 경로로 메시지를 보내면 서버의 @MessageMapping 메서드로 라우팅
         registry.setApplicationDestinationPrefixes("/app");
+
+        // @MessageMapping 메서드에서 특정 사용자에게 메시지를 보낼 때 사용할 접두사 설정
+        // 이 설정을 통해 /user/{username}/queue/notifications 같은 패턴이 가능해짐
+        registry.setUserDestinationPrefix("/user");
     }
 
     @Override
