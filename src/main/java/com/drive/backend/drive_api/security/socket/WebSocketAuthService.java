@@ -28,6 +28,7 @@ public class WebSocketAuthService {
         // 개인 알림 구독은 인증정보가 있으면 허용
         if (destination.startsWith("/user/queue/")) {
             if (authentication.isAuthenticated()) {
+                log.warn("인가 성공: 사용자 '{}', 목적지: {}", authentication.getName(), destination);
                 return;
             } else {
             // 실패 시 명시적으로 예외를 발생시킵니다.
