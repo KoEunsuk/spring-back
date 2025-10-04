@@ -322,4 +322,30 @@ public class DispatchService {
         switch (type) {
             case DISPATCH_STARTED: {
                 LocalDateTime actualTime = dispatch.getActualDepartureTime();
+                timeString = (actualTime != null)
+                        ? actualTime.format(DateTimeFormatter.ofPattern("HH:mm"))
+                        : "알 수 없음";
+                messageFormat = "%s 운전자가 %s 차량 운행을 시작했습니다. (시작 시간: %s)";
+                break;
+            }
+
+            case DISPATCH_ENDED: {
+                LocalDateTime actualTime = dispatch.getActualArrivalTime();
+                timeString = (actualTime != null)
+                        ? actualTime.format(DateTimeFormatter.ofPattern("HH:mm"))
+                        : "알 수 없음";
+                messageFormat = "%s 운전자가 %s 차량 운행을 종료했습니다. (종료 시간: %s)";
+                break;
+            }
+            default:
+                return "배차 관련 알림입니다.";
+        }
+
+        return String.format(messageFormat,
+                dispatch.getDriver().getUsername(),
+                dispatch.getBus().getVehicleNumber(),
+                timeString
+        );
+    }
+
 }
