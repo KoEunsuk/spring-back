@@ -15,7 +15,10 @@ import java.util.List;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class DrivingRecord {
+
     @Version
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
     private Long version;
 
     @Id

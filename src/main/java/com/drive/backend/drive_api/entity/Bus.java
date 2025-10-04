@@ -21,6 +21,8 @@ import java.util.List;
 public class Bus {
 
     @Version
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
     private Long version;
 
     @Id

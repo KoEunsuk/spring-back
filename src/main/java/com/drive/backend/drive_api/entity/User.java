@@ -20,6 +20,8 @@ import java.util.List;
 public abstract class User {
 
     @Version
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
     private Long version;
 
     @Id
