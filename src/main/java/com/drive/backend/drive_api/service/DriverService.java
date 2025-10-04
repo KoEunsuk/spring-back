@@ -1,6 +1,6 @@
 package com.drive.backend.drive_api.service;
 
-import com.drive.backend.drive_api.dto.request.DriverAdminUpdateRequestDto;
+import com.drive.backend.drive_api.dto.request.DriverAdminUpdateRequest;
 import com.drive.backend.drive_api.dto.response.DriverDetailDto;
 import com.drive.backend.drive_api.entity.Driver;
 import com.drive.backend.drive_api.entity.Operator;
@@ -44,7 +44,7 @@ public class DriverService {
 
     // 운전자 정보 수정 (관리자용)
     @Transactional
-    public DriverDetailDto updateDriverByAdmin(Long driverId, DriverAdminUpdateRequestDto updateDto) {
+    public DriverDetailDto updateDriverByAdmin(Long driverId, DriverAdminUpdateRequest updateDto) {
         Driver driver = findDriverAndCheckPermission(driverId);
 
         if (updateDto.getPhoneNumber() != null) driver.setPhoneNumber(updateDto.getPhoneNumber());

@@ -1,7 +1,7 @@
 package com.drive.backend.drive_api.controller.rest;
 
 import com.drive.backend.drive_api.common.ApiResponse;
-import com.drive.backend.drive_api.dto.request.DriverAdminUpdateRequestDto;
+import com.drive.backend.drive_api.dto.request.DriverAdminUpdateRequest;
 import com.drive.backend.drive_api.dto.response.DriverDetailDto;
 import com.drive.backend.drive_api.service.DriverService;
 import jakarta.validation.Valid;
@@ -31,7 +31,7 @@ public class AdminDriverController {
     @PatchMapping("/{driverId}")
     public ResponseEntity<ApiResponse<DriverDetailDto>> updateDriver(
             @PathVariable Long driverId,
-            @Valid @RequestBody DriverAdminUpdateRequestDto updateDto) {
+            @Valid @RequestBody DriverAdminUpdateRequest updateDto) {
         DriverDetailDto updatedDriver = driverService.updateDriverByAdmin(driverId, updateDto);
         return ResponseEntity.ok(ApiResponse.success("운전자 정보 수정 성공", updatedDriver));
     }
