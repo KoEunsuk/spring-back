@@ -518,3 +518,239 @@ String userId = (String) accessor.getSessionAttributes().get("userId"); // null 
     2.  **Spring Messaging의 상태 관리 중요성**: Spring의 메시징 파이프라인(Interceptor 체인)을 통과하는 `Message` 객체는 상태를 가지며, 이 상태를 올바르게 수정하고 공유하는 방법의 중요성을 깨달았습니다.
     3.  **문제 해결을 위한 공식 문서의 중요성**: 유사한 문제를 겪는 개발자들이 많았고, Spring 공식 문서에서는 이러한 상태 공유 시나리오에서 `getAccessor()` 사용을 권장하고 있음을 확인하며 공식 문서의 중요성을 다시 한번 느꼈습니다.
     4.  **Best Practice 확립**: 앞으로 Spring WebSocket 환경에서 Interceptor와 Controller 간에 헤더 정보를 공유해야 할 경우, **반드시 `MessageHeaderAccessor.getAccessor()`를 사용**하는 것을 원칙으로 삼게 되었습니다.
+
+
+---
+
+# 🚗 실시간 차량 이벤트 처리 시스템 트러블슈팅 & 동시성 안정화 기록
+
+---
+
+## 📌 1. 개요
+
+이 프로젝트는 **운전 중 발생하는 실시간 이벤트(졸음, 급가속, 급제동 등)**와
+**차량의 위치·상태 데이터(OBD2 포함)**를 서버로 수집하고,
+운행 기록(DrivingRecord)과 관리자 대시보드(WebSocket)를 통해 실시간 관제하는 시스템이다.
+
+초기에는 단일 스레드 환경에서는 정상 동작했지만,
+실제 차량이 여러 대 동시에 데이터를 전송하는 환경에서 **동시성 문제**와 **트랜잭션 불안정성**이 드러났다.
+
+---
+
+## ⚠️ 2. 주요 문제점 요약
+
+| 유형                    | 문제 내용                                                  | 영향              |
+| --------------------- | ------------------------------------------------------ | --------------- |
+| 🧩 **동시성 문제**         | 여러 차량의 이벤트가 동시에 동일 운행(`DrivingRecord`)에 기록되며 카운터 값이 꼬임 | 데이터 정합성 손상      |
+| 🔁 **중복 이벤트 기록**      | 동일 이벤트(타입+시간)가 중복으로 저장됨                                | 데이터 부풀림 및 통계 오차 |
+| 💾 **이벤트 로그 유실**      | 알림 전송 실패나 낙관적락 충돌 시 이벤트 로그까지 롤백됨                       | 추적 불가           |
+| ⚙️ **비동기 예외 전파 실패**   | `@Async` 메서드 내부 예외가 전역 핸들러에서 잡히지 않음                    | 오류 탐지 불가        |
+| 🧱 **다중 엔티티 수정 시 경합** | 운행, 차량, 운수사 등 여러 엔티티가 동시에 수정될 때 충돌 가능성                 | 데이터 일관성 저하      |
+
+---
+
+## 🎯 3. 개선 목표
+
+| 목표                     | 설명                                                                       |
+| ---------------------- | ------------------------------------------------------------------------ |
+| ✅ **데이터 정합성**          | 동시 이벤트 처리 시에도 Record 카운트 손상 방지                                           |
+| ✅ **중복 방지**            | 동일 이벤트는 1회만 저장                                                           |
+| ✅ **이력 보존**            | 알림 실패나 트랜잭션 롤백 시에도 이벤트 로그는 남아야 함                                         |
+| ✅ **비동기 안정성**          | 비동기 처리 예외를 명확히 로깅                                                        |
+| ✅ **시스템 전반의 일관된 락 관리** | 핵심 엔티티(User, Operator, Bus, Dispatch, DrivingRecord 등)에 동일한 동시성 제어 전략 적용 |
+
+---
+
+## 🔧 4. 주요 개선 내용
+
+### 4.1. 🧱 전 엔티티에 낙관적 락(@Version) 적용
+
+#### 📍 적용 대상
+
+`User`, `Operator`, `Bus`, `Dispatch`, `DrivingRecord`, `DrivingEvent` 등
+주요 도메인 엔티티에 `@Version` 필드를 추가.
+
+```java
+@Version
+@Column(name = "version", nullable = false)
+private Long version;
+```
+
+#### 📍 이유
+
+* 동시 다중 업데이트 시 **비관적 락(Pessimistic Lock)** 은 성능 저하가 크므로,
+  **낙관적 락(Optimistic Lock)** 으로 충돌만 감지하고 재시도하도록 설계.
+* 충돌 발생 시 JPA가 `OptimisticLockingFailureException`을 던지며,
+  이는 **전역 예외 핸들러(GlobalExceptionHandler)** 에서 관리.
+
+#### 📍 효과
+
+✔️ 다중 스레드 환경에서도 데이터 정합성 유지
+✔️ 전역 통일된 락 관리 구조 → 코드 일관성 확보
+
+---
+
+### 4.2. 🧩 중복 이벤트 방지를 위한 DB 제약조건 추가
+
+**문제:** 동일 이벤트(같은 Record + eventType + timestamp)가 중복 저장됨
+**해결:** DB 레벨에서 제약조건으로 중복 방지
+
+```java
+@Table(name = "driving_events", uniqueConstraints = {
+    @UniqueConstraint(
+        name = "UK_driving_event_uniqueness",
+        columnNames = {"driving_record_id", "eventType", "eventTimestamp"}
+    )
+})
+```
+
+* 동일한 조합 입력 시 `DataIntegrityViolationException` 발생
+* 서비스 계층에서 `log.warn` 후 무시 (정상 흐름으로 간주)
+
+**효과:**
+✔️ Race Condition 없이 중복 데이터 차단
+✔️ 서버 로직 복잡도 감소
+
+---
+
+### 4.3. 💾 이벤트 영속성 보장을 위한 트랜잭션 분리
+
+DrivingEvent 저장은 항상 성공해야 하므로,
+다른 로직과 분리된 트랜잭션으로 수행.
+
+```java
+@Transactional(propagation = Propagation.REQUIRES_NEW)
+public DrivingEvent saveEventWithNewTransaction(DrivingRecord record, DrivingEventRequest req) {
+    DrivingEvent event = new DrivingEvent(record, req.getEventType(), ...);
+    record.addDrivingEvent(event);
+    return drivingEventRepository.save(event);
+}
+```
+
+* `Propagation.REQUIRES_NEW` → 상위 트랜잭션과 무관하게 **항상 커밋**
+* 만약 `DrivingRecord` 업데이트 실패 시에도 **이벤트 이력은 남음**
+
+**효과:**
+✔️ 알림 실패, 락 충돌 등에도 이력 손실 없음
+✔️ 장애 후 재처리, 분석 가능
+
+---
+
+### 4.4. ⚡ @Async 비동기 처리로 병목 제거
+
+이벤트 처리 로직(`processAndNotify`)을 비동기로 분리하여
+클라이언트는 즉시 응답받고, 내부 처리는 별도 스레드에서 수행.
+
+```java
+@Async
+@Transactional
+public void processAndNotify(DrivingEventRequest request) {
+    try {
+        Dispatch dispatch = dispatchRepository.findById(...).orElseThrow(...);
+        DrivingRecord record = dispatch.getDrivingRecord();
+        DrivingEvent newEvent = saveEventWithNewTransaction(record, request);
+        updateRecordWithRetry(record, request);
+        sendEventNotification(dispatch, request);
+    } catch (Exception e) {
+        log.error("[DrivingEvent 처리 실패]", e);
+    }
+}
+```
+
+* `@Async`로 스레드 풀 기반 병렬 처리
+* 예외는 try-catch로 로깅
+* 전역 핸들러에는 전달되지 않지만, 로그로 충분히 추적 가능
+
+**효과:**
+✔️ 이벤트 처리 병목 제거
+✔️ 서비스 전체 응답속도 향상
+✔️ 장애 발생 시 서비스 중단 없이 복구 가능
+
+---
+
+### 4.5. 🧰 GlobalExceptionHandler에서 낙관적 락 처리
+
+비동기 외의 모든 요청(REST API, WebSocket 메시지 등)에 대해
+전역 예외 핸들러(GlobalExceptionHandler)를 사용해 예외 통합 처리.
+
+```java
+@ExceptionHandler(OptimisticLockingFailureException.class)
+@ResponseStatus(HttpStatus.CONFLICT)
+public ResponseEntity<ErrorResponse> handleOptimisticLock(OptimisticLockingFailureException ex) {
+    log.warn("[낙관적 락 충돌] {}", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+            .body(new ErrorResponse("CONFLICT", "데이터가 동시에 수정되었습니다. 다시 시도해주세요."));
+}
+```
+
+**효과:**
+✔️ 클라이언트가 충돌을 인지하고 재시도 가능
+✔️ 관리자 콘솔에는 상세 로그 기록
+✔️ 비동기 로직 외의 모든 API는 전역 일관된 예외 정책 유지
+
+---
+
+### 4.6. 🔔 알림(Notification) 서비스 안정화
+
+비동기로 메시지 전송 중 오류가 발생하더라도
+핵심 로직(이벤트 저장, 집계)은 영향을 받지 않도록 구조 개선.
+
+```java
+try {
+    notificationRepository.save(notification);
+    messagingTemplate.convertAndSendToUser(...);
+} catch (Exception e) {
+    log.error("[알림 전송 실패]", e);
+}
+```
+
+**효과:**
+✔️ 알림 실패 시 로그만 남기고 나머지 로직은 정상 수행
+✔️ 실시간 통신 오류(WebSocket 끊김 등)에도 서비스 안정성 확보
+
+---
+
+## 🧠 5. 트러블슈팅 정리 (문제 → 원인 → 해결)
+
+| 문제               | 원인               | 해결                         | 결과             |
+| ---------------- | ---------------- | -------------------------- | -------------- |
+| 동시성 데이터 충돌       | 다중 이벤트 동시 update | `@Version` + 재시도 로직        | 정합성 유지         |
+| 중복 이벤트 발생        | 동일 이벤트 중복 insert | DB Unique 제약조건             | 중복 방지          |
+| 이벤트 유실           | 하나의 트랜잭션에 모두 묶임  | `Propagation.REQUIRES_NEW` | 로그 영속성 확보      |
+| 알림 전송 실패 시 전체 실패 | 예외 전파            | try-catch 로깅 분리            | 안정성 확보         |
+| 비동기 예외 미로깅       | Async 예외 비전파     | 서비스 내부 try-catch           | 로그 기반 모니터링     |
+| 전역 일관성 부족        | 일부 엔티티만 락 적용     | 모든 핵심 엔티티에 @Version 추가     | 일관된 락 관리 체계 구축 |
+
+---
+
+## 🧩 6. 면접용 핵심 포인트 요약
+
+> “실시간 이벤트 시스템에서 동시성 문제와 데이터 정합성 이슈를 겪었고,
+> 이를 해결하기 위해 `@Version` 기반의 낙관적 락, `Propagation.REQUIRES_NEW` 트랜잭션 분리,
+> `@Async` 비동기 처리, 그리고 DB 레벨의 제약조건을 결합했습니다.
+> 특히 모든 핵심 엔티티(User, Operator, Bus, Dispatch 등)에 일관된 락 전략을 적용해
+> 전역적으로 동시성 안정성을 확보했습니다.”
+
+---
+
+## ✅ 7. 개선 후 시스템 특성 요약
+
+| 항목          | 상태                      |
+| ----------- | ----------------------- |
+| **데이터 정합성** | 낙관적 락 + 전역 예외 핸들러로 보장   |
+| **중복 방지**   | DB 제약조건으로 해결            |
+| **이력 영속성**  | 별도 트랜잭션 커밋 구조           |
+| **비동기 안정성** | try-catch 기반 로깅 및 예외 복원 |
+| **운영 모니터링** | 로그 중심 추적 가능             |
+| **확장성**     | 고부하 환경에서도 안정적 동시성 제어 가능 |
+
+---
+
+## 💡 결론
+
+이번 개선은 단순한 예외 처리 수준을 넘어
+**실시간 시스템의 데이터 일관성과 내결함성(fault-tolerance)** 을 확보한 사례다.
+`@Version`, `@Async`, DB 제약조건, 그리고 트랜잭션 분리 전략을 조합해
+**안정성 + 성능 + 추적 가능성**의 균형을 이뤘다.
+
+---

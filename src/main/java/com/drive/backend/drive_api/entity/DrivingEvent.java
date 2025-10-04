@@ -10,8 +10,12 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "driving_events")
-@Getter
+@Table(name = "driving_events", uniqueConstraints = {
+        @UniqueConstraint(
+                name = "UK_driving_event_uniqueness", // DB에 생성될 제약조건 이름
+                columnNames = {"driving_record_id", "event_type", "event_timestamp"}
+        )
+})@Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class DrivingEvent {
