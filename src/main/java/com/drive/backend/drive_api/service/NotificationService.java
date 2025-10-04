@@ -8,7 +8,9 @@ import com.drive.backend.drive_api.enums.NotificationType;
 import com.drive.backend.drive_api.exception.ResourceNotFoundException;
 import com.drive.backend.drive_api.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
@@ -24,26 +27,30 @@ public class NotificationService {
     private final SimpMessagingTemplate messagingTemplate;
 
     // 위치 정보가 있는 알림 생성
+    @Async
     @Transactional
     public void createAndSendNotification(User recipient, Dispatch dispatch, String message, NotificationType type, String url, Double latitude, Double longitude) {
-        // 1. 알림을 DB에 저장
-        Notification notification = new Notification(recipient, dispatch, message, type, url, latitude, longitude);
+        try {
+            // 1. 알림을 DB에 저장
+            Notification notification = new Notification(recipient, dispatch, message, type, url, latitude, longitude);
+            recipient.addNotification(notification);
+            dispatch.addNotification(notification);
+            notificationRepository.save(notification);
 
-        recipient.addNotification(notification);
-        dispatch.addNotification(notification);
+            // 2. DTO로 변환
+            NotificationResponse notificationDto = NotificationResponse.from(notification);
 
-        notificationRepository.save(notification);
-
-        // 2. DTO로 변환
-        NotificationResponse notificationDto = NotificationResponse.from(notification);
-
-        // 3. 해당 사용자 개인에게만 웹소켓 메세지 전송
-        //    /user/queue/notifications 채널을 구독 중인 특정 사용자에게만 메시지가 전달됨
-        messagingTemplate.convertAndSendToUser(
-                recipient.getEmail(),         // Spring Security User Principal의 name (우리 시스템에서는 email)
-                "/queue/notifications",       // 개인 알림을 위한 구독 경로
-                notificationDto
-        );
+            // 3. 해당 사용자 개인에게만 웹소켓 메세지 전송
+            //    /user/queue/notifications 채널을 구독 중인 특정 사용자에게만 메시지가 전달됨
+            messagingTemplate.convertAndSendToUser(
+                    recipient.getEmail(),         // Spring Security User Principal의 name (우리 시스템에서는 email)
+                    "/queue/notifications",       // 개인 알림을 위한 구독 경로
+                    notificationDto
+            );
+        } catch (Exception e) {
+            log.error("[알림 전송 실패] recipient={}, message={}, error={}",
+                    recipient.getEmail(), message, e.getMessage());
+        }
     }
 
     // 위치 정보가 없는 알림 생성
