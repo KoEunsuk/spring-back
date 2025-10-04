@@ -8,14 +8,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
-public class JwtResponseDto {
+public class JwtResponse {
     private final String token;
     private final Long userId;
     private final String email;
     private final String username;
     private final List<String> roles;
 
-    public JwtResponseDto(String token, CustomUserDetails userDetails) {
+    public JwtResponse(String token, CustomUserDetails userDetails) {
         this.token = token;
         this.userId = userDetails.getUserId();
         this.email = userDetails.getEmail();

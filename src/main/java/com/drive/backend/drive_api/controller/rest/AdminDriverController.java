@@ -2,7 +2,7 @@ package com.drive.backend.drive_api.controller.rest;
 
 import com.drive.backend.drive_api.common.ApiResponse;
 import com.drive.backend.drive_api.dto.request.DriverAdminUpdateRequest;
-import com.drive.backend.drive_api.dto.response.DriverDetailDto;
+import com.drive.backend.drive_api.dto.response.DriverDetailResponse;
 import com.drive.backend.drive_api.service.DriverService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,17 +22,17 @@ public class AdminDriverController {
 
     // 전체 운전자 목록 조회
     @GetMapping
-    public ResponseEntity<ApiResponse<List<DriverDetailDto>>> getAllDrivers() {
-        List<DriverDetailDto> drivers = driverService.findAllDrivers();
+    public ResponseEntity<ApiResponse<List<DriverDetailResponse>>> getAllDrivers() {
+        List<DriverDetailResponse> drivers = driverService.findAllDrivers();
         return ResponseEntity.ok(ApiResponse.success("전체 운전자 목록 조회 성공", drivers));
     }
 
     // 운전자 정보 수정
     @PatchMapping("/{driverId}")
-    public ResponseEntity<ApiResponse<DriverDetailDto>> updateDriver(
+    public ResponseEntity<ApiResponse<DriverDetailResponse>> updateDriver(
             @PathVariable Long driverId,
             @Valid @RequestBody DriverAdminUpdateRequest updateDto) {
-        DriverDetailDto updatedDriver = driverService.updateDriverByAdmin(driverId, updateDto);
+        DriverDetailResponse updatedDriver = driverService.updateDriverByAdmin(driverId, updateDto);
         return ResponseEntity.ok(ApiResponse.success("운전자 정보 수정 성공", updatedDriver));
     }
 
@@ -45,8 +45,8 @@ public class AdminDriverController {
     
     // 특정 운전자 상세 조회
     @GetMapping("/{driverId}")
-    public ResponseEntity<ApiResponse<DriverDetailDto>> getDriverById(@PathVariable Long driverId) {
-        DriverDetailDto driver = driverService.findDriverById(driverId);
+    public ResponseEntity<ApiResponse<DriverDetailResponse>> getDriverById(@PathVariable Long driverId) {
+        DriverDetailResponse driver = driverService.findDriverById(driverId);
         return ResponseEntity.ok(ApiResponse.success("운전자 상세 정보 조회 성공", driver));
     }
 }

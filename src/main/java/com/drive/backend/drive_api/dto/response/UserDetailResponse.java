@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Getter
-public class UserDetailDto {
+public class UserDetailResponse {
     // 공통 필드
     private final Long userId;
     private final String email;
@@ -25,7 +25,7 @@ public class UserDetailDto {
     // 역할별 확장 데이터
     private final Map<String, Object> payload;
 
-    private UserDetailDto(User user, Map<String, Object> payload) {
+    private UserDetailResponse(User user, Map<String, Object> payload) {
         this.userId = user.getUserId();
         this.email = user.getEmail();
         this.username = user.getUsername();
@@ -39,7 +39,7 @@ public class UserDetailDto {
         this.payload = payload;
     }
 
-    public static UserDetailDto from(User user) {
+    public static UserDetailResponse from(User user) {
         Map<String, Object> payload = new HashMap<>();
 
         if (user instanceof Driver driver) {
@@ -55,6 +55,6 @@ public class UserDetailDto {
             // Admin은 별도 payload 없음 → 빈 Map 유지
         }
 
-        return new UserDetailDto(user, payload.isEmpty() ? null : payload);
+        return new UserDetailResponse(user, payload.isEmpty() ? null : payload);
     }
 }

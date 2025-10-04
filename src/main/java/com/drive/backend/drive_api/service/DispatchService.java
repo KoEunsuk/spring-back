@@ -39,7 +39,7 @@ public class DispatchService {
     private static final List<DispatchStatus> ACTIVE_STATUSES = List.of(DispatchStatus.SCHEDULED, DispatchStatus.RUNNING);
 
     // 관리자 - 신규 배차 생성
-    public DispatchDetailDto createDispatch(DispatchCreateRequest createDto, CustomUserDetails currentUser) {
+    public DispatchDetailResponse createDispatch(DispatchCreateRequest createDto, CustomUserDetails currentUser) {
         Long operatorId = currentUser.getOperatorId();
 
         Bus bus = busRepository.findById(createDto.getBusId())
@@ -79,7 +79,7 @@ public class DispatchService {
                 url
         );
 
-        return DispatchDetailDto.from(savedDispatch);
+        return DispatchDetailResponse.from(savedDispatch);
     }
 
     // 관리자 - 배차 가능한 버스 목록 조회
@@ -99,7 +99,7 @@ public class DispatchService {
 
     // 관리자 - 배차 가능한 운전자 목록 조회
     @Transactional(readOnly = true)
-    public List<DriverDetailDto> findAvailableDrivers(LocalDateTime startTime, LocalDateTime endTime, CustomUserDetails currentUser) {
+    public List<DriverDetailResponse> findAvailableDrivers(LocalDateTime startTime, LocalDateTime endTime, CustomUserDetails currentUser) {
         Long operatorId = currentUser.getOperatorId();
 
         List<Long> dispatchedDriverIds = dispatchRepository.findDispatchedDriverIdsBetween(startTime, endTime, ACTIVE_STATUSES);
@@ -109,19 +109,19 @@ public class DispatchService {
         } else {
             availableDrivers = driverRepository.findByOperator_OperatorIdAndUserIdNotIn(operatorId, dispatchedDriverIds);
         }
-        return availableDrivers.stream().map(DriverDetailDto::from).collect(Collectors.toList());
+        return availableDrivers.stream().map(DriverDetailResponse::from).collect(Collectors.toList());
     }
 
     // 공통 - 특정 배차 상세 조회
     @Transactional(readOnly = true)
-    public DispatchDetailDto getDispatchById(Long dispatchId, CustomUserDetails currentUser) {
+    public DispatchDetailResponse getDispatchById(Long dispatchId, CustomUserDetails currentUser) {
         Dispatch dispatch = findAndCheckPermission(dispatchId, currentUser);
-        return DispatchDetailDto.from(dispatch);
+        return DispatchDetailResponse.from(dispatch);
     }
 
     // 관리자 - 배차 목록 조회 by 날짜, 상태
     @Transactional(readOnly = true)
-    public List<DispatchDetailDto> getDispatchesForAdmin(LocalDate startDate, LocalDate endDate, List<DispatchStatus> statuses, CustomUserDetails currentUser) {
+    public List<DispatchDetailResponse> getDispatchesForAdmin(LocalDate startDate, LocalDate endDate, List<DispatchStatus> statuses, CustomUserDetails currentUser) {
         Long operatorId = currentUser.getOperatorId();
 
         List<Dispatch> dispatches;
@@ -138,13 +138,13 @@ public class DispatchService {
         }
 
         return dispatches.stream()
-                .map(DispatchDetailDto::from)
+                .map(DispatchDetailResponse::from)
                 .collect(Collectors.toList());
     }
 
     // 운전자 - 지정된 기간 내 배차 목록 조회
     @Transactional(readOnly = true)
-    public List<DispatchDetailDto> getDispatchesForDriverByDateRange(
+    public List<DispatchDetailResponse> getDispatchesForDriverByDateRange(
             CustomUserDetails currentUser, LocalDate startDate, LocalDate endDate) {
 
         LocalDateTime startDateTime = startDate.atStartOfDay();
@@ -154,12 +154,12 @@ public class DispatchService {
                 currentUser.getUserId(), startDateTime, endDateTime);
 
         return dispatches.stream()
-                .map(DispatchDetailDto::from)
+                .map(DispatchDetailResponse::from)
                 .collect(Collectors.toList());
     }
 
     // 공통 - 배차 운행 시작
-    public DispatchDetailDto startDispatch(Long dispatchId, CustomUserDetails currentUser) {
+    public DispatchDetailResponse startDispatch(Long dispatchId, CustomUserDetails currentUser) {
         Dispatch dispatch = findAndCheckPermission(dispatchId, currentUser);
 
         if (dispatch.getStatus() != DispatchStatus.SCHEDULED) {
@@ -169,11 +169,11 @@ public class DispatchService {
         dispatch.setStatus(DispatchStatus.RUNNING);
         dispatch.setActualDepartureTime(LocalDateTime.now());
 
-        return DispatchDetailDto.from(dispatch);
+        return DispatchDetailResponse.from(dispatch);
     }
 
     // 공통 - 배차 운행 종료
-    public DispatchDetailDto endDispatch(Long dispatchId, CustomUserDetails currentUser) {
+    public DispatchDetailResponse endDispatch(Long dispatchId, CustomUserDetails currentUser) {
         Dispatch dispatch = findAndCheckPermission(dispatchId, currentUser);
 
         if (dispatch.getStatus() != DispatchStatus.RUNNING) {
@@ -183,11 +183,11 @@ public class DispatchService {
         dispatch.setStatus(DispatchStatus.COMPLETED);
         dispatch.setActualArrivalTime(LocalDateTime.now());
 
-        return DispatchDetailDto.from(dispatch);
+        return DispatchDetailResponse.from(dispatch);
     }
 
     // 관리자 - 배차 취소
-    public DispatchDetailDto cancelDispatch(Long dispatchId, CustomUserDetails currentUser) {
+    public DispatchDetailResponse cancelDispatch(Long dispatchId, CustomUserDetails currentUser) {
         Dispatch dispatch = findAndCheckPermission(dispatchId, currentUser);
 
         if (!isAdmin(currentUser)) {
@@ -199,7 +199,7 @@ public class DispatchService {
         }
 
         dispatch.setStatus(DispatchStatus.CANCELED);
-        return DispatchDetailDto.from(dispatch);
+        return DispatchDetailResponse.from(dispatch);
     }
 
     // 공통 - 특정 배차의 운행 기록(DrivingRecord) 조회

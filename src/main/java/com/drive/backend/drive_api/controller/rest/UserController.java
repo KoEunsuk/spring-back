@@ -3,7 +3,7 @@ package com.drive.backend.drive_api.controller.rest;
 import com.drive.backend.drive_api.common.ApiResponse;
 import com.drive.backend.drive_api.dto.request.PasswordChangeRequest;
 import com.drive.backend.drive_api.dto.request.UserUpdateRequest;
-import com.drive.backend.drive_api.dto.response.UserDetailDto;
+import com.drive.backend.drive_api.dto.response.UserDetailResponse;
 import com.drive.backend.drive_api.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,15 +21,15 @@ public class UserController {
 
     // 내 정보 조회 API
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse<UserDetailDto>> getMyProfile() {
-        UserDetailDto myProfile = userService.getMyProfile();
+    public ResponseEntity<ApiResponse<UserDetailResponse>> getMyProfile() {
+        UserDetailResponse myProfile = userService.getMyProfile();
         return ResponseEntity.ok(ApiResponse.success("내 정보 조회 성공", myProfile));
     }
 
     // 내 정보 수정 API
     @PatchMapping("/me")
-    public ResponseEntity<ApiResponse<UserDetailDto>> updateMyProfile(@Valid @RequestBody UserUpdateRequest updateDto) {
-        UserDetailDto updatedProfile = userService.updateMyProfile(updateDto);
+    public ResponseEntity<ApiResponse<UserDetailResponse>> updateMyProfile(@Valid @RequestBody UserUpdateRequest updateDto) {
+        UserDetailResponse updatedProfile = userService.updateMyProfile(updateDto);
         return ResponseEntity.ok(ApiResponse.success("내 정보 수정 성공", updatedProfile));
     }
 

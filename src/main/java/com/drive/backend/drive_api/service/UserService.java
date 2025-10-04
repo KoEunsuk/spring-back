@@ -2,7 +2,7 @@ package com.drive.backend.drive_api.service;
 
 import com.drive.backend.drive_api.dto.request.PasswordChangeRequest;
 import com.drive.backend.drive_api.dto.request.UserUpdateRequest;
-import com.drive.backend.drive_api.dto.response.UserDetailDto;
+import com.drive.backend.drive_api.dto.response.UserDetailResponse;
 import com.drive.backend.drive_api.entity.Admin;
 import com.drive.backend.drive_api.entity.Driver;
 import com.drive.backend.drive_api.entity.User;
@@ -25,12 +25,12 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserDetailDto getMyProfile() {
-        return UserDetailDto.from(getCurrentUserEntity());
+    public UserDetailResponse getMyProfile() {
+        return UserDetailResponse.from(getCurrentUserEntity());
     }
 
     @Transactional
-    public UserDetailDto updateMyProfile(UserUpdateRequest updateDto) {
+    public UserDetailResponse updateMyProfile(UserUpdateRequest updateDto) {
         User currentUser = getCurrentUserEntity();
         // 공통 정보 업데이트
         if (updateDto.getPhoneNumber() != null) currentUser.setPhoneNumber(updateDto.getPhoneNumber());
@@ -45,7 +45,7 @@ public class UserService {
             // Admin일 경우
             
         }
-        return UserDetailDto.from(currentUser);
+        return UserDetailResponse.from(currentUser);
     }
 
     @Transactional
