@@ -1,6 +1,6 @@
 package com.drive.backend.drive_api.service;
 
-import com.drive.backend.drive_api.dto.websocket.LocationUpdateNotification;
+import com.drive.backend.drive_api.dto.websocket.LocationUpdateResponse;
 import com.drive.backend.drive_api.dto.websocket.LocationUpdateRequest;
 import com.drive.backend.drive_api.entity.Dispatch;
 import com.drive.backend.drive_api.entity.LocationHistory;
@@ -37,7 +37,7 @@ public class LocationService {
             locationHistoryRepository.save(newLocation);
 
             // 3. 관리자에게 브로드캐스팅할 알림 DTO 생성
-            LocationUpdateNotification notification = new LocationUpdateNotification(
+            LocationUpdateResponse notification = new LocationUpdateResponse(
                     dispatch.getDispatchId(),
                     newLocation.getLatitude(),
                     newLocation.getLongitude(),
