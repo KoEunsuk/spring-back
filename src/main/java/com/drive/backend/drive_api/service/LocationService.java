@@ -37,13 +37,7 @@ public class LocationService {
             locationHistoryRepository.save(newLocation);
 
             // 3. 관리자에게 브로드캐스팅할 알림 DTO 생성
-            LocationUpdateResponse notification = new LocationUpdateResponse(
-                    dispatch.getDispatchId(),
-                    newLocation.getLatitude(),
-                    newLocation.getLongitude(),
-                    dispatch.getDriver().getUsername(),
-                    dispatch.getBus().getVehicleNumber()
-            );
+            LocationUpdateResponse notification = LocationUpdateResponse.from(dispatch, newLocation);
 
             // 4. 특정 배차를 구독 중인 모든 관리자에게 실시간 위치 정보 전송
             String destination = "/topic/dispatch/" + dispatch.getDispatchId() + "/location";

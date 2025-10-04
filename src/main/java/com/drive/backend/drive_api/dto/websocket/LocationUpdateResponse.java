@@ -1,5 +1,7 @@
 package com.drive.backend.drive_api.dto.websocket;
 
+import com.drive.backend.drive_api.entity.Dispatch;
+import com.drive.backend.drive_api.entity.LocationHistory;
 import lombok.Getter;
 
 @Getter
@@ -16,5 +18,15 @@ public class LocationUpdateResponse {
         this.longitude = longitude;
         this.driverName = driverName;
         this.vehicleNumber = vehicleNumber;
+    }
+
+    public static LocationUpdateResponse from(Dispatch dispatch, LocationHistory locationHistory) {
+        return new LocationUpdateResponse(
+                dispatch.getDispatchId(),
+                locationHistory.getLatitude(),
+                locationHistory.getLongitude(),
+                dispatch.getDriver().getUsername(),
+                dispatch.getBus().getVehicleNumber()
+        );
     }
 }
