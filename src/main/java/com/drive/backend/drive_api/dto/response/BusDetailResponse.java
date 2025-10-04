@@ -9,7 +9,7 @@ import lombok.Getter;
 import java.time.LocalDate;
 
 @Getter
-public class BusDetailDto {
+public class BusDetailResponse {
     private final Long busId;
     private final String routeNumber;
     private final RouteType routeType;
@@ -22,7 +22,7 @@ public class BusDetailDto {
     private final Integer repairCount;
     private final String operatorName;
 
-    private BusDetailDto(Long busId, String routeNumber, RouteType routeType, Integer capacity, String vehicleNumber, VehicleType vehicleType, Integer vehicleYear, FuelType fuelType, LocalDate lastMaintenance, Integer repairCount, String operatorName) {
+    private BusDetailResponse(Long busId, String routeNumber, RouteType routeType, Integer capacity, String vehicleNumber, VehicleType vehicleType, Integer vehicleYear, FuelType fuelType, LocalDate lastMaintenance, Integer repairCount, String operatorName) {
         this.busId = busId;
         this.routeNumber = routeNumber;
         this.routeType = routeType;
@@ -36,8 +36,8 @@ public class BusDetailDto {
         this.operatorName = operatorName;
     }
 
-    public static BusDetailDto from(Bus bus) {
-        return new BusDetailDto(
+    public static BusDetailResponse from(Bus bus) {
+        return new BusDetailResponse(
                 bus.getBusId(),
                 bus.getRouteNumber(),
                 bus.getRouteType(),

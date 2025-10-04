@@ -2,7 +2,7 @@ package com.drive.backend.drive_api.service;
 
 import com.drive.backend.drive_api.dto.request.BusCreateRequest;
 import com.drive.backend.drive_api.dto.request.BusUpdateRequest;
-import com.drive.backend.drive_api.dto.response.BusDetailDto;
+import com.drive.backend.drive_api.dto.response.BusDetailResponse;
 import com.drive.backend.drive_api.entity.Bus;
 import com.drive.backend.drive_api.entity.Operator;
 import com.drive.backend.drive_api.exception.BusinessException;
@@ -29,15 +29,15 @@ public class BusService {
     private final OperatorRepository operatorRepository;
 
     // 모든 버스 조회
-    public List<BusDetailDto> getAllBuses() {
+    public List<BusDetailResponse> getAllBuses() {
         Long operatorId = getCurrentOperator().getOperatorId();
         List<Bus> buses = busRepository.findAllByOperator_OperatorId(operatorId);
-        return buses.stream().map(BusDetailDto::from).collect(Collectors.toList());
+        return buses.stream().map(BusDetailResponse::from).collect(Collectors.toList());
     }
 
     // 버스 추가(생성)
     @Transactional
-    public BusDetailDto createBus(BusCreateRequest createDto) {
+    public BusDetailResponse createBus(BusCreateRequest createDto) {
         Operator currentOperator = getCurrentOperator();
 
         busRepository.findByVehicleNumber(createDto.getVehicleNumber()).ifPresent(bus -> {
@@ -67,12 +67,12 @@ public class BusService {
 
         currentOperator.addBus(newBus);
 
-        return BusDetailDto.from(busRepository.save(newBus));
+        return BusDetailResponse.from(busRepository.save(newBus));
     }
 
     // 버스 수정
     @Transactional
-    public BusDetailDto updateBus(Long busId, BusUpdateRequest updateDto) {
+    public BusDetailResponse updateBus(Long busId, BusUpdateRequest updateDto) {
         Bus bus = findBusAndCheckPermission(busId);
 
         if (updateDto.getVehicleNumber() != null && !updateDto.getVehicleNumber().isBlank()) {
@@ -97,13 +97,13 @@ public class BusService {
         if (updateDto.getCapacity() != null) bus.setCapacity(updateDto.getCapacity());
         if (updateDto.getRepairCount() != null) bus.setRepairCount(updateDto.getRepairCount());
 
-        return BusDetailDto.from(bus);
+        return BusDetailResponse.from(bus);
     }
 
     // 특정 버스 상세 조회
-    public BusDetailDto findBusById(Long busId) {
+    public BusDetailResponse findBusById(Long busId) {
         Bus bus = findBusAndCheckPermission(busId);
-        return BusDetailDto.from(bus);
+        return BusDetailResponse.from(bus);
     }
 
     // 버스 물리적 삭제

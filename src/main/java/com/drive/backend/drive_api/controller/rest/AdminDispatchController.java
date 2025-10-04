@@ -55,11 +55,11 @@ public class AdminDispatchController {
 
     // 배차 가능한 버스 목록 조회
     @GetMapping("/available-buses")
-    public ResponseEntity<ApiResponse<List<BusDetailDto>>> getAvailableBuses(
+    public ResponseEntity<ApiResponse<List<BusDetailResponse>>> getAvailableBuses(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime
     ) {
-        List<BusDetailDto> availableBuses = dispatchService.findAvailableBuses(startTime, endTime, getAuthenticatedUser());
+        List<BusDetailResponse> availableBuses = dispatchService.findAvailableBuses(startTime, endTime, getAuthenticatedUser());
         return ResponseEntity.ok(ApiResponse.success("배차 가능한 버스 목록을 조회했습니다.", availableBuses));
     }
 

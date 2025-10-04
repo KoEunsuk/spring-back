@@ -1,7 +1,7 @@
 package com.drive.backend.drive_api.service;
 
 import com.drive.backend.drive_api.dto.request.PasswordChangeRequest;
-import com.drive.backend.drive_api.dto.request.UserUpdateDto;
+import com.drive.backend.drive_api.dto.request.UserUpdateRequest;
 import com.drive.backend.drive_api.dto.response.UserDetailDto;
 import com.drive.backend.drive_api.entity.Admin;
 import com.drive.backend.drive_api.entity.Driver;
@@ -30,7 +30,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserDetailDto updateMyProfile(UserUpdateDto updateDto) {
+    public UserDetailDto updateMyProfile(UserUpdateRequest updateDto) {
         User currentUser = getCurrentUserEntity();
         // 공통 정보 업데이트
         if (updateDto.getPhoneNumber() != null) currentUser.setPhoneNumber(updateDto.getPhoneNumber());

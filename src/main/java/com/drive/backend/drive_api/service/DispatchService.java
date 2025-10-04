@@ -84,7 +84,7 @@ public class DispatchService {
 
     // 관리자 - 배차 가능한 버스 목록 조회
     @Transactional(readOnly = true)
-    public List<BusDetailDto> findAvailableBuses(LocalDateTime startTime, LocalDateTime endTime, CustomUserDetails currentUser) {
+    public List<BusDetailResponse> findAvailableBuses(LocalDateTime startTime, LocalDateTime endTime, CustomUserDetails currentUser) {
         Long operatorId = currentUser.getOperatorId();
 
         List<Long> dispatchedBusIds = dispatchRepository.findDispatchedBusIdsBetween(startTime, endTime, ACTIVE_STATUSES);
@@ -94,7 +94,7 @@ public class DispatchService {
         } else {
             availableBuses = busRepository.findByOperator_OperatorIdAndBusIdNotIn(operatorId, dispatchedBusIds);
         }
-        return availableBuses.stream().map(BusDetailDto::from).collect(Collectors.toList());
+        return availableBuses.stream().map(BusDetailResponse::from).collect(Collectors.toList());
     }
 
     // 관리자 - 배차 가능한 운전자 목록 조회
