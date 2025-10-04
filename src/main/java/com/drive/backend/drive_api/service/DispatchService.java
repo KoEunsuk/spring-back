@@ -8,6 +8,7 @@ import com.drive.backend.drive_api.enums.NotificationType;
 import com.drive.backend.drive_api.exception.BusinessException;
 import com.drive.backend.drive_api.exception.ErrorCode;
 import com.drive.backend.drive_api.exception.ResourceNotFoundException;
+import com.drive.backend.drive_api.repository.AdminRepository;
 import com.drive.backend.drive_api.repository.BusRepository;
 import com.drive.backend.drive_api.repository.DispatchRepository;
 import com.drive.backend.drive_api.repository.DriverRepository;
@@ -35,6 +36,7 @@ public class DispatchService {
     private final DispatchRepository dispatchRepository;
     private final BusRepository busRepository;
     private final DriverRepository driverRepository;
+    private final AdminRepository adminRepository;
     private final NotificationService notificationService;
     private static final List<DispatchStatus> ACTIVE_STATUSES = List.of(DispatchStatus.SCHEDULED, DispatchStatus.RUNNING);
 
@@ -67,17 +69,7 @@ public class DispatchService {
         Dispatch savedDispatch = dispatchRepository.save(newDispatch);
 
         // 운전자에게 배차 할당 알림 전송
-        String departureTime = savedDispatch.getScheduledDepartureTime()
-                .format(DateTimeFormatter.ofPattern("M월 d일 HH:mm"));
-        String message = String.format("새로운 배차가 할당되었습니다. (출발: %s)", departureTime);
-        String url = "/dispatches/" + savedDispatch.getDispatchId();    // TODO
-        notificationService.createAndSendNotification(
-                driver,
-                savedDispatch,
-                message,
-                NotificationType.NEW_DISPATCH_ASSIGNED,
-                url
-        );
+        sendNotificationToDriver(savedDispatch, NotificationType.NEW_DISPATCH_ASSIGNED);
 
         return DispatchDetailResponse.from(savedDispatch);
     }
@@ -169,6 +161,8 @@ public class DispatchService {
         dispatch.setStatus(DispatchStatus.RUNNING);
         dispatch.setActualDepartureTime(LocalDateTime.now());
 
+        sendNotificationToAdmins(dispatch, NotificationType.DISPATCH_STARTED);
+
         return DispatchDetailResponse.from(dispatch);
     }
 
@@ -182,6 +176,8 @@ public class DispatchService {
 
         dispatch.setStatus(DispatchStatus.COMPLETED);
         dispatch.setActualArrivalTime(LocalDateTime.now());
+
+        sendNotificationToAdmins(dispatch, NotificationType.DISPATCH_ENDED);
 
         return DispatchDetailResponse.from(dispatch);
     }
@@ -199,6 +195,9 @@ public class DispatchService {
         }
 
         dispatch.setStatus(DispatchStatus.CANCELED);
+
+        sendNotificationToDriver(dispatch, NotificationType.DISPATCH_CANCELED);
+
         return DispatchDetailResponse.from(dispatch);
     }
 
@@ -283,4 +282,44 @@ public class DispatchService {
                 .map(GrantedAuthority::getAuthority)
                 .anyMatch(role -> role.equals("ROLE_ADMIN"));
     }
+
+    // 특정 배차와 관련된 '운전자'에게 알림 전송
+    private void sendNotificationToDriver(Dispatch dispatch, NotificationType type) {
+        Driver driver = dispatch.getDriver();
+        String message = createMessageForDriver(dispatch, type);
+        String url = "/dispatches/" + dispatch.getDispatchId(); // TODO
+
+        notificationService.createAndSendNotification(driver, dispatch, message, type, url);
+    }
+
+    // 특정 배차와 관련된 '모든 관리자'에게 알림 전송
+    private void sendNotificationToAdmins(Dispatch dispatch, NotificationType type) {
+        Long operatorId = dispatch.getBus().getOperator().getOperatorId();
+        List<Admin> admins = adminRepository.findAllByOperator_OperatorId(operatorId);
+        String message = createMessageForAdmins(dispatch, type);
+        String url = "/dispatches/" + dispatch.getDispatchId(); // TODO
+
+        for (Admin admin : admins) {
+            notificationService.createAndSendNotification(admin, dispatch, message, type, url);
+        }
+    }
+
+    // 알림용 메세지 생성 메서드 - 운전자
+    private String createMessageForDriver(Dispatch dispatch, NotificationType type) {
+        String departureTime = dispatch.getScheduledDepartureTime().format(DateTimeFormatter.ofPattern("M월 d일 HH:mm"));
+        return switch (type) {
+            case NEW_DISPATCH_ASSIGNED -> String.format("새로운 배차가 할당되었습니다. (출발: %s)", departureTime);
+            case DISPATCH_CANCELED -> String.format("배차가 취소되었습니다. (출발: %s)", departureTime);
+            default -> "배차 관련 알림입니다.";
+        };
+    }
+
+    // 알림용 메세지 생성 메서드 - 관리자
+    private String createMessageForAdmins(Dispatch dispatch, NotificationType type) {
+        String timeString;
+        String messageFormat;
+
+        switch (type) {
+            case DISPATCH_STARTED: {
+                LocalDateTime actualTime = dispatch.getActualDepartureTime();
 }
