@@ -110,8 +110,7 @@ public class DrivingEventService {
                 log.warn("DrivingRecord 낙관적 락 충돌, 재시도 중 ({}/2)", retryCount);
                 try {
                     Thread.sleep(100L * retryCount);
-                } catch (InterruptedException ignored) {
-                }
+                } catch (InterruptedException ignored) {}
             }
         }
 
