@@ -1,6 +1,6 @@
 package com.drive.backend.drive_api.service;
 
-import com.drive.backend.drive_api.dto.request.BusCreateDto;
+import com.drive.backend.drive_api.dto.request.BusCreateRequest;
 import com.drive.backend.drive_api.dto.request.BusUpdateRequestDto;
 import com.drive.backend.drive_api.dto.response.BusDetailDto;
 import com.drive.backend.drive_api.entity.Bus;
@@ -37,7 +37,7 @@ public class BusService {
 
     // 버스 추가(생성)
     @Transactional
-    public BusDetailDto createBus(BusCreateDto createDto) {
+    public BusDetailDto createBus(BusCreateRequest createDto) {
         Operator currentOperator = getCurrentOperator();
 
         busRepository.findByVehicleNumber(createDto.getVehicleNumber()).ifPresent(bus -> {

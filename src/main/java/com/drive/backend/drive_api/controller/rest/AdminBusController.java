@@ -1,7 +1,7 @@
 package com.drive.backend.drive_api.controller.rest;
 
 import com.drive.backend.drive_api.common.ApiResponse;
-import com.drive.backend.drive_api.dto.request.BusCreateDto;
+import com.drive.backend.drive_api.dto.request.BusCreateRequest;
 import com.drive.backend.drive_api.dto.request.BusUpdateRequestDto;
 import com.drive.backend.drive_api.dto.response.BusDetailDto;
 import com.drive.backend.drive_api.service.BusService;
@@ -23,7 +23,7 @@ public class AdminBusController {
     private final BusService busService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<BusDetailDto>> createBus(@Valid @RequestBody BusCreateDto createDto) {
+    public ResponseEntity<ApiResponse<BusDetailDto>> createBus(@Valid @RequestBody BusCreateRequest createDto) {
         BusDetailDto responseData = busService.createBus(createDto);
         URI location = URI.create("/api/admin/buses/" + responseData.getBusId());
         ApiResponse<BusDetailDto> response = ApiResponse.success("버스 등록에 성공했습니다.", responseData);
