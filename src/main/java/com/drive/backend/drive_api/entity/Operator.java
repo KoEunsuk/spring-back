@@ -16,6 +16,8 @@ import java.util.List;
 public class Operator {
 
     @Version
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
     private Long version;
 
     @Id

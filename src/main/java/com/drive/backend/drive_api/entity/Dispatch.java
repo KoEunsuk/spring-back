@@ -20,6 +20,8 @@ import java.util.List;
 public class Dispatch {
 
     @Version
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
     private Long version;
 
     @Id
