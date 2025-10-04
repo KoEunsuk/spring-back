@@ -9,7 +9,7 @@ import lombok.Getter;
 import java.time.LocalDate;
 
 @Getter
-public class BusCreateDto {
+public class BusCreateRequest {
     // 선택적 필드
     @Size(min = 1, message = "노선 번호는 비워둘 수 없습니다.")
     private String routeNumber;

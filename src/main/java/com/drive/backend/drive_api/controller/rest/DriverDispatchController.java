@@ -1,7 +1,7 @@
 package com.drive.backend.drive_api.controller.rest;
 
 import com.drive.backend.drive_api.common.ApiResponse;
-import com.drive.backend.drive_api.dto.response.DispatchDetailDto;
+import com.drive.backend.drive_api.dto.response.DispatchDetailResponse;
 import com.drive.backend.drive_api.dto.response.DrivingEventResponse;
 import com.drive.backend.drive_api.dto.response.DrivingRecordResponse;
 import com.drive.backend.drive_api.service.DispatchService;
@@ -26,32 +26,32 @@ public class DriverDispatchController {
 
     // 지정된 날짜 범위 사이의 자신의 배차 조회
     @GetMapping
-    public ResponseEntity<ApiResponse<List<DispatchDetailDto>>> getMyDispatchesByDateRange(
+    public ResponseEntity<ApiResponse<List<DispatchDetailResponse>>> getMyDispatchesByDateRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     ) {
-        List<DispatchDetailDto> responseData = dispatchService.getDispatchesForDriverByDateRange(getAuthenticatedUser(), startDate, endDate);
+        List<DispatchDetailResponse> responseData = dispatchService.getDispatchesForDriverByDateRange(getAuthenticatedUser(), startDate, endDate);
         return ResponseEntity.ok(ApiResponse.success("지정된 기간의 배차 목록을 조회했습니다.", responseData));
     }
 
     // 자신에게 할당된 특정 배차 상세 조회
     @GetMapping("/{dispatchId}")
-    public ResponseEntity<ApiResponse<DispatchDetailDto>> getMyDispatchById(@PathVariable Long dispatchId) {
-        DispatchDetailDto responseData = dispatchService.getDispatchById(dispatchId, getAuthenticatedUser());
+    public ResponseEntity<ApiResponse<DispatchDetailResponse>> getMyDispatchById(@PathVariable Long dispatchId) {
+        DispatchDetailResponse responseData = dispatchService.getDispatchById(dispatchId, getAuthenticatedUser());
         return ResponseEntity.ok(ApiResponse.success("배차 상세 정보를 조회했습니다.", responseData));
     }
 
     // 자신의 배차 운행 시작
     @PatchMapping("/{dispatchId}/start")
-    public ResponseEntity<ApiResponse<DispatchDetailDto>> startMyDispatch(@PathVariable Long dispatchId) {
-        DispatchDetailDto responseData = dispatchService.startDispatch(dispatchId, getAuthenticatedUser());
+    public ResponseEntity<ApiResponse<DispatchDetailResponse>> startMyDispatch(@PathVariable Long dispatchId) {
+        DispatchDetailResponse responseData = dispatchService.startDispatch(dispatchId, getAuthenticatedUser());
         return ResponseEntity.ok(ApiResponse.success("배차 운행을 시작합니다.", responseData));
     }
 
     // 자신의 배차 운행 종료
     @PatchMapping("/{dispatchId}/end")
-    public ResponseEntity<ApiResponse<DispatchDetailDto>> endMyDispatch(@PathVariable Long dispatchId) {
-        DispatchDetailDto responseData = dispatchService.endDispatch(dispatchId, getAuthenticatedUser());
+    public ResponseEntity<ApiResponse<DispatchDetailResponse>> endMyDispatch(@PathVariable Long dispatchId) {
+        DispatchDetailResponse responseData = dispatchService.endDispatch(dispatchId, getAuthenticatedUser());
         return ResponseEntity.ok(ApiResponse.success("배차 운행을 종료했습니다.", responseData));
     }
 

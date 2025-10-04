@@ -29,68 +29,68 @@ public class AdminDispatchController {
 
     // 신규 배차 생성
     @PostMapping
-    public ResponseEntity<ApiResponse<DispatchDetailDto>> createDispatch(@Valid @RequestBody DispatchCreateRequest createRequest) {
-        DispatchDetailDto responseData = dispatchService.createDispatch(createRequest, getAuthenticatedUser());
+    public ResponseEntity<ApiResponse<DispatchDetailResponse>> createDispatch(@Valid @RequestBody DispatchCreateRequest createRequest) {
+        DispatchDetailResponse responseData = dispatchService.createDispatch(createRequest, getAuthenticatedUser());
         URI location = URI.create("/api/admin/dispatches/" + responseData.getDispatchId());
         return ResponseEntity.created(location).body(ApiResponse.success("신규 배차 생성에 성공했습니다.", responseData));
     }
 
     // 배차 목록 조회 by 날짜, 상태
     @GetMapping
-    public ResponseEntity<ApiResponse<List<DispatchDetailDto>>> getAllDispatches(
+    public ResponseEntity<ApiResponse<List<DispatchDetailResponse>>> getAllDispatches(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(required = false) List<DispatchStatus> statuses
     ) {
-        List<DispatchDetailDto> dispatches = dispatchService.getDispatchesForAdmin(startDate, endDate, statuses, getAuthenticatedUser());
+        List<DispatchDetailResponse> dispatches = dispatchService.getDispatchesForAdmin(startDate, endDate, statuses, getAuthenticatedUser());
         return ResponseEntity.ok(ApiResponse.success("배차 목록 조회에 성공했습니다.", dispatches));
     }
 
     // 특정 배차 상세 조회
     @GetMapping("/{dispatchId}")
-    public ResponseEntity<ApiResponse<DispatchDetailDto>> getDispatchById(@PathVariable Long dispatchId) {
-        DispatchDetailDto responseData = dispatchService.getDispatchById(dispatchId, getAuthenticatedUser());
+    public ResponseEntity<ApiResponse<DispatchDetailResponse>> getDispatchById(@PathVariable Long dispatchId) {
+        DispatchDetailResponse responseData = dispatchService.getDispatchById(dispatchId, getAuthenticatedUser());
         return ResponseEntity.ok(ApiResponse.success("배차 정보를 조회했습니다.", responseData));
     }
 
     // 배차 가능한 버스 목록 조회
     @GetMapping("/available-buses")
-    public ResponseEntity<ApiResponse<List<BusDetailDto>>> getAvailableBuses(
+    public ResponseEntity<ApiResponse<List<BusDetailResponse>>> getAvailableBuses(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime
     ) {
-        List<BusDetailDto> availableBuses = dispatchService.findAvailableBuses(startTime, endTime, getAuthenticatedUser());
+        List<BusDetailResponse> availableBuses = dispatchService.findAvailableBuses(startTime, endTime, getAuthenticatedUser());
         return ResponseEntity.ok(ApiResponse.success("배차 가능한 버스 목록을 조회했습니다.", availableBuses));
     }
 
     // 배차 가능한 운전자 목록 조회
     @GetMapping("/available-drivers")
-    public ResponseEntity<ApiResponse<List<DriverDetailDto>>> getAvailableDrivers(
+    public ResponseEntity<ApiResponse<List<DriverDetailResponse>>> getAvailableDrivers(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime
     ) {
-        List<DriverDetailDto> availableDrivers = dispatchService.findAvailableDrivers(startTime, endTime, getAuthenticatedUser());
+        List<DriverDetailResponse> availableDrivers = dispatchService.findAvailableDrivers(startTime, endTime, getAuthenticatedUser());
         return ResponseEntity.ok(ApiResponse.success("배차 가능한 운전자 목록을 조회했습니다.", availableDrivers));
     }
 
     // 배차 운행 시작
     @PatchMapping("/{dispatchId}/start")
-    public ResponseEntity<ApiResponse<DispatchDetailDto>> startDispatch(@PathVariable Long dispatchId) {
-        DispatchDetailDto responseData = dispatchService.startDispatch(dispatchId, getAuthenticatedUser());
+    public ResponseEntity<ApiResponse<DispatchDetailResponse>> startDispatch(@PathVariable Long dispatchId) {
+        DispatchDetailResponse responseData = dispatchService.startDispatch(dispatchId, getAuthenticatedUser());
         return ResponseEntity.ok(ApiResponse.success("배차 운행을 시작합니다.", responseData));
     }
 
     // 배차 운행 종료
     @PatchMapping("/{dispatchId}/end")
-    public ResponseEntity<ApiResponse<DispatchDetailDto>> endDispatch(@PathVariable Long dispatchId) {
-        DispatchDetailDto responseData = dispatchService.endDispatch(dispatchId, getAuthenticatedUser());
+    public ResponseEntity<ApiResponse<DispatchDetailResponse>> endDispatch(@PathVariable Long dispatchId) {
+        DispatchDetailResponse responseData = dispatchService.endDispatch(dispatchId, getAuthenticatedUser());
         return ResponseEntity.ok(ApiResponse.success("배차 운행을 종료했습니다.", responseData));
     }
 
     // 배차 취소(삭제 X)
     @PatchMapping("/{dispatchId}/cancel")
-    public ResponseEntity<ApiResponse<DispatchDetailDto>> cancelDispatch(@PathVariable Long dispatchId) {
-        DispatchDetailDto responseData = dispatchService.cancelDispatch(dispatchId, getAuthenticatedUser());
+    public ResponseEntity<ApiResponse<DispatchDetailResponse>> cancelDispatch(@PathVariable Long dispatchId) {
+        DispatchDetailResponse responseData = dispatchService.cancelDispatch(dispatchId, getAuthenticatedUser());
         return ResponseEntity.ok(ApiResponse.success("배차를 취소했습니다.", responseData));
     }
 

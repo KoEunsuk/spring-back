@@ -1,10 +1,10 @@
 package com.drive.backend.drive_api.controller.rest;
 
 import com.drive.backend.drive_api.common.ApiResponse;
-import com.drive.backend.drive_api.dto.request.LoginRequestDto;
-import com.drive.backend.drive_api.dto.request.SignupRequestDto;
-import com.drive.backend.drive_api.dto.response.JwtResponseDto;
-import com.drive.backend.drive_api.dto.response.SignupResponseDto;
+import com.drive.backend.drive_api.dto.request.LoginRequest;
+import com.drive.backend.drive_api.dto.request.SignupRequest;
+import com.drive.backend.drive_api.dto.response.JwtResponse;
+import com.drive.backend.drive_api.dto.response.SignupResponse;
 import com.drive.backend.drive_api.security.jwt.JwtTokenProvider;
 import com.drive.backend.drive_api.security.userdetails.CustomUserDetails;
 import com.drive.backend.drive_api.service.AuthService;
@@ -33,18 +33,18 @@ public class AuthController {
 
     // 회원가입 API
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<SignupResponseDto>> signup(@Valid @RequestBody SignupRequestDto signupDto) {
-        SignupResponseDto createdUser = authService.signup(signupDto);
+    public ResponseEntity<ApiResponse<SignupResponse>> signup(@Valid @RequestBody SignupRequest signupDto) {
+        SignupResponse createdUser = authService.signup(signupDto);
         URI location = URI.create("/api/users/me");
 
-        ApiResponse<SignupResponseDto> response = ApiResponse.success("회원가입이 성공적으로 완료되었습니다.", createdUser);
+        ApiResponse<SignupResponse> response = ApiResponse.success("회원가입이 성공적으로 완료되었습니다.", createdUser);
 
         return ResponseEntity.created(location).body(response);
     }
 
     // 로그인 API
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<JwtResponseDto>> login(@Valid @RequestBody LoginRequestDto loginDto) {
+    public ResponseEntity<ApiResponse<JwtResponse>> login(@Valid @RequestBody LoginRequest loginDto) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword()));
 
@@ -53,7 +53,7 @@ public class AuthController {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
         String jwt = jwtTokenProvider.generateJwtToken(userDetails);
-        JwtResponseDto responseDto = new JwtResponseDto(jwt, userDetails);
+        JwtResponse responseDto = new JwtResponse(jwt, userDetails);
         return ResponseEntity.ok(ApiResponse.success("로그인 성공", responseDto));
     }
 }

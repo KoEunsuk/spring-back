@@ -6,7 +6,7 @@ import com.drive.backend.drive_api.enums.Role;
 import lombok.Getter;
 
 @Getter
-public class SignupResponseDto {
+public class SignupResponse {
     private final Long userId;
     private final String email;
     private final String username;
@@ -15,7 +15,7 @@ public class SignupResponseDto {
     private final Role role;
     private final Long operatorId;
 
-    private SignupResponseDto(User user) {
+    private SignupResponse(User user) {
         this.userId = user.getUserId();
         this.email = user.getEmail();
         this.username = user.getUsername();
@@ -30,7 +30,7 @@ public class SignupResponseDto {
         }
     }
 
-    public static SignupResponseDto from(User user) {
-        return new SignupResponseDto(user);
+    public static SignupResponse from(User user) {
+        return new SignupResponse(user);
     }
 }

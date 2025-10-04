@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
-public class DispatchDetailDto {
+public class DispatchDetailResponse {
     private final Long dispatchId;
     private final Long busId;
     private final String vehicleNumber;
@@ -22,7 +22,7 @@ public class DispatchDetailDto {
     private final LocalDateTime actualDepartureTime;
     private final LocalDateTime actualArrivalTime;
 
-    private DispatchDetailDto(Long dispatchId, Long busId, String vehicleNumber, Long driverId, String driverName, String routeNumber, DispatchStatus status, LocalDate dispatchDate, LocalDateTime scheduledDepartureTime, LocalDateTime scheduledArrivalTime, LocalDateTime actualDepartureTime, LocalDateTime actualArrivalTime) {
+    private DispatchDetailResponse(Long dispatchId, Long busId, String vehicleNumber, Long driverId, String driverName, String routeNumber, DispatchStatus status, LocalDate dispatchDate, LocalDateTime scheduledDepartureTime, LocalDateTime scheduledArrivalTime, LocalDateTime actualDepartureTime, LocalDateTime actualArrivalTime) {
         this.dispatchId = dispatchId;
         this.busId = busId;
         this.vehicleNumber = vehicleNumber;
@@ -37,8 +37,8 @@ public class DispatchDetailDto {
         this.actualArrivalTime = actualArrivalTime;
     }
 
-    public static DispatchDetailDto from(Dispatch dispatch) {
-        return new DispatchDetailDto(
+    public static DispatchDetailResponse from(Dispatch dispatch) {
+        return new DispatchDetailResponse(
                 dispatch.getDispatchId(),
                 dispatch.getBus().getBusId(),
                 dispatch.getBus().getVehicleNumber(),

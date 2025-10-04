@@ -1,7 +1,7 @@
 package com.drive.backend.drive_api.service;
 
-import com.drive.backend.drive_api.dto.request.DriverAdminUpdateRequestDto;
-import com.drive.backend.drive_api.dto.response.DriverDetailDto;
+import com.drive.backend.drive_api.dto.request.DriverAdminUpdateRequest;
+import com.drive.backend.drive_api.dto.response.DriverDetailResponse;
 import com.drive.backend.drive_api.entity.Driver;
 import com.drive.backend.drive_api.entity.Operator;
 import com.drive.backend.drive_api.exception.BusinessException;
@@ -26,25 +26,25 @@ public class DriverService {
     private final DriverRepository driverRepository;
 
     // 전체 운전자 목록 조회
-    public List<DriverDetailDto> findAllDrivers() {
+    public List<DriverDetailResponse> findAllDrivers() {
         Long adminOperatorId = SecurityUtil.getCurrentUser()
                 .map(CustomUserDetails::getOperatorId)
                 .orElseThrow(() -> new RuntimeException("인증 정보가 없습니다."));
 
         return driverRepository.findAllByOperator_OperatorId(adminOperatorId).stream()
-                .map(DriverDetailDto::from)
+                .map(DriverDetailResponse::from)
                 .collect(Collectors.toList());
     }
 
     // 특정 운전자 상세 조회
-    public DriverDetailDto findDriverById(Long driverId) {
+    public DriverDetailResponse findDriverById(Long driverId) {
         Driver driver = findDriverAndCheckPermission(driverId);
-        return DriverDetailDto.from(driver);
+        return DriverDetailResponse.from(driver);
     }
 
     // 운전자 정보 수정 (관리자용)
     @Transactional
-    public DriverDetailDto updateDriverByAdmin(Long driverId, DriverAdminUpdateRequestDto updateDto) {
+    public DriverDetailResponse updateDriverByAdmin(Long driverId, DriverAdminUpdateRequest updateDto) {
         Driver driver = findDriverAndCheckPermission(driverId);
 
         if (updateDto.getPhoneNumber() != null) driver.setPhoneNumber(updateDto.getPhoneNumber());
@@ -52,7 +52,7 @@ public class DriverService {
         if (updateDto.getCareerYears() != null) driver.setCareerYears(updateDto.getCareerYears());
         if (updateDto.getGrade() != null) driver.setGrade(updateDto.getGrade());
 
-        return DriverDetailDto.from(driver);
+        return DriverDetailResponse.from(driver);
     }
 
     // 운전자 물리적 삭제
