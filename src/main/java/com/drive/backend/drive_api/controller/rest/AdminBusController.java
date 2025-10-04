@@ -2,7 +2,7 @@ package com.drive.backend.drive_api.controller.rest;
 
 import com.drive.backend.drive_api.common.ApiResponse;
 import com.drive.backend.drive_api.dto.request.BusCreateRequest;
-import com.drive.backend.drive_api.dto.request.BusUpdateRequestDto;
+import com.drive.backend.drive_api.dto.request.BusUpdateRequest;
 import com.drive.backend.drive_api.dto.response.BusDetailDto;
 import com.drive.backend.drive_api.service.BusService;
 import jakarta.validation.Valid;
@@ -45,7 +45,7 @@ public class AdminBusController {
     @PatchMapping("/{busId}")
     public ResponseEntity<ApiResponse<BusDetailDto>> updateBus(
             @PathVariable Long busId,
-            @Valid @RequestBody BusUpdateRequestDto updateRequest) {
+            @Valid @RequestBody BusUpdateRequest updateRequest) {
         BusDetailDto updatedBus = busService.updateBus(busId, updateRequest);
         return ResponseEntity.ok(ApiResponse.success("버스 정보 수정에 성공했습니다.", updatedBus));
     }

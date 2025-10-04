@@ -1,7 +1,7 @@
 package com.drive.backend.drive_api.service;
 
 import com.drive.backend.drive_api.dto.request.BusCreateRequest;
-import com.drive.backend.drive_api.dto.request.BusUpdateRequestDto;
+import com.drive.backend.drive_api.dto.request.BusUpdateRequest;
 import com.drive.backend.drive_api.dto.response.BusDetailDto;
 import com.drive.backend.drive_api.entity.Bus;
 import com.drive.backend.drive_api.entity.Operator;
@@ -72,7 +72,7 @@ public class BusService {
 
     // 버스 수정
     @Transactional
-    public BusDetailDto updateBus(Long busId, BusUpdateRequestDto updateDto) {
+    public BusDetailDto updateBus(Long busId, BusUpdateRequest updateDto) {
         Bus bus = findBusAndCheckPermission(busId);
 
         if (updateDto.getVehicleNumber() != null && !updateDto.getVehicleNumber().isBlank()) {
