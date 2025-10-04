@@ -1,7 +1,7 @@
 package com.drive.backend.drive_api.controller.rest;
 
 import com.drive.backend.drive_api.common.ApiResponse;
-import com.drive.backend.drive_api.dto.request.PasswordChangeDto;
+import com.drive.backend.drive_api.dto.request.PasswordChangeRequest;
 import com.drive.backend.drive_api.dto.request.UserUpdateDto;
 import com.drive.backend.drive_api.dto.response.UserDetailDto;
 import com.drive.backend.drive_api.service.UserService;
@@ -35,7 +35,7 @@ public class UserController {
 
     // 비밀번호 수정 전용 API
     @PatchMapping("/me/password")
-    public ResponseEntity<ApiResponse<Void>> changeMyPassword(@Valid @RequestBody PasswordChangeDto passwordDto) {
+    public ResponseEntity<ApiResponse<Void>> changeMyPassword(@Valid @RequestBody PasswordChangeRequest passwordDto) {
         userService.changeMyPassword(passwordDto);
         return ResponseEntity.ok(ApiResponse.success("비밀번호가 성공적으로 변경되었습니다."));
     }

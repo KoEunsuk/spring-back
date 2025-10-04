@@ -1,8 +1,8 @@
 package com.drive.backend.drive_api.controller.rest;
 
 import com.drive.backend.drive_api.common.ApiResponse;
-import com.drive.backend.drive_api.dto.request.LoginRequestDto;
-import com.drive.backend.drive_api.dto.request.SignupRequestDto;
+import com.drive.backend.drive_api.dto.request.LoginRequest;
+import com.drive.backend.drive_api.dto.request.SignupRequest;
 import com.drive.backend.drive_api.dto.response.JwtResponseDto;
 import com.drive.backend.drive_api.dto.response.SignupResponseDto;
 import com.drive.backend.drive_api.security.jwt.JwtTokenProvider;
@@ -33,7 +33,7 @@ public class AuthController {
 
     // 회원가입 API
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<SignupResponseDto>> signup(@Valid @RequestBody SignupRequestDto signupDto) {
+    public ResponseEntity<ApiResponse<SignupResponseDto>> signup(@Valid @RequestBody SignupRequest signupDto) {
         SignupResponseDto createdUser = authService.signup(signupDto);
         URI location = URI.create("/api/users/me");
 
@@ -44,7 +44,7 @@ public class AuthController {
 
     // 로그인 API
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<JwtResponseDto>> login(@Valid @RequestBody LoginRequestDto loginDto) {
+    public ResponseEntity<ApiResponse<JwtResponseDto>> login(@Valid @RequestBody LoginRequest loginDto) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword()));
 

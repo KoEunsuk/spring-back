@@ -1,6 +1,6 @@
 package com.drive.backend.drive_api.service;
 
-import com.drive.backend.drive_api.dto.request.PasswordChangeDto;
+import com.drive.backend.drive_api.dto.request.PasswordChangeRequest;
 import com.drive.backend.drive_api.dto.request.UserUpdateDto;
 import com.drive.backend.drive_api.dto.response.UserDetailDto;
 import com.drive.backend.drive_api.entity.Admin;
@@ -49,7 +49,7 @@ public class UserService {
     }
 
     @Transactional
-    public void changeMyPassword(PasswordChangeDto passwordDto) {
+    public void changeMyPassword(PasswordChangeRequest passwordDto) {
         User currentUser = getCurrentUserEntity();
 
         if (!passwordEncoder.matches(passwordDto.getCurrentPassword(), currentUser.getPassword())) {

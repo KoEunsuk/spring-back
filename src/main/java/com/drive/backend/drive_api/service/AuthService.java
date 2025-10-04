@@ -1,6 +1,6 @@
 package com.drive.backend.drive_api.service;
 
-import com.drive.backend.drive_api.dto.request.SignupRequestDto;
+import com.drive.backend.drive_api.dto.request.SignupRequest;
 import com.drive.backend.drive_api.dto.response.SignupResponseDto;
 import com.drive.backend.drive_api.entity.Admin;
 import com.drive.backend.drive_api.entity.Driver;
@@ -29,7 +29,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public SignupResponseDto signup(SignupRequestDto signupDto){
+    public SignupResponseDto signup(SignupRequest signupDto){
         if (userRepository.findByEmail(signupDto.getEmail()).isPresent()) {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }

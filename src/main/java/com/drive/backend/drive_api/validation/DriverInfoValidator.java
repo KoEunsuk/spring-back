@@ -1,15 +1,15 @@
 package com.drive.backend.drive_api.validation;
 
-import com.drive.backend.drive_api.dto.request.SignupRequestDto;
+import com.drive.backend.drive_api.dto.request.SignupRequest;
 import com.drive.backend.drive_api.enums.Role;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.util.StringUtils;
 
-public class DriverInfoValidator implements ConstraintValidator<ValidDriverInfo, SignupRequestDto> {
+public class DriverInfoValidator implements ConstraintValidator<ValidDriverInfo, SignupRequest> {
 
     @Override
-    public boolean isValid(SignupRequestDto dto, ConstraintValidatorContext context) {
+    public boolean isValid(SignupRequest dto, ConstraintValidatorContext context) {
         if (dto.getRole() != Role.DRIVER) {
             return true; // 역할이 DRIVER가 아니면 검사할 필요 없음
         }
