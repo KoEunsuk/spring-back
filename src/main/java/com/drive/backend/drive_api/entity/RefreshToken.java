@@ -35,4 +35,9 @@ public class RefreshToken {
         this.token = token;
         this.expiryDate = expiryDate;
     }
+
+    public void updateToken(String token, Instant expiryDate) {
+        this.token = token;
+        this.expiryDate = expiryDate;
+    }
 }

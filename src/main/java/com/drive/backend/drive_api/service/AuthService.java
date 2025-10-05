@@ -43,7 +43,7 @@ public class AuthService {
     // 두 토큰을 함께 반환하기 위한 레코드
     public record TokenInfo(String accessToken, String refreshToken) {}
 
-    public SignupResponse signup(SignupRequest signupDto){
+    public SignupResponse signup(SignupRequest signupDto) {
         if (userRepository.findByEmail(signupDto.getEmail()).isPresent()) {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }
@@ -109,19 +109,25 @@ public class AuthService {
         // 4. Refresh Token 저장
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Instant expiryDate = jwtTokenProvider.getExpiryDateFromToken(refreshTokenString);
+        User user = userDetails.getUserObject();
 
         String hashedRefreshTokenString = hashToken(refreshTokenString);
 
-        // 기존에 Refresh Token이 있었다면 삭제
-        refreshTokenRepository.deleteByUser_UserId(userDetails.getUserId());
-
-        // 새로 생성한 Refresh Token을 엔티티로 만들어 DB에 저장
-        RefreshToken refreshToken = new RefreshToken(
-                userDetails.getUserObject(),
-                hashedRefreshTokenString,
-                expiryDate
-        );
-        refreshTokenRepository.save(refreshToken);
+        // 1. 사용자 ID로 기존 Refresh Token을 조회합니다.
+        refreshTokenRepository.findByUser_UserId(user.getUserId())
+                .ifPresentOrElse(
+                        // 2. 기존 토큰이 있다면, 토큰 문자열과 만료 시간만 갱신(UPDATE)합니다.
+                        existingToken -> existingToken.updateToken(hashedRefreshTokenString, expiryDate),
+                        // 3. 기존 토큰이 없다면, 새로 생성(INSERT)합니다.
+                        () -> {
+                            RefreshToken newRefreshToken = new RefreshToken(
+                                    user,
+                                    hashedRefreshTokenString,
+                                    expiryDate
+                            );
+                            refreshTokenRepository.save(newRefreshToken);
+                        }
+                );
 
         return new TokenInfo(accessToken, refreshTokenString);
     }
@@ -134,12 +140,12 @@ public class AuthService {
 
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
-
         // 사용자 ID로 토큰을 찾아 삭제
         refreshTokenRepository.findByUser_UserId(userDetails.getUserId())
                 .ifPresent(refreshToken -> {
                     // (선택적 강화) 전달된 토큰과 DB 토큰이 일치하는지 최종 확인
-                    if (passwordEncoder.matches(refreshTokenString, refreshToken.getToken())) {
+                    String hashedTokenFromClient = hashToken(refreshTokenString);
+                    if (hashedTokenFromClient.equals(refreshToken.getToken())) {
                         refreshTokenRepository.delete(refreshToken);
                     }
                 });
