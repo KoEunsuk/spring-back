@@ -26,31 +26,27 @@ public class StompHandler implements ChannelInterceptor {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
         StompCommand command = accessor.getCommand();
 
-        // 1. JWT를 이용한 인증 처리 (모든 메시지에 대해)
-        Authentication authentication = authenticate(accessor);
+        // 1. JWT를 이용한 인증 처리 (CONNECT 명령어에 대해서만 수행)
+        if (StompCommand.CONNECT.equals(command)) {
+            Optional.ofNullable(accessor.getFirstNativeHeader("Authorization"))
+                    .filter(StringUtils::hasText)
+                    .filter(header -> header.startsWith("Bearer "))
+                    .map(header -> header.substring(7))
+                    .ifPresent(token -> {
+                        if (tokenProvider.validateToken(token)) {
+                            Authentication authentication = tokenProvider.getAuthentication(token);
+                            accessor.setUser(authentication); // 인증 정보를 세션에 저장
+                        }
+                    });
+        }
 
         // 2. 인가 처리 (SUBSCRIBE, SEND 명령어에 대해서만 수행)
-        if (command != null) {
-            if (StompCommand.SUBSCRIBE.equals(command) || StompCommand.SEND.equals(command)) {
-                // 인가 처리를 서비스에 위임
-                webSocketAuthService.authorize(authentication, accessor.getDestination());
-            }
+        if (StompCommand.SUBSCRIBE.equals(command) || StompCommand.SEND.equals(command)) {
+            Authentication authentication = (Authentication) accessor.getUser();
+            // 인가 처리를 서비스에 위임
+            webSocketAuthService.authorize(authentication, accessor.getDestination());
         }
 
         return message;
-    }
-
-    private Authentication authenticate(StompHeaderAccessor accessor) {
-        Optional<String> jwtOpt = Optional.ofNullable(accessor.getFirstNativeHeader("Authorization"))
-                .filter(StringUtils::hasText)
-                .filter(header -> header.startsWith("Bearer "))
-                .map(header -> header.substring(7));
-
-        if (jwtOpt.isPresent() && tokenProvider.validateJwtToken(jwtOpt.get())) {
-            Authentication authentication = tokenProvider.getAuthentication(jwtOpt.get());
-            accessor.setUser(authentication); // 메시지에 인증 정보 설정
-            return authentication;
-        }
-        return null;
     }
 }
