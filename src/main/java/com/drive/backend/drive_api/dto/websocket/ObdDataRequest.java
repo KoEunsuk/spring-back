@@ -9,6 +9,15 @@ public class ObdDataRequest {
     @NotNull
     private Long dispatchId;
 
-    // TODO
+    private boolean stalled;
+    private Long speed;
+    private Long soc;
+    private Long engineRpm;
+    private Long torque;
+    private Long brake;
+    private Long throttle;
+    private Long clutch;
+
+    // TODO - 자료형 및 valid적용
 
 }
