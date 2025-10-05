@@ -5,23 +5,24 @@ import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
-public class JwtResponse {
-    private final String token;
+public class LoginResponse {
+    private final String accessToken;
+    private final String refreshToken;  // 앱 클라이언트용. 웹은 헤더의 쿠키 이용
     private final Long userId;
-    private final String email;
     private final String username;
+    private final String email;
     private final List<String> roles;
 
-    public JwtResponse(String token, CustomUserDetails userDetails) {
-        this.token = token;
+    public LoginResponse(String accessToken, String refreshToken, CustomUserDetails userDetails) {
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
         this.userId = userDetails.getUserId();
-        this.email = userDetails.getEmail();
         this.username = userDetails.getRealUsername();
+        this.email = userDetails.getEmail();
         this.roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
+                .toList();
     }
 }
