@@ -8,19 +8,19 @@ public class ObdDataResponse {
     private final Long dispatchId;
 
     private final boolean stalled;
-    private final Long speed;
-    private final Long soc;
-    private final Long engineRpm;
-    private final Long torque;
-    private final Long brake;
-    private final Long throttle;
-    private final Long clutch;
+    private final Double speed;
+    private final Double soc;
+    private final Double engineRpm;
+    private final Double torque;
+    private final Double brake;
+    private final Double throttle;
+    private final Double clutch;
 
 
     // TODO - 자료형 점검
 
 
-    public ObdDataResponse(Long dispatchId, boolean stalled, Long speed, Long soc, Long engineRpm, Long torque, Long brake, Long throttle, Long clutch) {
+    public ObdDataResponse(Long dispatchId, boolean stalled, Double speed, Double soc, Double engineRpm, Double torque, Double brake, Double throttle, Double clutch) {
         this.dispatchId = dispatchId;
 
         this.stalled = stalled;
