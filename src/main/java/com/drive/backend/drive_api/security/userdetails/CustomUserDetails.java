@@ -15,6 +15,7 @@ import java.util.Objects;
 @Getter
 public class CustomUserDetails implements UserDetails {
 
+    private final User userObject;
     private final Long userId;
     private final String email;
     private final String realUsername;
@@ -29,6 +30,7 @@ public class CustomUserDetails implements UserDetails {
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
 
         return new CustomUserDetails(
+                user,
                 user.getUserId(),
                 user.getEmail(),
                 user.getUsername(),
@@ -38,9 +40,10 @@ public class CustomUserDetails implements UserDetails {
                 authorities);
     }
 
-    private CustomUserDetails(Long userId, String email, String realUsername, Long operatorId,
+    private CustomUserDetails(User userObject, Long userId, String email, String realUsername, Long operatorId,
                               Instant passwordChangedAt, String password,
                               Collection<? extends GrantedAuthority> authorities) {
+        this.userObject = userObject;
         this.userId = userId;
         this.email = email;
         this.realUsername = realUsername;

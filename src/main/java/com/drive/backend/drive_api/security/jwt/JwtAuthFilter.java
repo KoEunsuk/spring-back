@@ -34,7 +34,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             String jwt = parseJwt(request);
 
             // JWT 토큰이 존재하고 유효한지 검증
-            if (StringUtils.hasText(jwt) && jwtTokenProvider.validateJwtToken(jwt)) {
+            if (StringUtils.hasText(jwt) && jwtTokenProvider.validateToken(jwt)) {
                 // 1. Provider가 인증 객체 '생성' (내부적으로 UserDetails 조회 및 비밀번호 변경 검증까지 모두 처리)
                 Authentication authentication = jwtTokenProvider.getAuthentication(jwt);
 

@@ -65,6 +65,16 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 
+    // Refresh Token 재발급 실패 시 발생하는 예외를 처리합니다. (HTTP 401 Unauthorized)
+    @ExceptionHandler(TokenRefreshException.class)
+    public ResponseEntity<ApiResponse<Void>> handleTokenRefreshException(TokenRefreshException e) {
+        log.warn("토큰 재발급 실패: {}", e.getMessage());
+
+        ApiResponse<Void> response = ApiResponse.error(e.getMessage(), null);
+
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
+
     // 403 Forbidden - 권한 없음 예외 처리
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiResponse<Void>> handleAccessDeniedException(AccessDeniedException ex) {
