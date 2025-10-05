@@ -18,7 +18,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
+import java.util.Base64;
 
 
 @Service
@@ -106,7 +110,7 @@ public class AuthService {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Instant expiryDate = jwtTokenProvider.getExpiryDateFromToken(refreshTokenString);
 
-        String hashedRefreshTokenString = passwordEncoder.encode(refreshTokenString);
+        String hashedRefreshTokenString = hashToken(refreshTokenString);
 
         // 기존에 Refresh Token이 있었다면 삭제
         refreshTokenRepository.deleteByUser_UserId(userDetails.getUserId());
@@ -163,7 +167,7 @@ public class AuthService {
         }
 
         // 4. [중요] 전달받은 토큰과 DB의 토큰이 일치하는지 확인 (해시 비교)
-        if (!passwordEncoder.matches(refreshTokenString, refreshToken.getToken())) {
+        if (!hashToken(refreshTokenString).equals(refreshToken.getToken())) {
             throw new TokenRefreshException(refreshTokenString, "Refresh Token이 일치하지 않습니다.");
         }
 
@@ -172,5 +176,16 @@ public class AuthService {
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
         return jwtTokenProvider.generateAccessToken(authentication);
+    }
+
+    // SHA-256 해싱을 위한 헬퍼 메서드
+    private String hashToken(String token) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] encodedhash = digest.digest(token.getBytes(StandardCharsets.UTF_8));
+            return Base64.getEncoder().encodeToString(encodedhash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("해시 알고리즘을 찾을 수 없습니다.", e);
+        }
     }
 }
