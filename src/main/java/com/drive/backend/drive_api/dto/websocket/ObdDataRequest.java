@@ -9,7 +9,7 @@ public class ObdDataRequest {
     @NotNull
     private Long dispatchId;
 
-    private boolean stalled;
+    private Boolean stalled;
     private Double speed;
     private Double soc;
     private Double engineRpm;

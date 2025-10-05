@@ -7,7 +7,7 @@ public class ObdDataResponse {
 
     private final Long dispatchId;
 
-    private final boolean stalled;
+    private final Boolean stalled;
     private final Double speed;
     private final Double soc;
     private final Double engineRpm;
@@ -20,7 +20,7 @@ public class ObdDataResponse {
     // TODO - 자료형 점검
 
 
-    public ObdDataResponse(Long dispatchId, boolean stalled, Double speed, Double soc, Double engineRpm, Double torque, Double brake, Double throttle, Double clutch) {
+    public ObdDataResponse(Long dispatchId, Boolean stalled, Double speed, Double soc, Double engineRpm, Double torque, Double brake, Double throttle, Double clutch) {
         this.dispatchId = dispatchId;
 
         this.stalled = stalled;
@@ -38,7 +38,7 @@ public class ObdDataResponse {
         return new ObdDataResponse(
                 request.getDispatchId(),
 
-                request.isStalled(),
+                request.getStalled(),
                 request.getSpeed(),
                 request.getSoc(),
                 request.getEngineRpm(),
