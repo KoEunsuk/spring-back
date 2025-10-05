@@ -23,7 +23,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         // 1. 메시지 구독 요청의 prefix 설정 -> 메시지 브로커가 처리
         //      클라이언트가 "/topic/..."(1:N)이나 "/queue/..."(1:1) 경로로 구독 신청
-        registry.enableSimpleBroker("/topic", "/queue");
+        registry.enableSimpleBroker("/topic", "/queue");    // TODO : subscriptionController 거치도록 수정?
 
         // 2. 메시지 발행(송신) 요청의 prefix 설정 -> 컨트롤러가 처리
         //      클라이언트가 "/app/..." 경로로 메시지를 보내면 서버의 @MessageMapping 메서드로 라우팅
