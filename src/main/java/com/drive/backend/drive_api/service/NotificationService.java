@@ -82,6 +82,15 @@ public class NotificationService {
                 .collect(Collectors.toList());
     }
 
+    // 특정 사용자의 안읽은 알림 목록을 조회하는 메서드
+    @Transactional(readOnly = true)
+    public List<NotificationResponse> getUnreadNotificationsForUser(Long userId) {
+        List<Notification> notifications = notificationRepository.findByRecipientUserIdAndIsReadFalseOrderByCreatedAtDesc(userId);
+        return notifications.stream()
+                .map(NotificationResponse::from)
+                .collect(Collectors.toList());
+    }
+
     // 특정 알림을 '읽음'으로 처리하는 메서드
     @Transactional
     public void markNotificationAsRead(Long userId, Long notificationId) {

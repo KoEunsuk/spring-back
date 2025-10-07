@@ -27,7 +27,13 @@ public class NotificationController {
         return ResponseEntity.ok(ApiResponse.success("알림 목록 조회 성공", notifications));
     }
 
-
+    // 현재 로그인한 사용자의 안읽은 알림 목록 조회
+    @GetMapping("/me/unread")
+    public ResponseEntity<ApiResponse<List<NotificationResponse>>> getMyUnreadNotifications() {
+        List<NotificationResponse> notifications = notificationService.getNotificationsForUser(getAuthenticatedUser().getUserId());
+        return ResponseEntity.ok(ApiResponse.success("안 읽은 알림 목록 조회 성공", notifications));
+    }
+    
     // 특정 알림을 '읽음'으로 처리
     @PatchMapping("/{notificationId}/read")
     public ResponseEntity<ApiResponse<Void>> markAsRead(@PathVariable Long notificationId) {
