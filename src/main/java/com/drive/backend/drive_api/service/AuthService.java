@@ -134,12 +134,21 @@ public class AuthService {
 
     // 로그아웃
     public void logout(String refreshTokenString, Authentication authentication) {
-        if (authentication == null) return;
+        if (refreshTokenString == null || refreshTokenString.isEmpty()) {
+            return;
+        }
 
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
         // 사용자 ID로 토큰을 찾아 삭제
-        refreshTokenRepository.deleteByUser_UserId(userDetails.getUserId());
+        refreshTokenRepository.findByUser_UserId(userDetails.getUserId())
+                .ifPresent(refreshToken -> {
+                    // (선택적 강화) 전달된 토큰과 DB 토큰이 일치하는지 최종 확인
+                    String hashedTokenFromClient = hashToken(refreshTokenString);
+                    if (hashedTokenFromClient.equals(refreshToken.getToken())) {
+                        refreshTokenRepository.delete(refreshToken);
+                    }
+                });
     }
 
     // RefreshToken을 이용한 AccessToken 재발급
