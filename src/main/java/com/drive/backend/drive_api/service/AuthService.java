@@ -133,12 +133,10 @@ public class AuthService {
     }
 
     // 로그아웃
-    public void logout(String refreshTokenString, Authentication authentication) {
+    public void logout(String refreshTokenString, CustomUserDetails userDetails) {
         if (refreshTokenString == null || refreshTokenString.isEmpty()) {
             return;
         }
-
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
         // 사용자 ID로 토큰을 찾아 삭제
         refreshTokenRepository.findByUser_UserId(userDetails.getUserId())

@@ -15,6 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -72,9 +73,9 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Void>> logout(
             @CookieValue(name = "refresh_token", required = false) String refreshToken,
-            Authentication authentication) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         // 1. 서비스 로직을 호출하여 서버 측 토큰을 무효화합니다.
-        authService.logout(refreshToken, authentication);
+        authService.logout(refreshToken, userDetails);
 
         // 2. 클라이언트 측의 쿠키를 삭제하기 위한 빈 쿠키를 생성합니다.
         ResponseCookie emptyCookie = ResponseCookie.from("refresh_token", "")
