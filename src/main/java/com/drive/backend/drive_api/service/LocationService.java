@@ -1,7 +1,7 @@
 package com.drive.backend.drive_api.service;
 
-import com.drive.backend.drive_api.dto.websocket.LocationUpdateResponse;
 import com.drive.backend.drive_api.dto.websocket.LocationUpdateRequest;
+import com.drive.backend.drive_api.dto.websocket.LocationUpdateResponse;
 import com.drive.backend.drive_api.entity.Dispatch;
 import com.drive.backend.drive_api.entity.LocationHistory;
 import com.drive.backend.drive_api.exception.ResourceNotFoundException;
