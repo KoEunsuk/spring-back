@@ -128,7 +128,7 @@ public class DrivingEventService {
                     dispatch.getDriver().getUsername(),
                     eventRequest.getEventType()
             );
-            String url = "/dispatches/" + dispatch.getDispatchId(); // todo
+            String url = "/dispatches/" + dispatch.getDispatchId(); // TODO : URL 변경?
 
             List<Admin> admins = adminRepository.findAllByOperator_OperatorId(
                     dispatch.getBus().getOperator().getOperatorId()

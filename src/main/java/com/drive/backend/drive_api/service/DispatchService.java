@@ -287,7 +287,7 @@ public class DispatchService {
     private void sendNotificationToDriver(Dispatch dispatch, NotificationType type) {
         Driver driver = dispatch.getDriver();
         String message = createMessageForDriver(dispatch, type);
-        String url = "/dispatches/" + dispatch.getDispatchId(); // TODO
+        String url = "/dispatches/" + dispatch.getDispatchId(); // TODO : URL 변경?
 
         notificationService.createAndSendNotification(driver, dispatch, message, type, url);
     }
@@ -297,7 +297,7 @@ public class DispatchService {
         Long operatorId = dispatch.getBus().getOperator().getOperatorId();
         List<Admin> admins = adminRepository.findAllByOperator_OperatorId(operatorId);
         String message = createMessageForAdmins(dispatch, type);
-        String url = "/dispatches/" + dispatch.getDispatchId(); // TODO
+        String url = "/dispatches/" + dispatch.getDispatchId(); // TODO : URL 변경?
 
         for (Admin admin : admins) {
             notificationService.createAndSendNotification(admin, dispatch, message, type, url);
