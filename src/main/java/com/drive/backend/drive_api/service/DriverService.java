@@ -2,12 +2,15 @@ package com.drive.backend.drive_api.service;
 
 import com.drive.backend.drive_api.dto.request.DriverAdminUpdateRequest;
 import com.drive.backend.drive_api.dto.response.DriverDetailResponse;
+import com.drive.backend.drive_api.dto.response.DrivingEventResponse;
 import com.drive.backend.drive_api.entity.Driver;
+import com.drive.backend.drive_api.entity.DrivingEvent;
 import com.drive.backend.drive_api.entity.Operator;
 import com.drive.backend.drive_api.exception.BusinessException;
 import com.drive.backend.drive_api.exception.ErrorCode;
 import com.drive.backend.drive_api.exception.ResourceNotFoundException;
 import com.drive.backend.drive_api.repository.DriverRepository;
+import com.drive.backend.drive_api.repository.DrivingEventRepository;
 import com.drive.backend.drive_api.security.SecurityUtil;
 import com.drive.backend.drive_api.security.userdetails.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +18,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,6 +29,7 @@ import java.util.stream.Collectors;
 public class DriverService {
 
     private final DriverRepository driverRepository;
+    private final DrivingEventRepository drivingEventRepository;
 
     // 전체 운전자 목록 조회
     public List<DriverDetailResponse> findAllDrivers() {
@@ -65,6 +71,24 @@ public class DriverService {
         }
 
         driverRepository.delete(driverToDelete);
+    }
+
+    // 특정 운전자 운행 이벤트 목록 조회 (특정 기간)
+    public List<DrivingEventResponse> getDrivingEventsForDriver(Long driverId, LocalDate startDate, LocalDate endDate) {
+        findDriverAndCheckPermission(driverId);
+
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
+
+        // 3. 리포지토리 호출하여 데이터 조회
+        List<DrivingEvent> events = drivingEventRepository
+                .findAllByDrivingRecord_Dispatch_Driver_UserIdAndEventTimestampBetweenOrderByEventTimestampDesc(
+                        driverId, startDateTime, endDateTime);
+
+        // 4. DTO로 변환 후 반환
+        return events.stream()
+                .map(DrivingEventResponse::from)
+                .collect(Collectors.toList());
     }
 
     // 동일 회사 소속인지 검사하기 위한 헬퍼 메서드
