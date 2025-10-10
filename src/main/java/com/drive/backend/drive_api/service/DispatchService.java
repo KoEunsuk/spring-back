@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Comparator;
@@ -139,7 +140,7 @@ public class DispatchService {
             CustomUserDetails currentUser, LocalDate startDate, LocalDate endDate) {
 
         LocalDateTime startDateTime = startDate.atStartOfDay();
-        LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
 
         List<Dispatch> dispatches = dispatchRepository.findAllByDriverUserIdAndScheduledDepartureTimeBetweenOrderByScheduledDepartureTimeAsc(
                 currentUser.getUserId(), startDateTime, endDateTime);

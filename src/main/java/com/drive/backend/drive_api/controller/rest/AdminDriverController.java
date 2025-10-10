@@ -2,6 +2,7 @@ package com.drive.backend.drive_api.controller.rest;
 
 import com.drive.backend.drive_api.common.ApiResponse;
 import com.drive.backend.drive_api.dto.request.DriverAdminUpdateRequest;
+import com.drive.backend.drive_api.dto.response.DispatchDetailResponse;
 import com.drive.backend.drive_api.dto.response.DriverDetailResponse;
 import com.drive.backend.drive_api.dto.response.DrivingEventResponse;
 import com.drive.backend.drive_api.service.DriverService;
@@ -53,7 +54,7 @@ public class AdminDriverController {
         return ResponseEntity.ok(ApiResponse.success("운전자 상세 정보 조회 성공", driver));
     }
     
-    // 특정 운전자 운행 이벤트 목록 조회 (특정 기간)
+    // 특정 운전자 운행 이벤트 목록 조회 (특정 기간 최신순)
     @GetMapping("/{driverId}/events")
     public ResponseEntity<ApiResponse<List<DrivingEventResponse>>> getDriverEvents(
             @PathVariable Long driverId,
@@ -65,4 +66,14 @@ public class AdminDriverController {
         return ResponseEntity.ok(ApiResponse.success("운전자의 운행 이벤트 목록 조회가 완료되었습니다.", events));
     }
 
+    // 특정 운전자 배차 목록 조회 (특정 기간 최신순)
+    @GetMapping("/{driverId}/dispatches")
+    public ResponseEntity<ApiResponse<List<DispatchDetailResponse>>> getDriverDispatches(
+            @PathVariable Long driverId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+    ) {
+        List<DispatchDetailResponse> dispatches = driverService.getDispatchesForDriver(driverId, startDate, endDate);
+        return ResponseEntity.ok(ApiResponse.success("운전자의 배차 목록 조회가 완료되었습니다.", dispatches));
+    }
 }

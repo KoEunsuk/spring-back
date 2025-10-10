@@ -1,14 +1,17 @@
 package com.drive.backend.drive_api.service;
 
 import com.drive.backend.drive_api.dto.request.DriverAdminUpdateRequest;
+import com.drive.backend.drive_api.dto.response.DispatchDetailResponse;
 import com.drive.backend.drive_api.dto.response.DriverDetailResponse;
 import com.drive.backend.drive_api.dto.response.DrivingEventResponse;
+import com.drive.backend.drive_api.entity.Dispatch;
 import com.drive.backend.drive_api.entity.Driver;
 import com.drive.backend.drive_api.entity.DrivingEvent;
 import com.drive.backend.drive_api.entity.Operator;
 import com.drive.backend.drive_api.exception.BusinessException;
 import com.drive.backend.drive_api.exception.ErrorCode;
 import com.drive.backend.drive_api.exception.ResourceNotFoundException;
+import com.drive.backend.drive_api.repository.DispatchRepository;
 import com.drive.backend.drive_api.repository.DriverRepository;
 import com.drive.backend.drive_api.repository.DrivingEventRepository;
 import com.drive.backend.drive_api.security.SecurityUtil;
@@ -20,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,6 +34,7 @@ public class DriverService {
 
     private final DriverRepository driverRepository;
     private final DrivingEventRepository drivingEventRepository;
+    private final DispatchRepository dispatchRepository;
 
     // 전체 운전자 목록 조회
     public List<DriverDetailResponse> findAllDrivers() {
@@ -73,12 +78,12 @@ public class DriverService {
         driverRepository.delete(driverToDelete);
     }
 
-    // 특정 운전자 운행 이벤트 목록 조회 (특정 기간)
+    // 특정 운전자 운행 이벤트 목록 조회 (특정 기간 최신순)
     public List<DrivingEventResponse> getDrivingEventsForDriver(Long driverId, LocalDate startDate, LocalDate endDate) {
         findDriverAndCheckPermission(driverId);
 
         LocalDateTime startDateTime = startDate.atStartOfDay();
-        LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
 
         // 3. 리포지토리 호출하여 데이터 조회
         List<DrivingEvent> events = drivingEventRepository
@@ -88,6 +93,22 @@ public class DriverService {
         // 4. DTO로 변환 후 반환
         return events.stream()
                 .map(DrivingEventResponse::from)
+                .collect(Collectors.toList());
+    }
+    
+    // 특정 운전자 배차 목록 조회 (특정 기간 최신순)
+    public List<DispatchDetailResponse> getDispatchesForDriver(Long driverId, LocalDate startDate, LocalDate endDate) {
+        findDriverAndCheckPermission(driverId);
+
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
+
+        List<Dispatch> dispatches = dispatchRepository
+                .findAllByDriverUserIdAndScheduledDepartureTimeBetweenOrderByScheduledDepartureTimeAsc(
+                        driverId, startDateTime, endDateTime);
+
+        return dispatches.stream()
+                .map(DispatchDetailResponse::from)
                 .collect(Collectors.toList());
     }
 
