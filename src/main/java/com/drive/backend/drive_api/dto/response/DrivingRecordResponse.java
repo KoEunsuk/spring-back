@@ -9,15 +9,19 @@ public class DrivingRecordResponse {
     private final Integer drowsinessCount;
     private final Integer accelerationCount;
     private final Integer brakingCount;
-    private final Integer abnormalCount;
+    private final Integer smokingCount;
+    private final Integer seatbeltUnfastenedCount;
+    private final Integer phoneUsageCount;
     private final Integer drivingScore;
 
-    private DrivingRecordResponse(Long dispatchId, Integer drowsinessCount, Integer accelerationCount, Integer brakingCount, Integer abnormalCount, Integer drivingScore) {
+    private DrivingRecordResponse(Long dispatchId, Integer drowsinessCount, Integer accelerationCount, Integer brakingCount, Integer smokingCount, Integer seatbeltUnfastenedCount, Integer phoneUsageCount, Integer drivingScore) {
         this.dispatchId = dispatchId;
         this.drowsinessCount = drowsinessCount;
         this.accelerationCount = accelerationCount;
         this.brakingCount = brakingCount;
-        this.abnormalCount = abnormalCount;
+        this.smokingCount = smokingCount;
+        this.seatbeltUnfastenedCount = seatbeltUnfastenedCount;
+        this.phoneUsageCount = phoneUsageCount;
         this.drivingScore = drivingScore;
     }
 
@@ -27,7 +31,9 @@ public class DrivingRecordResponse {
                 record.getDrowsinessCount(),
                 record.getAccelerationCount(),
                 record.getBrakingCount(),
-                record.getAbnormalCount(),
+                record.getSmokingCount(),
+                record.getSeatbeltUnfastenedCount(),
+                record.getPhoneUsageCount(),
                 record.getDrivingScore()
         );
     }

@@ -39,7 +39,13 @@ public class Driver extends User {
     private BigDecimal avgBrakingCount = BigDecimal.ZERO;
 
     @Column(nullable = false, precision = 5, scale = 2)
-    private BigDecimal avgAbnormalCount = BigDecimal.ZERO;
+    private BigDecimal avgSmokingCount = BigDecimal.ZERO;
+
+    @Column(nullable = false, precision = 5, scale = 2)
+    private BigDecimal avgSeatbeltUnfastenedCount = BigDecimal.ZERO;
+
+    @Column(nullable = false, precision = 5, scale = 2)
+    private BigDecimal avgPhoneUsageCount = BigDecimal.ZERO;
 
     @Column(nullable = false, precision = 5, scale = 2)
     private BigDecimal avgDrivingScore = new BigDecimal("100.00");

@@ -49,7 +49,9 @@ public class UserDetailResponse {
             payload.put("avgDrowsinessCount", driver.getAvgDrowsinessCount());
             payload.put("avgAccelerationCount", driver.getAvgAccelerationCount());
             payload.put("avgBrakingCount", driver.getAvgBrakingCount());
-            payload.put("avgAbnormalCount", driver.getAvgAbnormalCount());
+            payload.put("avgSmokingCount", driver.getAvgSmokingCount());
+            payload.put("avgSeatbeltUnfastenedCount", driver.getAvgSeatbeltUnfastenedCount());
+            payload.put("avgPhoneUsageCount", driver.getAvgPhoneUsageCount());
             payload.put("avgDrivingScore", driver.getAvgDrivingScore());
         } else if (user instanceof Admin) {
             // Admin은 별도 payload 없음 → 빈 Map 유지

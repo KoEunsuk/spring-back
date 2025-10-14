@@ -42,7 +42,13 @@ public class DrivingRecord {
     private Integer brakingCount = 0;
 
     @Column(nullable = false)
-    private Integer abnormalCount = 0;
+    private Integer smokingCount = 0;
+
+    @Column(nullable = false)
+    private Integer seatbeltUnfastenedCount = 0;
+
+    @Column(nullable = false)
+    private Integer phoneUsageCount = 0;
 
     @Column(nullable = false)
     private Integer drivingScore = 100;

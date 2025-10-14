@@ -91,7 +91,8 @@ public class DrivingEventService {
     }
 
     // DrivingRecord 카운터 갱신 (낙관적 락 충돌 시 최대 2회 재시도)
-    private void updateRecordWithRetry(DrivingRecord record, DrivingEventRequest eventRequest) { // TODO: 가중치 설정
+    private void updateRecordWithRetry(DrivingRecord record, DrivingEventRequest eventRequest) {
+        // TODO: 점수 차등 가중치 설정
         int retryCount = 0;
         boolean success = false;
 
@@ -101,7 +102,9 @@ public class DrivingEventService {
                     case DROWSINESS -> record.setDrowsinessCount(record.getDrowsinessCount() + 1);
                     case ACCELERATION -> record.setAccelerationCount(record.getAccelerationCount() + 1);
                     case BRAKING -> record.setBrakingCount(record.getBrakingCount() + 1);
-                    case ABNORMAL -> record.setAbnormalCount(record.getAbnormalCount() + 1);
+                    case SMOKING -> record.setSmokingCount(record.getSmokingCount() + 1);
+                    case SEATBELT_UNFASTENED -> record.setSeatbeltUnfastenedCount(record.getSeatbeltUnfastenedCount() + 1);
+                    case PHONE_USAGE -> record.setPhoneUsageCount(record.getPhoneUsageCount() + 1);
                 }
                 record.setDrivingScore(Math.max(0, record.getDrivingScore() - 10));
                 success = true;

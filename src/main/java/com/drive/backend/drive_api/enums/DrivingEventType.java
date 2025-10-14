@@ -4,5 +4,7 @@ public enum DrivingEventType {
     DROWSINESS,
     ACCELERATION,
     BRAKING,
-    ABNORMAL
+    SMOKING,
+    SEATBELT_UNFASTENED,
+    PHONE_USAGE
 }
