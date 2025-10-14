@@ -53,7 +53,7 @@ public class NotificationResponse {
                 payload.put("latitude", notification.getLatitude());
                 payload.put("longitude", notification.getLongitude());
             }
-            case NEW_DISPATCH_ASSIGNED -> {
+            case NEW_DISPATCH_ASSIGNED, DISPATCH_STARTED, DISPATCH_CANCELED, DISPATCH_ENDED -> {
                 Dispatch dispatch = notification.getDispatch();
                 if (dispatch != null) {
                     payload.put("dispatchId", dispatch.getDispatchId());
