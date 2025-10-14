@@ -176,6 +176,8 @@ public class DispatchService {
 
         dispatch.setStatus(DispatchStatus.COMPLETED);
         dispatch.setActualArrivalTime(LocalDateTime.now());
+        
+        // TODO : 평균 점수 계산
 
         sendNotificationToAdmins(dispatch, NotificationType.DISPATCH_ENDED);
 
