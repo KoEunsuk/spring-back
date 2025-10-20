@@ -106,7 +106,7 @@ public class DrivingEventService {
                     case SEATBELT_UNFASTENED -> record.setSeatbeltUnfastenedCount(record.getSeatbeltUnfastenedCount() + 1);
                     case PHONE_USAGE -> record.setPhoneUsageCount(record.getPhoneUsageCount() + 1);
                 }
-                record.setDrivingScore(Math.max(0, record.getDrivingScore() - 10));
+                record.setDrivingScore(Math.max(0, record.getDrivingScore() - 5));
                 success = true;
             } catch (OptimisticLockingFailureException e) {
                 retryCount++;
