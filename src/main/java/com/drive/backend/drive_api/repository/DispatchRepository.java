@@ -1,6 +1,7 @@
 package com.drive.backend.drive_api.repository;
 
 import com.drive.backend.drive_api.entity.Dispatch;
+import com.drive.backend.drive_api.entity.Driver;
 import com.drive.backend.drive_api.enums.DispatchStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -38,5 +39,8 @@ public interface DispatchRepository extends JpaRepository<Dispatch, Long> {
     // 관리자용 - 날짜 범위 + 상태로 조회
     List<Dispatch> findAllByBus_Operator_OperatorIdAndDispatchDateBetweenAndStatusInOrderByScheduledDepartureTimeAsc(
             Long operatorId, LocalDate startDate, LocalDate endDate, List<DispatchStatus> statuses);
+
+    // 특정 운전자 운행횟수 조회
+    long countByDriverAndStatus(Driver driver, DispatchStatus status);
 
 }

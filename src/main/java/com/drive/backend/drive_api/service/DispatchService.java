@@ -19,6 +19,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -174,10 +176,30 @@ public class DispatchService {
             throw new BusinessException(ErrorCode.DISPATCH_NOT_IN_RUNNING_STATE);
         }
 
+        DrivingRecord record = dispatch.getDrivingRecord();
+        Driver driver = dispatch.getDriver();
+
+        // 평균 점수 계산
+        long completedCount = 0;
+
+        if (record != null) {
+            completedCount = dispatchRepository.countByDriverAndStatus(driver, DispatchStatus.COMPLETED);
+        }
+
         dispatch.setStatus(DispatchStatus.COMPLETED);
         dispatch.setActualArrivalTime(LocalDateTime.now());
-        
-        // TODO : 평균 점수 계산
+
+        if (record != null) {
+            driver.setAvgDrowsinessCount(updateAverage(driver.getAvgDrowsinessCount(), record.getDrowsinessCount(), completedCount));
+            driver.setAvgAccelerationCount(updateAverage(driver.getAvgAccelerationCount(), record.getAccelerationCount(), completedCount));
+            driver.setAvgBrakingCount(updateAverage(driver.getAvgBrakingCount(), record.getBrakingCount(), completedCount));
+            driver.setAvgSmokingCount(updateAverage(driver.getAvgSmokingCount(), record.getSmokingCount(), completedCount));
+            driver.setAvgSeatbeltUnfastenedCount(updateAverage(driver.getAvgSeatbeltUnfastenedCount(), record.getSeatbeltUnfastenedCount(), completedCount));
+            driver.setAvgPhoneUsageCount(updateAverage(driver.getAvgPhoneUsageCount(), record.getPhoneUsageCount(), completedCount));
+            driver.setAvgDrivingScore(updateAverage(driver.getAvgDrivingScore(), record.getDrivingScore(), completedCount));
+
+            driverRepository.save(driver);
+        }
 
         sendNotificationToAdmins(dispatch, NotificationType.DISPATCH_ENDED);
 
@@ -348,6 +370,18 @@ public class DispatchService {
                 dispatch.getBus().getVehicleNumber(),
                 timeString
         );
+    }
+
+    // 운전자 평균 점수 계산 메서드
+    private BigDecimal updateAverage(BigDecimal currentAvg, Number newValue, long completedCount) {
+        if (completedCount <= 0) {
+            return BigDecimal.valueOf(newValue.doubleValue());
+        }
+
+        BigDecimal total = currentAvg.multiply(BigDecimal.valueOf(completedCount))
+                .add(BigDecimal.valueOf(newValue.doubleValue()));
+
+        return total.divide(BigDecimal.valueOf(completedCount + 1), 2, RoundingMode.HALF_UP);
     }
 
 }
